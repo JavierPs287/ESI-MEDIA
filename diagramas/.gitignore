@@ -1,2 +1,14 @@
 # Visual Paradigm
+*.bak
 *.bak_*
+*.tmp
+*.lock
+*.lck
+.bak*
+*.vpp~*
+*.vpppath~*
+*.vpproject~*
+*.vpp.bak*
+*.vpppath.bak*
+*.vpproject.bak*
+.vpbackup/
