@@ -12,7 +12,7 @@
 	<artifactId>be-esimedia</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>be-esimedia</name>
-	<description>Demo project for Spring Boot</description>
+	<description>ESI Media Backend</description>
 	<url/>
 	<licenses>
 		<license/>
