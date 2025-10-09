@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "SQCalidad202526",
+        "projectKey": "2025-g04-frontend"
+    }
+}
