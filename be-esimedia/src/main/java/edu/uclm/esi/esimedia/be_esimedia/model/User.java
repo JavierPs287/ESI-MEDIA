@@ -1,11 +1,14 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "USUARIOS")
 public class User {
     private String nombre;
-    private String apellido;
+    private String apellidos;
     private String email;
     private String contrasena;
-    private String foto;
+    private int foto = 0;
     
     // Getters and Setters
     public String getNombre() {
@@ -15,11 +18,11 @@ public class User {
         this.nombre = nombre;
     }
 
-    public String getApellido() {
-        return apellido;
+    public String getApellidos() {
+        return apellidos;
     }
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
     public String getEmail() {
@@ -36,10 +39,10 @@ public class User {
         this.contrasena = contrasena;
     }
 
-    public String getFoto() {
+    public int getFoto() {
         return foto;
     }
-    public void setFoto(String foto) {
+    public void setFoto(int foto) {
         this.foto = foto;
     }
 }
