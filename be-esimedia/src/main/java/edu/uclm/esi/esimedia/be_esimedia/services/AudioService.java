@@ -2,6 +2,11 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,7 +66,15 @@ public class AudioService {
 
     private String saveFile(MultipartFile file, String fileName) {
         try{
+            Path uploadPath = Path.of(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
 
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return filePath.toString();
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar el archivo: " + e.getMessage(), e);
         }
