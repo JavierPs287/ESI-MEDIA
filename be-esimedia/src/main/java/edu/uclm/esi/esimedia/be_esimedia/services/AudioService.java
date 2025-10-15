@@ -18,7 +18,7 @@ import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 public class AudioService {
 
     // TODO Pasar a archivo de configuración
-    private static final String UPLOAD_DIR = "uploads/audio/";
+    private static final String UPLOAD_DIR = "src/main/resources/audios/";
     private static final long MAX_FILE_SIZE = 1024 * 1024; // 1 MB
     private static final String[] ALLOWED_FORMATS = {"mp3", "wav", "ogg", "m4a"};
 
@@ -32,7 +32,7 @@ public class AudioService {
         this.audioRepository = audioRepository;
     }
 
-    public String uploadAudio(AudioDTO audioDTO) {
+    public String uploadAudio(AudioDTO audioDTO) throws IOException {
         MultipartFile file = audioDTO.getFile();
 
         // TODO Validaciones
@@ -64,7 +64,7 @@ public class AudioService {
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
-    private String saveFile(MultipartFile file, String fileName) {
+    private static String saveFile(MultipartFile file, String fileName) throws IOException {
         try{
             Path uploadPath = Path.of(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
@@ -76,7 +76,7 @@ public class AudioService {
 
             return filePath.toString();
         } catch (IOException e) {
-            throw new RuntimeException("Error al guardar el archivo: " + e.getMessage(), e);
+            throw new IOException("Error al guardar el archivo: " + e.getMessage(), e);
         }
     }
 

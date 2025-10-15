@@ -26,7 +26,6 @@ public abstract class Contenido {
 
     // Método protegido para inicialización segura desde constructor
     protected final void initializeFromDTO(ContenidoDTO dto) {
-        // "final" evita que sea sobrescrito
         this.setTitle(dto.getTitle());
         this.setDescription(dto.getDescription());
         this.setTags(dto.getTags());
@@ -67,11 +66,11 @@ public abstract class Contenido {
     }
 
     public String[] getTags() {
-        return tags;
+        return tags.clone();
     }
 
     public void setTags(String[] tags) {
-        this.tags = tags;
+        this.tags = tags.clone();
     }
 
     public double getDuration() {
@@ -99,19 +98,19 @@ public abstract class Contenido {
     }
 
     public Date getVisibilityChangeDate() {
-        return visibilityChangeDate;
+        return (Date) visibilityChangeDate.clone();
     }
 
     public void setVisibilityChangeDate(Date visibilityChangeDate) {
-        this.visibilityChangeDate = visibilityChangeDate;
+        this.visibilityChangeDate = (Date) visibilityChangeDate.clone();
     }
 
     public Date getVisibilityDeadline() {
-        return visibilityDeadline;
+        return (Date) visibilityDeadline.clone();
     }
 
     public void setVisibilityDeadline(Date visibilityDeadline) {
-        this.visibilityDeadline = visibilityDeadline;
+        this.visibilityDeadline = (Date) visibilityDeadline.clone();
     }
 
     public int getMinAge() {

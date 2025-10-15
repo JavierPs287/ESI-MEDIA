@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequestMapping("user")
 @CrossOrigin("*")
 public class UserController {
-    @PostMapping("/register")
+    // @PostMapping("/register")
 }

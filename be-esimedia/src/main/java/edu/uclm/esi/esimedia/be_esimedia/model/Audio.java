@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 
-@Document(collection = "audios")
+@Document(collection = "AUDIOS")
 public class Audio extends Contenido {
     
     private double size; // En KB (máximo 1 MB)

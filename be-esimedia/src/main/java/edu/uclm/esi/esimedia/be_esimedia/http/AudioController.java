@@ -1,5 +1,10 @@
 package edu.uclm.esi.esimedia.be_esimedia.http;
 
+import java.io.IOException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.web.multipart.MultipartException;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +36,7 @@ public class AudioController {
             return ResponseEntity.ok().body("{\"message\":\"Audio subido exitosamente\",\"audioId\":\"" + audioId + "\"}");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("{\"error\":\"" + e.getMessage() + "\"}");
-        } catch (Exception e) {
+        } catch (IOException | DataAccessException | MultipartException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\":\"Error interno del servidor\"}");
         }
     }
