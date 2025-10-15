@@ -11,7 +11,7 @@ public abstract class ContenidoDTO {
     private boolean vip;
     private boolean visible;
     private Date visibilityChangeDate;
-    private Date visibilityDeadlineDate;
+    private Date visibilityDeadline;
     private int minAge;
     private int imageId;
     private String creador;
@@ -73,12 +73,12 @@ public abstract class ContenidoDTO {
         this.visibilityChangeDate = visibilityChangeDate;
     }
 
-    public Date getVisibilityDeadlineDate() {
-        return visibilityDeadlineDate;
+    public Date getVisibilityDeadline() {
+        return visibilityDeadline;
     }
 
-    public void setVisibilityDeadlineDate(Date visibilityDeadlineDate) {
-        this.visibilityDeadlineDate = visibilityDeadlineDate;
+    public void setVisibilityDeadline(Date visibilityDeadline) {
+        this.visibilityDeadline = visibilityDeadline;
     }
 
     public int getMinAge() {
