@@ -34,11 +34,11 @@ public abstract class ContenidoDTO {
     }
 
     public String[] getTags() {
-        return tags;
+        return tags.clone();
     }
 
     public void setTags(String[] tags) {
-        this.tags = tags;
+        this.tags = tags.clone();
     }
 
     public double getDuration() {
@@ -66,19 +66,19 @@ public abstract class ContenidoDTO {
     }
 
     public Date getVisibilityChangeDate() {
-        return visibilityChangeDate;
+        return (Date) visibilityChangeDate.clone();
     }
 
     public void setVisibilityChangeDate(Date visibilityChangeDate) {
-        this.visibilityChangeDate = visibilityChangeDate;
+        this.visibilityChangeDate = (Date) visibilityChangeDate.clone();
     }
 
     public Date getVisibilityDeadline() {
-        return visibilityDeadline;
+        return (Date) visibilityDeadline.clone();
     }
 
     public void setVisibilityDeadline(Date visibilityDeadline) {
-        this.visibilityDeadline = visibilityDeadline;
+        this.visibilityDeadline = (Date) visibilityDeadline.clone();
     }
 
     public int getMinAge() {

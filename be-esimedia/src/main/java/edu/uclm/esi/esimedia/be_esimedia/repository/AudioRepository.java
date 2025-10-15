@@ -11,7 +11,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 @Repository
 public interface AudioRepository extends MongoRepository<Audio, String>{
     List<Audio> findByCreador(String creador);
-    List<Audio> findyByFormat(String format);
+    List<Audio> findByFormat(String format);
     List<Audio> findByVisibleTrue();
     Optional<Audio> findByTitle(String title);
     List<Audio> findByDurationGreaterThan(double duration);
