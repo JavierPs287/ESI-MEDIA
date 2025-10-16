@@ -1,0 +1,60 @@
+<div class="register-container">
+  <h1>Join ESI-Media</h1>
+  <p>El mejor audio y video con la mejor calidad y contenido exclusivo.</p>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <label for="nombre">Nombre</label>
+    <input type="text" placeholder="Nombre" formControlName="nombre">
+    @if (registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched) {
+      @if (registerForm.get('nombre')?.hasError('required')) {
+        <span class="error">Nombre es un campo obligatorio</span>
+      }
+    }
+
+    <label for="apellido">Apellido</label>
+    <input type="text" placeholder="Apellido" formControlName="apellido">
+    @if (registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched) {
+      @if (registerForm.get('apellido')?.hasError('required')) {
+        <span class="error">Apellido es un campo obligatorio</span>
+      }
+    }
+
+    <label for="email">Correo electrónico</label>
+    <input type="email" placeholder="Dirección de correo" formControlName="email">
+    @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+      @if (registerForm.get('email')?.hasError('required')) {
+        <span class="error">Correo electrónico es un campo obligatorio</span>
+      }
+      @if (registerForm.get('email')?.hasError('email')) {
+        <span class="error">El formato no es válido</span>
+      }
+    }
+
+    <label for="alias">Alias</label>
+    <input type="text" placeholder="Alias" formControlName="alias">
+    @if (registerForm.get('alias')?.invalid && registerForm.get('alias')?.touched) {
+
+      @if (registerForm.get('alias')?.hasError('minlength') || registerForm.get('alias')?.hasError('maxlength')) {
+        <span class="error">Alias debe tener entre 3 y 15 caracteres</span>
+      }
+    }
+
+    <label for="cumpleanos">Fecha de nacimiento</label>
+    <input type="date" placeholder="Fecha de nacimiento" formControlName="cumpleanos">
+    <span class="error" *ngIf="registerForm.get('cumpleanos')?.invalid && registerForm.get('cumpleanos')?.touched">Must be 13 or older</span>
+
+    <label for="contrasena">Contraseña</label>
+    <input type="password" placeholder="Contraseña" formControlName="contrasena">
+    
+    <label for="repetirContrasena">Repetir Contraseña</label>
+    <input type="password" placeholder="Repetir contraseña" formControlName="repetirContrasena">
+    <span class="error" *ngIf="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched">3–20 characters, no spaces at edges</span>
+
+
+    <button type="submit" class="create-btn">Crear cuenta</button>
+
+  </form>
+
+  <p class="login-link">Already have an account? <a href="#">Log in</a></p>
+</div>
+
