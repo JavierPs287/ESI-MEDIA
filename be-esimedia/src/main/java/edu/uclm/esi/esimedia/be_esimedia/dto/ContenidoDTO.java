@@ -4,17 +4,17 @@ import java.util.Date;
 
 public abstract class ContenidoDTO {
     
-    private String title;
+    private String title; // Campo obligatorio
     private String description;
-    private String[] tags;
-    private double duration; // Duración en segundos, se podría implementar de otra forma
-    private boolean vip;
-    private boolean visible;
-    private Date visibilityChangeDate;
+    private String[] tags; // Mínimo 1 tag obligatorio
+    private double duration; // Campo obligatorio // Segundos, se podría implementar de otra forma
+    private boolean vip; // Campo obligatorio
+    private boolean visible; // Campo obligatorio
+    private Date visibilityChangeDate; // No es campo rellenable, se pone la fecha actual al crear el contenido
     private Date visibilityDeadline;
-    private int minAge;
+    private int minAge; // Campo obligatorio
     private int imageId;
-    private String creador;
+    private String creador; // No es campo rellenable, se pone el creador al crear el contenido
 
     // Getters and Setters
     public String getTitle() {

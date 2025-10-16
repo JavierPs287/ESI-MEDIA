@@ -4,7 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class AudioDTO extends ContenidoDTO {
     
-    private MultipartFile file;
+    private MultipartFile file; // Campo obligatorio
 
     // Getters and Setters
     public MultipartFile getFile() {

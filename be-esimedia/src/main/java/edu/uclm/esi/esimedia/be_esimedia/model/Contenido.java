@@ -11,13 +11,13 @@ public abstract class Contenido {
     @Id
     private String id;
 
-    private String title;
+    private String title; // No es único
     private String description;
-    private String[] tags;
+    private String[] tags; // Mínimo 1 tag obligatorio
     private double duration; // Duración en segundos, se podría implementar de otra forma
-    private boolean vip;
-    private boolean visible;
-    private Date visibilityChangeDate;
+    private boolean vip; 
+    private boolean visible; 
+    private Date visibilityChangeDate; // No editable
     private Date visibilityDeadline;
     private int minAge;
     private int imageId;
