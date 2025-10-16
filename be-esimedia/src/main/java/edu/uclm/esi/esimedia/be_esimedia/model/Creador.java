@@ -1,5 +1,8 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "CREADORES")
 public class Creador extends User {
     private String alias;
     private String descripcion;
