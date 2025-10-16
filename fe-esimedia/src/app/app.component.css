@@ -1,0 +1,6 @@
+.content-body {
+    min-height: 100%;
+    display: block;
+    padding: 100%;
+    background: #fcfcfc;
+}
