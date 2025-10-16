@@ -9,7 +9,7 @@ public class Audio extends Contenido {
     
     private double size; // En KB (máximo 1 MB)
     private String format;
-    private String filePath;
+    private String filePath; // No editable
 
     public Audio() {}
     
