@@ -1,42 +1,75 @@
-/* You can add global styles to this file, and also import other style files */
 :root {
-  --primary: #252cff;
-  --background: #e6f2f0;
-  --background-card: #ffffff;
-  --text: #222;
-  --muted: #6b7280;
-  --radius: 10px;
+  --gris: #a7aeb2;
+  --azul:#0097d7;
+  --rojo: #B30033;
+  --azul-oscuro: #1d2262;
+  --blanco: #ffffff;
+  --negro: #000000;
+  --radial-background: radial-gradient(circle,rgba(255, 255, 255, 1) 20%, rgba(0, 151, 215, 1) 60%, rgba(29, 34, 98, 0.9) 100%);
 
-  --font-size-lg: 1.5rem;
-  --font-size-md: 1.125rem;
-  --font-size-sm: 0.875rem;
-  --font-size-xl: 2.25rem;
-  --font-size-xs: 0.75rem;
-
-  --spacing-lg: 1rem;
-  --spacing-md: 0.75rem;
-  --spacing-sm: 0.5rem;
-  --spacing-xl: 1.5rem;
-  --spacing-xs: 0.25rem;
-
-  --border-radius-lg: 18px;
-  --border-radius-md: 12px;
-  --border-radius-sm: 6px;
-  --border-radius-xl: 28px;
 }
 
 body {
   margin: 0;
   font-family: "Segoe UI", Roboto, Arial, sans-serif;
-  background: var(--background);
-  color: var(--text);
+  background: var(--radial-background);
   -webkit-font-smoothing: antialiased;
 }
 
-.container {
-  padding: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
+.register-container {
+  max-width: 400px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+  background: var(--blanco);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--gris);
+}
+.title {
+  font-size: 40px;
+  font-weight: extrabold;
+  text-align: center;
+  color: var(--azul-oscuro);
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  font-size: 12px;
+  text-align: center;
+  font-weight: bold;
+  color: var(--gris);
+  margin-bottom: 15px;
+}
+
+.span.error {
+  color: var(--rojo);
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.form-field {
+  label {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--gris);
+  }
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 15px;
+    border-radius: 5px;
+    border: 1px solid var(--gris);
+    box-sizing: border-box;
+  }
+
+}
+
+.create-btn {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+  padding: 12px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 100px;
 }

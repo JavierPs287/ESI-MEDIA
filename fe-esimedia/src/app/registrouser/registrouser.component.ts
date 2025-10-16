@@ -9,6 +9,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
   styleUrl: './registrouser.component.css'
 })
 export class RegisterComponent {
+  isVip = false;
 
   fb = inject(FormBuilder);
   registerForm: FormGroup = this.fb.group({
@@ -17,14 +18,21 @@ export class RegisterComponent {
     apellido: ['',[Validators.required, Validators.maxLength(25)]],
     email: ['',[Validators.required, Validators.email]],
     alias: ['',[Validators.minLength(3), Validators.maxLength(20)]],
+    vip: [false],
+    fotoPerfil: [null],
     cumpleanos: ['',[Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
-    fotoPerfil: [null]
+    
 
   });
 
   onSubmit():void{
     console.log('Form submitted:', this.registerForm.value);
+  }
+
+  toggleVip(): void {
+    this.isVip = !this.isVip;
+    this.registerForm.get('vip')?.setValue(this.isVip);
   }
 }
