@@ -43,4 +43,8 @@ public class ValidateService {
         return fechaNacimiento.before(new Date()) || calendarioFechaNacimiento.before(fechaLimite);
     }
 
+    public boolean isEnumValid(Enum<?> enumValue) {
+        return enumValue != null;
+    }
+
 }
