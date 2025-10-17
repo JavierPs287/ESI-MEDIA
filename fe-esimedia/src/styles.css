@@ -1,1 +1,92 @@
+<<<<<<< HEAD
 /* You can add global styles to this file, and also import other style files */
+=======
+:root {
+  --gris: #a7aeb2;
+  --azul:#0097d7;
+  --rojo: #B30033;
+  --azul-oscuro: #1d2262;
+  --blanco: #ffffff;
+  --negro: #000000;
+  --radial-background: radial-gradient(circle,rgba(255, 255, 255, 1) 20%, rgba(0, 151, 215, 1) 60%, rgba(29, 34, 98, 0.9) 100%);
+
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--radial-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+.register-container {
+  max-width: 400px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+  background: var(--blanco);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--gris);
+}
+.title {
+  font-size: 40px;
+  font-weight: extrabold;
+  text-align: center;
+  color: var(--azul-oscuro);
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  font-size: 12px;
+  text-align: center;
+  font-weight: bold;
+  color: var(--gris);
+  margin-bottom: 15px;
+}
+
+.divider {
+  border-top: 1px solid var(--gris);
+  margin: 10px 50px;
+  opacity: 0.6;
+}
+
+.span.error {
+  color: var(--rojo);
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.form-field {
+  label {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--gris);
+  }
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 15px;
+    border-radius: 5px;
+    border: 1px solid var(--gris);
+    box-sizing: border-box;
+  }
+
+}
+
+.create-btn {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+  padding: 12px ;
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 100px;
+  border :none;
+}
+
+.create-btn:hover {
+  background-color: var(--azul);
+  box-shadow: 0 0 5px var(--azul-oscuro);
+  border :none;
+}
+>>>>>>> a7b2ac1 (FE v1.2 RegistroUsuario)
