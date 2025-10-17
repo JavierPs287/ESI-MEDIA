@@ -13,12 +13,12 @@ export class RegisteruserComponent {
   showPhotoOptions = false;
   selectedPhoto: string | null = null;
   photoOptions = [
-    { name: 'Avatar 1', url: 'assets/avatars/avatar1.png' },
-    { name: 'Avatar 2', url: 'assets/avatars/avatar2.png' },
-    { name: 'Avatar 3', url: 'assets/avatars/avatar3.png' },
-    { name: 'Avatar 4', url: 'assets/avatars/avatar4.png' },
-    { name: 'Avatar 5', url: 'assets/avatars/avatar5.png' },
-    { name: 'Avatar 6', url: 'assets/avatars/avatar6.png' }
+    { name: 'Avatar 1', url: '/assets/avatars/avatar1.PNG' },
+    { name: 'Avatar 2', url: '/assets/avatars/avatar2.PNG' },
+    { name: 'Avatar 3', url: '/assets/avatars/avatar3.PNG' },
+    { name: 'Avatar 4', url: '/assets/avatars/avatar4.PNG' },
+    { name: 'Avatar 5', url: '/assets/avatars/avatar5.PNG' },
+    { name: 'Avatar 6', url: '/assets/avatars/avatar6.PNG' }
   ];
 
   fb = inject(FormBuilder);
@@ -52,7 +52,7 @@ export class RegisteruserComponent {
 
   selectPhoto(photoUrl: string): void {
     this.selectedPhoto = photoUrl;
-    this.registerForm.get('foto')?.setValue(photoUrl);
+    this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
     this.showPhotoOptions = false;
   }
 }
