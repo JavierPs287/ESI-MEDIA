@@ -74,7 +74,20 @@
     <!-- Campo: Foto de perfil -->
     <div class="form-field">
       <label for="foto">Foto de perfil </label>
-      <input type="text" placeholder="Elige una foto" formControlName="foto">
+      <button type="button" class="photo-selector-btn" (click)="togglePhotoOptions()">
+        {{ selectedPhoto ? 'Cambiar foto' : 'Seleccionar foto' }}
+      </button>
+      
+      <div class="photo-options" *ngIf="showPhotoOptions">
+        <div class="photo-grid">
+          <img *ngFor="let photo of photoOptions" 
+               [src]="photo.url" 
+               [alt]="photo.name"
+               class="photo-option"
+               [class.selected]="selectedPhoto === photo.url"
+               (click)="selectPhoto(photo.url)">
+        </div>
+      </div>
     </div>
 
     <!-- Campo: Contraseña -->
@@ -102,7 +115,9 @@
     <button type="submit" class="create-btn">Crear cuenta</button>
 
 </form>
-
+  <hr class="divider">
+  <div class="log-in">
   <p class="login-link">Already have an account? <a href="#">Log in</a></p>
+  </div>
 </div>
 

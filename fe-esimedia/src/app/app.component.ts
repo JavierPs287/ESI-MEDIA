@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { RegisterComponent} from "./registrouser/registrouser.component";
+import { RegisteruserComponent } from './components/registeruser/registeruser.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RegisterComponent],
+  imports: [RouterOutlet, RegisteruserComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
