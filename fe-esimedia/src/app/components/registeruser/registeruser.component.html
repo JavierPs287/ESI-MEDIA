@@ -57,28 +57,14 @@
       <span class="error" *ngIf="registerForm.get('cumpleanos')?.invalid && registerForm.get('cumpleanos')?.touched">Must be 13 or older</span>
     </div>
 
-    <!-- Campo: VIP -->
-    <div class="form-field">
-      <p for="vip" class="subtitle">Hazte VIP y disfruta de contenido exclusivo y beneficios adicionales.</p>
-        <div class="vip-container">
-        <button
-          class="vip-toggle"
-          (click)="toggleVip()"
-          [ngClass]="{'vip-active': isVip, 'vip-inactive': !isVip}">
-          {{ isVip ? 'VIP' : 'No eres VIP' }}
-        </button>
-      </div>
-    </div>
-
-    
     <!-- Campo: Foto de perfil -->
     <div class="form-field">
       <label for="foto">Foto de perfil </label>
       <button type="button" class="photo-selector-btn" (click)="togglePhotoOptions()">
         {{ selectedPhoto ? 'Cambiar foto' : 'Seleccionar foto' }}
       </button>
-      
       <div class="photo-options" *ngIf="showPhotoOptions">
+        <a href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
         <div class="photo-grid">
           <img *ngFor="let photo of photoOptions" 
                [src]="photo.url" 
@@ -87,6 +73,19 @@
                [class.selected]="selectedPhoto === photo.url"
                (click)="selectPhoto(photo.url)">
         </div>
+      </div>
+    </div>
+
+    <!-- Campo: VIP -->
+    <div class="form-field">
+      <p for="vip" class="subtitle">Hazte VIP y disfruta de contenido exclusivo y beneficios adicionales.</p>
+        <div class="btn-container">
+        <button
+          class="vip-toggle"
+          (click)="toggleVip()"
+          [ngClass]="{'vip-active': isVip, 'vip-inactive': !isVip}">
+          {{ isVip ? 'VIP' : 'No eres VIP' }}
+        </button>
       </div>
     </div>
 
