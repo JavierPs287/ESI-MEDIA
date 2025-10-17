@@ -3,13 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-registrouser',
+  selector: 'app-registeruser',
   imports: [ReactiveFormsModule, CommonModule],
-  templateUrl: './registrouser.component.html',
-  styleUrl: './registrouser.component.css'
+  templateUrl: './registeruser.component.html',
+  styleUrl: './registeruser.component.css'
 })
-export class RegisterComponent {
+export class RegisteruserComponent {
   isVip = false;
+  showPhotoOptions = false;
+  selectedPhoto: string | null = null;
+  photoOptions = [
+    { name: 'Avatar 1', url: 'assets/avatars/avatar1.png' },
+    { name: 'Avatar 2', url: 'assets/avatars/avatar2.png' },
+    { name: 'Avatar 3', url: 'assets/avatars/avatar3.png' },
+    { name: 'Avatar 4', url: 'assets/avatars/avatar4.png' },
+    { name: 'Avatar 5', url: 'assets/avatars/avatar5.png' },
+    { name: 'Avatar 6', url: 'assets/avatars/avatar6.png' }
+  ];
 
   fb = inject(FormBuilder);
   registerForm: FormGroup = this.fb.group({
@@ -34,5 +44,15 @@ export class RegisterComponent {
   toggleVip(): void {
     this.isVip = !this.isVip;
     this.registerForm.get('vip')?.setValue(this.isVip);
+  }
+
+  togglePhotoOptions(): void {
+    this.showPhotoOptions = !this.showPhotoOptions;
+  }
+
+  selectPhoto(photoUrl: string): void {
+    this.selectedPhoto = photoUrl;
+    this.registerForm.get('foto')?.setValue(photoUrl);
+    this.showPhotoOptions = false;
   }
 }
