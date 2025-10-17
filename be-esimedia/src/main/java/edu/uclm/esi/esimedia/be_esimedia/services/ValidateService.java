@@ -1,13 +1,22 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import java.util.regex.Pattern;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 
 @Service
 public class ValidateService {
 
     // TODO Pasar a archivo de configuración
     private static final int MIN_AGE = 4;
+    
+    // Compilar las expresiones regulares como constantes
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    private static final Pattern URL_PATTERN = Pattern.compile("^https?://.*");
 
     // Método generado
     // TODO cambiar a que compruebe todos los campos obligatorios y ver si alguno
@@ -18,7 +27,7 @@ public class ValidateService {
 
     // Método generado
     public boolean isEmailValid(String email) {
-        return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
+        return email != null && EMAIL_PATTERN.matcher(email).matches();
     }
 
     // Método generado
@@ -28,10 +37,24 @@ public class ValidateService {
 
     // Método generado
     public boolean isURLValid(String url) {
-        return url != null && url.matches("^https?://.*");
+        return url != null && URL_PATTERN.matcher(url).matches();
+    }
+
+    // Alta de contenido
+    public boolean areContentRequiredFieldsValid(ContenidoDTO contenidoDTO) {
+        return !isRequiredFieldEmpty(contenidoDTO.getTitle()) &&
+               areTagsValid(contenidoDTO.getTags()) &&
+               isDurationValid(contenidoDTO.getDuration()) &&
+               contenidoDTO.getVisibilityChangeDate() != null &&
+               isMinAgeValid(contenidoDTO.getMinAge());
     }
 
     // Alta de audio
+
+    public boolean areAudioRequiredFieldsValid(AudioDTO audioDTO) {
+        return areContentRequiredFieldsValid(audioDTO) &&
+               isFilePresent(audioDTO.getFile());
+    }
 
     public boolean isFilePresent(MultipartFile file) {
         return file != null && !file.isEmpty();
