@@ -1,12 +1,15 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "CREADORES")
 public class Creador extends User {
     private String alias;
     private String descripcion;
     private Campo campo;
-    private enum Campo {PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA}
+    public enum Campo {PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA}
     private Tipo tipo;
-    private enum Tipo {AUDIO, VIDEO}
+    public enum Tipo {AUDIO, VIDEO}
 
     // Getters and Setters
     public String getAlias() {

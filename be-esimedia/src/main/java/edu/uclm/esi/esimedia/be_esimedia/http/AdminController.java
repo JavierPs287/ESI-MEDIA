@@ -1,5 +1,4 @@
 package edu.uclm.esi.esimedia.be_esimedia.http;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -8,26 +7,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
-import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
-
+import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
+import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("admin")
 @CrossOrigin("*")
-public class UserController {
 
-    private final AuthService authService;
-    public UserController(AuthService authService) {
-        this.authService = authService;
+public class AdminController {
+
+    private final AdminService adminService;
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
     }
-    
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUsuario(@RequestBody Usuario usuario){
+
+    @PostMapping("/registerCreador")
+    public ResponseEntity<String> registerCreador(@RequestBody Creador creador){
         try {
-            authService.register(usuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
-            
+            adminService.registerCreador(creador);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Creador registrado correctamente");
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
