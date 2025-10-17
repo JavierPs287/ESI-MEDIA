@@ -25,7 +25,7 @@ public class Audio extends Contenido {
     }
 
     public void setSize(double size) {
-        this.size = size;
+        this.size = Math.round(size * 100.0) / 100.0;
     }
 
     public String getFormat() {

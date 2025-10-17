@@ -1,13 +1,13 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
@@ -21,7 +21,6 @@ public class AudioService {
     private static final String UPLOAD_DIR = "src/main/resources/audios/";
     private static final long MAX_FILE_SIZE = 1024 * 1024; // 1 MB
     private static final String[] ALLOWED_FORMATS = {"mp3", "wav", "ogg", "m4a"};
-    private static final int MIN_AGE = 4;
 
     private final ValidateService validateService;
 
@@ -34,19 +33,15 @@ public class AudioService {
     }
 
     public String uploadAudio(AudioDTO audioDTO) throws IOException, IllegalArgumentException {
-        // TODO Probar alta de audio con validaciones
         try {
             validateUploadAudio(audioDTO);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Error en la validación: " + e.getMessage());
         }
 
+        // Esta asignación se hace dos veces para facilitar la lectura del código
         MultipartFile file = audioDTO.getFile();
-
         String fileExtension = getFileExtension(file.getOriginalFilename());
-        if (!validateService.isFileFormatAllowed(fileExtension, ALLOWED_FORMATS)) {
-            throw new IllegalArgumentException("El formato del archivo no es válido. Formatos permitidos: mp3, wav, ogg, m4a.");
-        }
 
         // Crear objeto Audio
         Audio audio = new Audio(audioDTO);
@@ -55,8 +50,12 @@ public class AudioService {
 
         // Guardar archivo físico
         String fileName = UUID.randomUUID().toString() + "." + fileExtension;
-        String filePath = saveFile(file, fileName);
-        audio.setFilePath(filePath);
+        try {
+            String filePath = saveFile(file, fileName);
+            audio.setFilePath(filePath);
+        } catch (IOException e) {
+            throw new IOException("Error al guardar el archivo: " + e.getMessage(), e);
+        }
 
         // Alta en MongoDB
         Audio savedAudio = audioRepository.save(audio);
@@ -94,24 +93,20 @@ public class AudioService {
             throw new IllegalArgumentException("El objeto AudioDTO no puede ser nulo.");
         }
 
-        if (!validateService.isFilePresent(audioDTO.getFile())) {
-            throw new IllegalArgumentException("El archivo de audio es obligatorio.");
+        if (!validateService.areAudioRequiredFieldsValid(audioDTO)) {
+            throw new IllegalArgumentException("Hay campos obligatorios incorrectos en la subida de audio.");
         }
 
-        if (!validateService.isFileSizeValid(audioDTO.getFile().getSize(), MAX_FILE_SIZE)) {
+        // Esta asignación se hace dos veces para facilitar la lectura del código
+        MultipartFile file = audioDTO.getFile();
+        String fileExtension = getFileExtension(file.getOriginalFilename());
+
+        if (!validateService.isFileSizeValid(file.getSize(), MAX_FILE_SIZE)) {
             throw new IllegalArgumentException("El tamaño del archivo excede el límite permitido de " + (MAX_FILE_SIZE / (1024 * 1024)) + " MB.");
         }
 
-        if (!validateService.isDurationValid(audioDTO.getDuration())) {
-            throw new IllegalArgumentException("La duración debe ser un valor positivo.");
-        }
-
-        if (!validateService.isMinAgeValid(audioDTO.getMinAge())) {
-            throw new IllegalArgumentException("La edad mínima debe ser al menos " + MIN_AGE + " años.");
-        }
-
-        if (!validateService.areTagsValid(audioDTO.getTags())) {
-            throw new IllegalArgumentException("Debe proporcionar al menos un tag.");
+        if (!validateService.isFileFormatAllowed(fileExtension, ALLOWED_FORMATS)) {
+            throw new IllegalArgumentException("El formato del archivo no es válido. Formatos permitidos: mp3, wav, ogg, m4a.");
         }
 
         if (!validateService.isVisibilityDeadlineValid(audioDTO.getVisibilityChangeDate(), audioDTO.getVisibilityDeadline())) {
