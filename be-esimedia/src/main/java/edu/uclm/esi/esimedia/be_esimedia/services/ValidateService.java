@@ -1,5 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
-
+import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
@@ -15,41 +16,45 @@ public class ValidateService {
     private static final int MIN_AGE = 4;
     
     // Compilar las expresiones regulares como constantes
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     private static final Pattern URL_PATTERN = Pattern.compile("^https?://.*");
 
-    // Método generado
-    // TODO cambiar a que compruebe todos los campos obligatorios y ver si alguno
-    // está libre
-    public boolean isRequiredFieldEmpty(String field) {
-        return field == null || field.trim().isEmpty();
+    public boolean isRequiredFieldEmpty(String field, int minLength, int maxLength) {
+        return field == null || field.trim().isEmpty() || field.length() < minLength || field.length() > maxLength;
     }
 
-    // Método generado
     public boolean isEmailValid(String email) {
         return email != null && EMAIL_PATTERN.matcher(email).matches();
     }
 
-    // Método generado
     public boolean isPasswordSecure(String password) {
-        return password != null && password.length() >= 8;
+        if (password == null || password.length() < 8) {
+            return false;
+        }
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        boolean hasSpecial = false;
+        for (char ch : password.toCharArray()) {
+            if (Character.isUpperCase(ch)) hasUpper = true;
+            else if (Character.isLowerCase(ch)) hasLower = true;
+            else if (Character.isDigit(ch)) hasDigit = true;
+            else if ("!@#$%^&*()-+".indexOf(ch) >= 0) hasSpecial = true;
+        }
+        return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 
-    // Método generado
     public boolean isURLValid(String url) {
         return url != null && URL_PATTERN.matcher(url).matches();
     }
 
-    // Alta de contenido
     public boolean areContentRequiredFieldsValid(ContenidoDTO contenidoDTO) {
-        return !isRequiredFieldEmpty(contenidoDTO.getTitle()) &&
+        return !isRequiredFieldEmpty(contenidoDTO.getTitle(), 1, 100) &&
                areTagsValid(contenidoDTO.getTags()) &&
                isDurationValid(contenidoDTO.getDuration()) &&
                contenidoDTO.getVisibilityChangeDate() != null &&
                isMinAgeValid(contenidoDTO.getMinAge());
     }
-
-    // Alta de audio
 
     public boolean areAudioRequiredFieldsValid(AudioDTO audioDTO) {
         return areContentRequiredFieldsValid(audioDTO) &&
@@ -88,13 +93,28 @@ public class ValidateService {
         return tags != null && tags.length > 0;
     }
 
-    public boolean isVisibilityDeadlineValid(java.util.Date changeDate, java.util.Date deadline) {
+    public boolean isVisibilityDeadlineValid(Date changeDate, Date deadline) {
         if (deadline == null) {
-            return true; // Permitir nulo si no es obligatorio
+            return true;
         }
         if (changeDate == null) {
             return false;
         }
         return deadline.after(changeDate);
+    }
+
+    public boolean isBirthDateValid(Date fechaNacimiento) {
+        Calendar calendarioFechaNacimiento = Calendar.getInstance();
+        calendarioFechaNacimiento.setTime(fechaNacimiento);
+        Calendar fechaLimite = Calendar.getInstance();
+        fechaLimite.add(Calendar.YEAR, -4);
+        if (fechaNacimiento == null) {
+            return false;
+        }
+        return fechaNacimiento.before(new Date()) || calendarioFechaNacimiento.before(fechaLimite);
+    }
+
+    public boolean isEnumValid(Enum<?> enumValue) {
+        return enumValue != null;
     }
 }
