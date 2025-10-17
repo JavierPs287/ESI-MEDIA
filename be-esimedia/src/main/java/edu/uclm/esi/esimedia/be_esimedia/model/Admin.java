@@ -2,7 +2,7 @@ package edu.uclm.esi.esimedia.be_esimedia.model;
 
 public class Admin extends User {
     private Departamento departamento;
-    private enum Departamento {RRHH, IT, MARKETING, VENTAS}
+    public enum Departamento {RRHH, IT, MARKETING, VENTAS}
 
     // Getters and Setters
     public Departamento getDepartamento() {
