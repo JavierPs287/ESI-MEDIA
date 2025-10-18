@@ -33,13 +33,14 @@ public class AudioService {
     }
 
     public String uploadAudio(AudioDTO audioDTO) throws IOException, IllegalArgumentException {
+        // Validación
         try {
             validateUploadAudio(audioDTO);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Error en la validación: " + e.getMessage());
         }
 
-        // Esta asignación se hace dos veces para facilitar la lectura del código
+        // Esta asignación se hace dos veces en un flujo para facilitar la lectura del código
         MultipartFile file = audioDTO.getFile();
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
