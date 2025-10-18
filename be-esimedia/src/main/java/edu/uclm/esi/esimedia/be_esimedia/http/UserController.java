@@ -33,4 +33,14 @@ public class UserController {
         }
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUsuario(@RequestBody String mail, @RequestBody String contrasena){
+        try {
+            String token = authService.login(mail, contrasena);
+            return ResponseEntity.ok(token);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error de autenticación, pruebalo de nuevo");
+        }
+    }
+
 }

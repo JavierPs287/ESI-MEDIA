@@ -2,6 +2,7 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import org.springframework.stereotype.Service;
 
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 
 @Service
@@ -13,5 +14,9 @@ public class UserService {
 
     public boolean existsEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

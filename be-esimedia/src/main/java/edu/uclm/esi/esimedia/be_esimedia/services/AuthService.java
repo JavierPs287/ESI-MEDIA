@@ -3,6 +3,7 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 
@@ -64,6 +65,21 @@ public class AuthService {
         
         // Guardar usuario
         return userRepository.save(usuario);
+    }
+
+    public String login(String email, String contrasena) {
+        if (!validateService.isEmailValid(email)) {
+            throw new IllegalArgumentException("El formato del email no es válido");
+        }
+
+        User usuario = userService.findByEmail(email);
+        if (usuario == null || !passwordEncoder.matches(contrasena, usuario.getContrasena())) {
+            throw new IllegalArgumentException("Credenciales inválidas");
+        }
+        
+        // Generar token JWT
+
+        return "token"; // Reemplaza esto con la generación real del token
     }
 
 }
