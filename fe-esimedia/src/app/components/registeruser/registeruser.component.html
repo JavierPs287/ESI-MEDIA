@@ -1,6 +1,6 @@
 <div class="register-container">
-  <h1 class="title">Join ESI-Media</h1>
-  <p class="subtitle">El mejor audio y video con la mejor calidad y contenido exclusivo.</p>
+  <h1 class="form-title">Join ESI-Media</h1>
+  <p class="form-subtitle">El mejor audio y video con la mejor calidad y contenido exclusivo.</p>
 
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
@@ -63,22 +63,24 @@
       <button type="button" class="photo-selector-btn" (click)="togglePhotoOptions()">
         {{ selectedPhoto ? 'Cambiar foto' : 'Seleccionar foto' }}
       </button>
+
       <div class="photo-options" *ngIf="showPhotoOptions">
-        <a href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
         <div class="photo-grid">
-          <img *ngFor="let photo of photoOptions" 
-               [src]="photo.url" 
-               [alt]="photo.name"
+          <img *ngFor="let avatar of photoOptions" 
+               [src]="avatar.url" 
+               [alt]="avatar.name"
                class="photo-option"
-               [class.selected]="selectedPhoto === photo.url"
-               (click)="selectPhoto(photo.url)">
+               [class.selected]="selectedPhoto === avatar.url"
+               (click)="selectPhoto(avatar.url)"
+               (keydown.enter)="selectPhoto(avatar.url)">
         </div>
+      <a class="link" href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
       </div>
     </div>
 
     <!-- Campo: VIP -->
     <div class="form-field">
-      <p for="vip" class="subtitle">Hazte VIP y disfruta de contenido exclusivo y beneficios adicionales.</p>
+      <p for="vip" class="form-subtitle">Hazte VIP y disfruta de contenido exclusivo y beneficios adicionales.</p>
         <div class="btn-container">
         <button
           class="vip-toggle"
@@ -90,18 +92,14 @@
     </div>
 
     <!-- Campo: Contraseña -->
-    <div class="form-field">
+  <div class="form-field">
     <label for="contrasena">Contraseña *</label>
-    <input type="password" placeholder="Contraseña" formControlName="contrasena">
-    <div *ngIf="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched">
-      <span class="error" *ngIf="registerForm.get('contrasena')?.hasError('required')">
-        Contraseña es un campo obligatorio</span>
-      <span class="error" *ngIf="registerForm.get('contrasena')?.hasError('minlength') || registerForm.get('contrasena')?.hasError('maxlength')">
-        Contraseña debe tener al menos 8 caracteres</span>
-      <span class="error" *ngIf="registerForm.get('contrasena')?.hasError('pattern')">
-        No spaces at the beginning or end</span>
-      </div>
+      <div class="password-field">
+      <input [type]="changetype?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
+      <button class="eyeicon" (click)="togglePasswordVisibility()"><i [ngClass]="visible?'fa fa-eye-slash':'fa fa-eye'"></i>
+      </button>
     </div>
+  </div>
 
     <!-- Campo: Repetir Contraseña -->
     <div class="form-field">
@@ -116,7 +114,7 @@
 </form>
   <hr class="divider">
   <div class="log-in">
-  <p class="login-link">Already have an account? <a href="#">Log in</a></p>
+  <p class="login-link">Already have an account? <a class="link" href="#">Log in</a></p>
   </div>
 </div>
 

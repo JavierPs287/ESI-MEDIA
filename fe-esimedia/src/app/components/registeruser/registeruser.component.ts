@@ -1,16 +1,24 @@
 import { Component,inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 
 @Component({
   selector: 'app-registeruser',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, MatIconModule, MatFormFieldModule],
   templateUrl: './registeruser.component.html',
   styleUrl: './registeruser.component.css'
 })
 export class RegisteruserComponent {
   isVip = false;
   showPhotoOptions = false;
+  showPassword = true;
+  visible:boolean = true;
+  changetype:boolean =true;
+
+  
   selectedPhoto: string | null = null;
   photoOptions = [
     { name: 'Avatar 1', url: '/assets/avatars/avatar1.PNG' },
@@ -48,6 +56,11 @@ export class RegisteruserComponent {
 
   togglePhotoOptions(): void {
     this.showPhotoOptions = !this.showPhotoOptions;
+  }
+
+  togglePasswordVisibility(){
+    this.visible = !this.visible;
+    this.changetype = !this.changetype;
   }
 
   selectPhoto(photoUrl: string): void {
