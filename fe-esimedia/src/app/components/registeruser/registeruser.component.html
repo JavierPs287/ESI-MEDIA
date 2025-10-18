@@ -2,29 +2,27 @@
   <h1 class="form-title">Join ESI-Media</h1>
   <p class="form-subtitle">El mejor audio y video con la mejor calidad y contenido exclusivo.</p>
 
-  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="registerForm" >
 
     <!-- Campo: Nombre -->
     <div class="form-field">
     <label for="nombre">Nombre *</label>
     <input type="text" placeholder="Nombre" formControlName="nombre">
-    <div *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid">
-    <span class="error" *ngIf="registerForm.get('nombre')?.hasError('required')">
-      Nombre es un campo obligatorio </span>
-    <span class="error" *ngIf="registerForm.get('nombre')?.hasError('maxlength')">
-      El nombre ha superado el límite de caracteres </span>
-    </div>
+      <div class="error-container" *ngIf="getControl('nombre')?.invalid && (getControl('nombre')?.touched || getControl('nombre')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
+      </div>
     </div>
 
     <!-- Campo: Apellido -->
     <div class="form-field">
       <label for="apellido">Apellido *</label>
       <input type="text" placeholder="Apellido" formControlName="apellido">
-      <div *ngIf="registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched">
-        <span class="error" *ngIf="registerForm.get('apellido')?.hasError('required')">
-          Apellido es un campo obligatorio</span>
-        <span class="error" *ngIf="registerForm.get('apellido')?.hasError('maxlength')">
-          El apellido ha superado el límite de caracteres</span>
+        <div class="error-container" *ngIf="getControl('apellido')?.invalid && (getControl('apellido')?.touched || getControl('apellido')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
       </div>
     </div>
 
@@ -32,21 +30,19 @@
     <div class="form-field">
       <label for="email">Email *</label>
       <input type="email" placeholder="Dirección de correo" formControlName="email">
-      <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-        <span *ngIf="registerForm.get('email')?.hasError('required')" class="error"> 
-          Correo electrónico es un campo obligatorio</span>
-      <span class="error" *ngIf="registerForm.get('email')?.hasError('email')"> 
-        El formato no es válido</span>
-      </div>
+        <div class="error-container" *ngIf="getControl('email')?.invalid && (getControl('email')?.touched || getControl('email')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('email')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('email')?.hasError('email')"> Formato de email inválido. </p>
+        </div>
     </div>
 
     <!-- Campo: Alias -->
     <div class="form-field">
       <label for="alias">Alias</label>
       <input type="text" placeholder="Alias" formControlName="alias">
-      <div *ngIf="registerForm.get('alias')?.invalid && registerForm.get('alias')?.touched">
-        <span class="error" *ngIf="registerForm.get('alias')?.hasError('minlength') || registerForm.get('alias')?.hasError('maxlength')">
-          Alias debe tener entre 3 y 15 caracteres</span>
+      <div class="error-container" *ngIf="getControl('alias')?.invalid && (getControl('alias')?.touched || getControl('alias')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('alias')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('alias')?.hasError('maxlength')"> Máximo 30 caracteres. </p>
       </div>
     </div>
 
@@ -54,7 +50,10 @@
     <div class="form-field">
       <label for="cumpleanos">Fecha de nacimiento *</label>
       <input type="date" placeholder="Fecha de nacimiento" formControlName="cumpleanos">
-      <span class="error" *ngIf="registerForm.get('cumpleanos')?.invalid && registerForm.get('cumpleanos')?.touched">Must be 13 or older</span>
+      <div class="error-container" *ngIf="getControl('cumpleanos')?.invalid && (getControl('cumpleanos')?.touched || getControl('cumpleanos')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('cumpleanos')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('cumpleanos')?.hasError('minAge')"> Debes tener al menos 4 años. </p>
+      </div>
     </div>
 
     <!-- Campo: Foto de perfil -->
@@ -95,21 +94,32 @@
   <div class="form-field">
     <label for="contrasena">Contraseña *</label>
       <div class="password-field">
-      <input [type]="changetype?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
-      <button class="eyeicon" (click)="togglePasswordVisibility()"><i [ngClass]="visible?'fa fa-eye-slash':'fa fa-eye'"></i>
+      <input [type]="visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
+      <button class="eyeicon" (click)="togglePasswordVisibility()"><i [ngClass]="visiblePassword?'fa fa-eye-slash':'fa fa-eye'"></i>
       </button>
     </div>
+    <div class="error-container" *ngIf="getControl('contrasena')?.invalid && (getControl('contrasena')?.touched || getControl('contrasena')?.dirty)">
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('required')"> El campo es obligatorio. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('pattern')"> La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número. </p>
+      </div>
   </div>
 
     <!-- Campo: Repetir Contraseña -->
     <div class="form-field">
       <label for="repetirContrasena">Repetir Contraseña *</label>
       <input type="password" placeholder="Repetir contraseña" formControlName="repetirContrasena">
-      <span class="error" *ngIf="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched">3–20 characters, no spaces at edges</span>
+      <div class="error-container" *ngIf="(getControl('repetirContrasena')?.invalid && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)) || (registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty))">
+        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
+        <p class ="error-message" *ngIf="registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)"> Las contraseñas no coinciden. </p>
+      </div>
     </div>
 
     <!-- Botón de envío -->
-    <button type="submit" class="create-btn">Crear cuenta</button>
+    <button (click)="onSubmit()" type="submit" class="create-btn">Crear cuenta</button>
 
 </form>
   <hr class="divider">
