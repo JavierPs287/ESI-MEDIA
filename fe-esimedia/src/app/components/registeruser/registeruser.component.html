@@ -94,15 +94,18 @@
   <div class="form-field">
     <label for="contrasena">Contraseña *</label>
       <div class="password-field">
-      <input [type]="visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
-      <button class="eyeicon" (click)="togglePasswordVisibility()"><i [ngClass]="visiblePassword?'fa fa-eye-slash':'fa fa-eye'"></i>
+      <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
+      <button class="eyeicon" (click)="togglePasswordVisibility()"><i [ngClass]="visiblePassword?'fa fa-eye':'fa fa-eye-slash'"></i>
       </button>
     </div>
     <div class="error-container" *ngIf="getControl('contrasena')?.invalid && (getControl('contrasena')?.touched || getControl('contrasena')?.dirty)">
       <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('required')"> El campo es obligatorio. </p>
       <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
       <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
-      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('pattern')"> La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noLowercase')">❌ Debe contener al menos una letra minúscula</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noUppercase')">❌ Debe contener al menos una letra mayúscula</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noNumber')">❌ Debe contener al menos un número</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noSpecialChar')">❌ Debe contener al menos un carácter especial</p>
       </div>
   </div>
 
@@ -119,7 +122,7 @@
     </div>
 
     <!-- Botón de envío -->
-    <button (click)="onSubmit()" type="submit" class="create-btn">Crear cuenta</button>
+    <button (click)="onSubmit()" [disabled]="!registerForm.valid" type="submit" class="create-btn">Crear cuenta</button>
 
 </form>
   <hr class="divider">

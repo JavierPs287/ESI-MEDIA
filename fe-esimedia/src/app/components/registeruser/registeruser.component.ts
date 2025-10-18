@@ -34,7 +34,7 @@ export class RegisteruserComponent {
     vip: [false],
     fotoPerfil: [this.defaultAvatar],
     cumpleanos: ['',[Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/), this.minAgeValidator(4)]],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]/)]],
+    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), this.passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   }, { validators: this.passwordMatchValidator() });
 
@@ -71,6 +71,32 @@ export class RegisteruserComponent {
       // const isRegistered = await this.userService.checkEmail(control.value);
       // return isRegistered ? { emailRegistered: true } : null;
       return null;
+    };
+  }
+
+passwordStrengthValidator() {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      const password = control.value;
+      const errors: ValidationErrors = {};
+
+      if (!/[a-z]/.test(password)) {
+        errors['noLowercase'] = true;
+      }
+      if (!/[A-Z]/.test(password)) {
+        errors['noUppercase'] = true;
+      }
+      if (!/\d/.test(password)) {
+        errors['noNumber'] = true;
+      }
+      if (!/[@$#!%*?&]/.test(password)) {
+        errors['noSpecialChar'] = true;
+      }
+
+      return Object.keys(errors).length > 0 ? errors : null;
     };
   }
 
