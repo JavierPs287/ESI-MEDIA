@@ -1,12 +1,14 @@
 @import '../form-styles.css';
 
+
+/* estilos para el botón VIP */
+
 .btn-container {
   display: flex;
   justify-content: center;
   margin-top: 5px;
 }
 
-/* estilos para el botón VIP */
 .vip-toggle {
   padding: 10px 20px;
   border: none;

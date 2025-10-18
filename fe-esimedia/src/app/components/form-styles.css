@@ -35,19 +35,25 @@
     width: 100%;
     font-size: 14px;
     padding: 10px;
-    margin: 5px 0 15px;
+    margin: 5px 0 5px;
     border-radius: 5px;
     border: 1px solid var(--gris);
     box-sizing: border-box;
+  }
+  input.ng-invalid.ng-touched {
+    border-color: var(--rojo);
   }
 
 }
 
 /*Mensajes de error */
-.error {
+.error-message {
     color: var(--rojo);
     font-size: 12px;
-    margin-bottom: 20px;
+}
+.ng-invalid.ng-touched {
+    background: rojo;
+    border-color: var(--rojo);
 }
 
 /*boton crear cuenta */
@@ -65,6 +71,12 @@
   background-color: var(--azul);
   box-shadow: 0 0 5px var(--azul-oscuro);
   border :none;
+}
+.create-btn:disabled {
+  background-color: var(--azul-oscuro);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 
@@ -135,7 +147,7 @@
     width: 100%;
     font-size: 14px;
     padding: 10px;
-    margin: 5px 0 15px;
+    margin: 5px 0 5px;
     border-radius: 5px;
     border: 1px solid var(--gris);
     box-sizing: border-box;
@@ -144,7 +156,7 @@
 .eyeicon {
   position: absolute;
   right: 5px;
-  top: 40%;
+  top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   color: #2d2d2d;
