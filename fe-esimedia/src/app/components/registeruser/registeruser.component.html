@@ -117,11 +117,11 @@
 
     <!-- Mensajes de éxito y error -->
     <div class="message-container">
-      <div class="success-message" *ngIf="registrationSuccess">
-        ¡Usuario registrado exitosamente!
+      <div class="success-message" *ngIf="registrationResponse?.message && !registrationResponse?.error">
+        {{ registrationResponse?.message }}
       </div>
-      <div class="error-message" *ngIf="registrationError">
-        {{ registrationError }}
+      <div class="error-message" *ngIf="registrationResponse?.error">
+        {{ registrationResponse?.error }}
       </div>
     </div>
 

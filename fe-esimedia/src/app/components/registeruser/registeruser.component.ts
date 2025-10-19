@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { User } from '../../models/user.model';
+import { User, RegisterResponse } from '../../models/user.model';
 
 @Component({
   selector: 'app-registeruser',
@@ -15,8 +15,7 @@ export class RegisteruserComponent {
   isVip = false;
   showPhotoOptions = false;
   selectedPhoto: string | null = null;
-  registrationError: string | null = null;
-  registrationSuccess: boolean = false;
+  registrationResponse: RegisterResponse | null = null;
 
   photoOptions = [
     { name: 'Avatar 1', url: 'assets/avatars/avatar1.png' },
@@ -50,28 +49,30 @@ export class RegisteruserComponent {
   });
 
   private passwordMatchValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const form = control as FormGroup;
-      const password = form.get('contraseña')?.value;
-      const confirmPassword = form.get('repetirContrasena')?.value;
-      
-      return password && confirmPassword && password === confirmPassword
-        ? null
-        : { mismatch: true };
+    return (formGroup: AbstractControl): ValidationErrors | null => {
+      if (formGroup instanceof FormGroup) {
+        const password = formGroup.get('contraseña')?.value;
+        const confirmPassword = formGroup.get('repetirContrasena')?.value;
+        
+        return password && confirmPassword && password === confirmPassword
+          ? null
+          : { mismatch: true };
+      }
+      return null;
     };
   }
 
   onSubmit(): void {
     if (this.registerForm.valid) {
-      const formValue = this.registerForm.value;
+      const formValue = this.registerForm.getRawValue();
       const userData: User = {
-        nombre: formValue.nombre!,
-        apellidos: formValue.apellidos!,
-        email: formValue.email!,
-        alias: formValue.alias!,
-        fecha_nacimiento: formValue.fecha_nacimiento!,
-        contraseña: formValue.contraseña!,
-        vip: formValue.vip!,
+        nombre: formValue.nombre,
+        apellidos: formValue.apellidos,
+        email: formValue.email,
+        alias: formValue.alias,
+        fecha_nacimiento: formValue.fecha_nacimiento,
+        contraseña: formValue.contraseña,
+        vip: formValue.vip,
         foto_perfil: formValue.foto_perfil
       };
 
@@ -79,19 +80,25 @@ export class RegisteruserComponent {
 
       this.userService.register(userData).subscribe({
         next: (response) => {
-          console.log('Registro exitoso:', response);
-          this.registrationSuccess = true;
-          this.registrationError = null;
-          this.registerForm.reset();
+          console.log('Respuesta del servidor:', response);
+          this.registrationResponse = response;
+          if (!response.error) {
+            this.registerForm.reset();
+          }
         },
         error: (error) => {
           console.error('Error en el registro:', error);
-          this.registrationError = error.error?.message || 'Error en el registro';
-          this.registrationSuccess = false;
+          this.registrationResponse = {
+            message: '',
+            error: error.message || 'Error en el registro'
+          };
         }
       });
     } else {
-      this.registrationError = 'Por favor, complete todos los campos requeridos correctamente';
+      this.registrationResponse = {
+        message: '',
+        error: 'Por favor, complete todos los campos requeridos correctamente'
+      };
     }
   }
 
