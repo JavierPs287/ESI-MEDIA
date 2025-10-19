@@ -1,9 +1,12 @@
-import { Component,inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { UserService } from '../../services/user.service';
+import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-registeruser',
+  standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './registeruser.component.html',
   styleUrl: './registeruser.component.css'
@@ -12,6 +15,9 @@ export class RegisteruserComponent {
   isVip = false;
   showPhotoOptions = false;
   selectedPhoto: string | null = null;
+  registrationError: string | null = null;
+  registrationSuccess: boolean = false;
+
   photoOptions = [
     { name: 'Avatar 1', url: 'assets/avatars/avatar1.png' },
     { name: 'Avatar 2', url: 'assets/avatars/avatar2.png' },
@@ -22,23 +28,71 @@ export class RegisteruserComponent {
   ];
 
   fb = inject(FormBuilder);
-  registerForm: FormGroup = this.fb.group({
+  private readonly userService = inject(UserService);
 
-    nombre: ['',[Validators.required, Validators.maxLength(25)]],
-    apellido: ['',[Validators.required, Validators.maxLength(25)]],
-    email: ['',[Validators.required, Validators.email]],
-    alias: ['',[Validators.minLength(3), Validators.maxLength(20)]],
+  registerForm = this.fb.nonNullable.group({
+    nombre: ['', [Validators.required, Validators.maxLength(25)]],
+    apellidos: ['', [Validators.required, Validators.maxLength(25)]],
+    email: ['', [Validators.required, Validators.email]],
+    alias: ['', [Validators.minLength(3), Validators.maxLength(20)]],
     vip: [false],
-    fotoPerfil: [null],
-    cumpleanos: ['',[Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
-    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
-    
-
+    foto_perfil: [null as string | null],
+    fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+    contraseña: ['', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.maxLength(20),
+      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    ]],
+    repetirContrasena: ['', [Validators.required]]
+  }, {
+    validators: this.passwordMatchValidator
   });
 
-  onSubmit():void{
-    console.log('Form submitted:', this.registerForm.value);
+  private passwordMatchValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const form = control as FormGroup;
+      const password = form.get('contraseña')?.value;
+      const confirmPassword = form.get('repetirContrasena')?.value;
+      
+      return password && confirmPassword && password === confirmPassword
+        ? null
+        : { mismatch: true };
+    };
+  }
+
+  onSubmit(): void {
+    if (this.registerForm.valid) {
+      const formValue = this.registerForm.value;
+      const userData: User = {
+        nombre: formValue.nombre!,
+        apellidos: formValue.apellidos!,
+        email: formValue.email!,
+        alias: formValue.alias!,
+        fecha_nacimiento: formValue.fecha_nacimiento!,
+        contraseña: formValue.contraseña!,
+        vip: formValue.vip!,
+        foto_perfil: formValue.foto_perfil
+      };
+
+      console.log('Enviando datos de registro:', userData);
+
+      this.userService.register(userData).subscribe({
+        next: (response) => {
+          console.log('Registro exitoso:', response);
+          this.registrationSuccess = true;
+          this.registrationError = null;
+          this.registerForm.reset();
+        },
+        error: (error) => {
+          console.error('Error en el registro:', error);
+          this.registrationError = error.error?.message || 'Error en el registro';
+          this.registrationSuccess = false;
+        }
+      });
+    } else {
+      this.registrationError = 'Por favor, complete todos los campos requeridos correctamente';
+    }
   }
 
   toggleVip(): void {
@@ -52,7 +106,7 @@ export class RegisteruserComponent {
 
   selectPhoto(photoUrl: string): void {
     this.selectedPhoto = photoUrl;
-    this.registerForm.get('foto')?.setValue(photoUrl);
+    this.registerForm.get('foto_perfil')?.setValue(photoUrl);
     this.showPhotoOptions = false;
   }
 }

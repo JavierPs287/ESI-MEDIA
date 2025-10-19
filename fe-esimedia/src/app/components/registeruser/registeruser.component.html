@@ -16,15 +16,15 @@
     </div>
     </div>
 
-    <!-- Campo: Apellido -->
+    <!-- Campo: Apellidos -->
     <div class="form-field">
-      <label for="apellido">Apellido *</label>
-      <input type="text" placeholder="Apellido" formControlName="apellido">
-      <div *ngIf="registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched">
-        <span class="error" *ngIf="registerForm.get('apellido')?.hasError('required')">
-          Apellido es un campo obligatorio</span>
-        <span class="error" *ngIf="registerForm.get('apellido')?.hasError('maxlength')">
-          El apellido ha superado el límite de caracteres</span>
+      <label for="apellidos">Apellidos *</label>
+      <input type="text" placeholder="Apellidos" formControlName="apellidos">
+      <div *ngIf="registerForm.get('apellidos')?.invalid && registerForm.get('apellidos')?.touched">
+        <span class="error" *ngIf="registerForm.get('apellidos')?.hasError('required')">
+          Apellidos es un campo obligatorio</span>
+        <span class="error" *ngIf="registerForm.get('apellidos')?.hasError('maxlength')">
+          Los apellidos han superado el límite de caracteres</span>
       </div>
     </div>
 
@@ -52,9 +52,11 @@
 
     <!-- Campo: Fecha de nacimiento -->
     <div class="form-field">
-      <label for="cumpleanos">Fecha de nacimiento *</label>
-      <input type="date" placeholder="Fecha de nacimiento" formControlName="cumpleanos">
-      <span class="error" *ngIf="registerForm.get('cumpleanos')?.invalid && registerForm.get('cumpleanos')?.touched">Must be 13 or older</span>
+      <label for="fecha_nacimiento">Fecha de nacimiento *</label>
+      <input type="date" placeholder="Fecha de nacimiento" formControlName="fecha_nacimiento">
+      <span class="error" *ngIf="registerForm.get('fecha_nacimiento')?.invalid && registerForm.get('fecha_nacimiento')?.touched">
+        La fecha de nacimiento es obligatoria
+      </span>
     </div>
 
     <!-- Campo: VIP -->
@@ -92,15 +94,17 @@
 
     <!-- Campo: Contraseña -->
     <div class="form-field">
-    <label for="contrasena">Contraseña *</label>
-    <input type="password" placeholder="Contraseña" formControlName="contrasena">
-    <div *ngIf="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched">
-      <span class="error" *ngIf="registerForm.get('contrasena')?.hasError('required')">
+    <label for="contraseña">Contraseña *</label>
+    <input type="password" placeholder="Contraseña" formControlName="contraseña">
+    <div *ngIf="registerForm.get('contraseña')?.invalid && registerForm.get('contraseña')?.touched">
+      <span class="error" *ngIf="registerForm.get('contraseña')?.hasError('required')">
         Contraseña es un campo obligatorio</span>
-      <span class="error" *ngIf="registerForm.get('contrasena')?.hasError('minlength') || registerForm.get('contrasena')?.hasError('maxlength')">
-        Contraseña debe tener al menos 8 caracteres</span>
-      <span class="error" *ngIf="registerForm.get('contrasena')?.hasError('pattern')">
-        No spaces at the beginning or end</span>
+      <span class="error" *ngIf="registerForm.get('contraseña')?.hasError('minlength')">
+        La contraseña debe tener al menos 8 caracteres</span>
+      <span class="error" *ngIf="registerForm.get('contraseña')?.hasError('maxlength')">
+        La contraseña no puede tener más de 20 caracteres</span>
+      <span class="error" *ngIf="registerForm.get('contraseña')?.hasError('pattern')">
+        La contraseña debe incluir mayúsculas, minúsculas, números y caracteres especiales (&#64;$!%*?&amp;)</span>
       </div>
     </div>
 
@@ -111,13 +115,23 @@
       <span class="error" *ngIf="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched">3–20 characters, no spaces at edges</span>
     </div>
 
+    <!-- Mensajes de éxito y error -->
+    <div class="message-container">
+      <div class="success-message" *ngIf="registrationSuccess">
+        ¡Usuario registrado exitosamente!
+      </div>
+      <div class="error-message" *ngIf="registrationError">
+        {{ registrationError }}
+      </div>
+    </div>
+
     <!-- Botón de envío -->
-    <button type="submit" class="create-btn">Crear cuenta</button>
+    <button type="submit" class="create-btn" [disabled]="registerForm.invalid">Crear cuenta</button>
 
 </form>
   <hr class="divider">
   <div class="log-in">
-  <p class="login-link">Already have an account? <a href="#">Log in</a></p>
+    <p class="login-link">¿Ya tienes una cuenta? <a href="#">Iniciar sesión</a></p>
   </div>
 </div>
 
