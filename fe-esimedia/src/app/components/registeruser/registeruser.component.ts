@@ -17,13 +17,13 @@ export class RegisteruserComponent {
   selectedPhoto: string | null = null;
   registrationResponse: RegisterResponse | null = null;
 
-  photoOptions = [
-    { name: 'Avatar 1', url: 'assets/avatars/avatar1.png' },
-    { name: 'Avatar 2', url: 'assets/avatars/avatar2.png' },
-    { name: 'Avatar 3', url: 'assets/avatars/avatar3.png' },
-    { name: 'Avatar 4', url: 'assets/avatars/avatar4.png' },
-    { name: 'Avatar 5', url: 'assets/avatars/avatar5.png' },
-    { name: 'Avatar 6', url: 'assets/avatars/avatar6.png' }
+  avatarOptions = [
+    { identifier: '1', displayName: 'Avatar 1', imagePath: '/assets/avatars/avatar1.PNG' },
+    { identifier: '2', displayName: 'Avatar 2', imagePath: '/assets/avatars/avatar2.PNG' },
+    { identifier: '3', displayName: 'Avatar 3', imagePath: '/assets/avatars/avatar3.PNG' },
+    { identifier: '4', displayName: 'Avatar 4', imagePath: '/assets/avatars/avatar4.PNG' },
+    { identifier: '5', displayName: 'Avatar 5', imagePath: '/assets/avatars/avatar5.PNG' },
+    { identifier: '6', displayName: 'Avatar 6', imagePath: '/assets/avatars/avatar6.PNG' }
   ];
 
   fb = inject(FormBuilder);
@@ -111,9 +111,9 @@ export class RegisteruserComponent {
     this.showPhotoOptions = !this.showPhotoOptions;
   }
 
-  selectPhoto(photoUrl: string): void {
-    this.selectedPhoto = photoUrl;
-    this.registerForm.get('foto_perfil')?.setValue(photoUrl);
+  selectPhoto(imagePath: string): void {
+    this.selectedPhoto = imagePath;
+    this.registerForm.get('foto_perfil')?.setValue(imagePath);
     this.showPhotoOptions = false;
   }
 }
