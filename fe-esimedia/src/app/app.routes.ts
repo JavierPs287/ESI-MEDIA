@@ -30,5 +30,4 @@ export const routes: Routes = [
         path: 'register/admin',
         component: RegisteradminComponent
     }
-
 ];

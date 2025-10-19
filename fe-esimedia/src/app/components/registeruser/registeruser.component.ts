@@ -26,7 +26,6 @@ export class RegisteruserComponent {
 
   fb = inject(FormBuilder);
   registerForm: FormGroup = this.fb.group({
-
     nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100), this.emailRegisteredValidator()]],
@@ -124,11 +123,9 @@ getControl(controlName: string): AbstractControl | null {
   togglePhotoOptions(): void {
     this.showPhotoOptions = !this.showPhotoOptions;
   }
-
   togglePasswordVisibility(){
     this.visiblePassword = !this.visiblePassword;
   }
-
   selectPhoto(photoUrl: string): void {
     this.selectedPhoto = photoUrl;
     this.registerForm.get('fotoPerfil')?.setValue(photoUrl);

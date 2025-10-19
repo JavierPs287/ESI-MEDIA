@@ -8,30 +8,3 @@
   justify-content: center;
   margin-top: 5px;
 }
-
-.vip-toggle {
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 12px;
-  margin: 0 auto;
-}
-
-.vip-toggle:hover {
-  font-weight: bold;
-  box-shadow: 0 0 5px var(--azul-oscuro);
-}
-
-.vip-active {
-  background-color: gold;
-  color: white;
-  box-shadow: 0 0 5px rgb(255, 221, 1);
-  border-radius: 15px;
-}
-
-.vip-inactive {
-  background-color: var(--gris);
-  color: var(--blanco);
-}
-
