@@ -82,12 +82,16 @@
       
       <div class="photo-options" *ngIf="showPhotoOptions">
         <div class="photo-grid">
-          <img *ngFor="let photo of photoOptions" 
-               [src]="photo.url" 
-               [alt]="photo.name"
-               class="photo-option"
-               [class.selected]="selectedPhoto === photo.url"
-               (click)="selectPhoto(photo.url)">
+          <button *ngFor="let avatar of avatarOptions"
+                 type="button"
+                 class="photo-option-button"
+                 [class.selected]="selectedPhoto === avatar.imagePath"
+                 (click)="selectPhoto(avatar.imagePath)"
+                 (keyup.enter)="selectPhoto(avatar.imagePath)">
+            <img [src]="avatar.imagePath" 
+                 [alt]="'Estilo ' + avatar.identifier"
+                 class="photo-option">
+          </button>
         </div>
       </div>
     </div>
