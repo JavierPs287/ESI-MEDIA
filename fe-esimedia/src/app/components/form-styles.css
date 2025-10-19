@@ -1,7 +1,6 @@
 .register-container {
   max-width: 400px;
   margin: 40px auto;
-  font-family: Arial, sans-serif;
   background: var(--blanco);
   padding: 20px;
   border-radius: 8px;
@@ -144,9 +143,20 @@
 }
 
 /* link */
-.link {
+.info-link {
   text-align: center;
   color : var(--gris);
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+.link {
+  text-align: center;
+  margin-top: 0px;
+  color : var(--azul);
+  &:hover {
+    text-decoration: underline;
+    color: var(--azul-oscuro);
+  }
 }
 
 /* alternar contraseña */
