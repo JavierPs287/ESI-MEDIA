@@ -13,11 +13,15 @@
   --fonts: "Segoe UI", Roboto, Arial, sans-serif;
 }
 
-body {
+.background {
   margin: 0;
-  font-family: var(--fonts);
-  background: var(--blanco);
+  min-height: 100vh;
+  background: var(--radial-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 
 .divider {
   border-top: 1px solid var(--gris);
