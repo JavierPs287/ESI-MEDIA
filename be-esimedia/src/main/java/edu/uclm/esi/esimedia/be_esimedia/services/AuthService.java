@@ -46,7 +46,7 @@ public class AuthService {
             throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
         }
         
-        if (!validateService.isDateValid(usuario.getFechaNacimiento())) {
+        if (!validateService.isBirthDateValid(usuario.getFechaNacimiento())) {
             throw new IllegalArgumentException("La fecha de nacimiento no es válida o el usuario debe tener al menos 4 años");
         }
         
