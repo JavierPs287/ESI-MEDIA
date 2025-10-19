@@ -32,7 +32,7 @@ public class AudioService {
         this.audioRepository = audioRepository;
     }
 
-    public String uploadAudio(AudioDTO audioDTO) throws IOException, IllegalArgumentException {
+    public String uploadAudio(AudioDTO audioDTO) throws IOException {
         // Validación
         try {
             validateUploadAudio(audioDTO);
@@ -89,7 +89,7 @@ public class AudioService {
         }
     }
 
-    private void validateUploadAudio(AudioDTO audioDTO) throws IllegalArgumentException {
+    private void validateUploadAudio(AudioDTO audioDTO) {
         if (audioDTO == null) {
             throw new IllegalArgumentException("El objeto AudioDTO no puede ser nulo.");
         }
