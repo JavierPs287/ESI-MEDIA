@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
+import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 
 @Repository
 public interface VideoRepository extends MongoRepository<Video, String>{

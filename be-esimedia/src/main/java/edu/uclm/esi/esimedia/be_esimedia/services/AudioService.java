@@ -32,14 +32,15 @@ public class AudioService {
         this.audioRepository = audioRepository;
     }
 
-    public String uploadAudio(AudioDTO audioDTO) throws IOException, IllegalArgumentException {
+    public String uploadAudio(AudioDTO audioDTO) throws IOException {
+        // Validación
         try {
             validateUploadAudio(audioDTO);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Error en la validación: " + e.getMessage());
         }
 
-        // Esta asignación se hace dos veces para facilitar la lectura del código
+        // Esta asignación se hace dos veces en un flujo para facilitar la lectura del código
         MultipartFile file = audioDTO.getFile();
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
@@ -88,7 +89,7 @@ public class AudioService {
         }
     }
 
-    private void validateUploadAudio(AudioDTO audioDTO) throws IllegalArgumentException {
+    private void validateUploadAudio(AudioDTO audioDTO) {
         if (audioDTO == null) {
             throw new IllegalArgumentException("El objeto AudioDTO no puede ser nulo.");
         }
