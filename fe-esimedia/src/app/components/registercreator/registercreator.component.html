@@ -41,8 +41,9 @@
       <label for="alias">Alias</label>
       <input type="text" placeholder="Alias" formControlName="alias">
       <div class="error-container" *ngIf="getControl('alias')?.invalid && (getControl('alias')?.touched || getControl('alias')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('alias')?.hasError('required')"> El campo es obligatorio. </p>
         <p class ="error-message" *ngIf="getControl('alias')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
-        <p class ="error-message" *ngIf="getControl('alias')?.hasError('maxlength')"> Máximo 30 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('alias')?.hasError('maxlength')"> Máximo 20 caracteres. </p>
       </div>
     </div>
 
