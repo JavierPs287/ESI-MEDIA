@@ -7,11 +7,12 @@ mat-toolbar {
   color: white;
   button {
     margin-right: 8px;
-    font-family: 'Roboto', sans-serif;
+    font-family: var(--fonts);
     font-size: 16px;
     border: none;
     background-color: transparent;
     color: var(--blanco);
+    z-index: 1000;
     &:hover {
       color: var(--azul);
       transition: 0.3s;
@@ -31,7 +32,7 @@ mat-toolbar {
 .logo {
     height: 100%;
     width: 100%;
-    margin-top: 15px;
+    margin-top: 21px;
     object-fit: contain;
 
 }

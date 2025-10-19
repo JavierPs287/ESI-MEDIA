@@ -2,6 +2,14 @@
 
 
 /* estilos para el botón VIP */
+.body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--radial-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .btn-container {
   display: flex;

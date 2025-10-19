@@ -5,6 +5,7 @@ import { RegisteradminComponent } from './components/registeradmin/registeradmin
 import { HomeComponent } from './components/home/home.component';
 import { LoginuserComponent } from './components/loginuser/loginuser.component';
 import { UploadContentComponent } from './components/uploadcontent/uploadcontent.component';
+import { DashboardCreatorComponent } from './components/dashboard-creator/dashboard-creator.component';
 
 export const routes: Routes = [
 
@@ -42,5 +43,10 @@ export const routes: Routes = [
     {
         path: 'login',
         component: LoginuserComponent
+    },
+
+    {
+        path: 'dashboard',
+        component: DashboardCreatorComponent
     }
 ];
