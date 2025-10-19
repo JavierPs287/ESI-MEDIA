@@ -88,6 +88,11 @@ public class AuthService {
         if (usuario == null || !passwordEncoder.matches(contrasena, usuario.getContrasena())) {
             throw new IllegalArgumentException("Credenciales inválidas");
         }
+
+        // Comprobar si el usuario esta bloqueado
+        if (usuario.isBloqueado()) {
+            throw new IllegalArgumentException("Este usuario está bloqueado");
+        }
         
         Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
