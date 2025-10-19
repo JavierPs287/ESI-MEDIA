@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 
 @Service
 public class ValidateService {
@@ -44,9 +45,8 @@ public class ValidateService {
         return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 
-    public boolean isURLValid(String url) {
-        return url != null && URL_PATTERN.matcher(url).matches();
-    }
+
+    // Contenido
 
     public boolean areContentRequiredFieldsValid(ContenidoDTO contenidoDTO) {
         return !isRequiredFieldEmpty(contenidoDTO.getTitle(), 1, 100) &&
@@ -61,24 +61,10 @@ public class ValidateService {
                isFilePresent(audioDTO.getFile());
     }
 
-    public boolean isFilePresent(MultipartFile file) {
-        return file != null && !file.isEmpty();
-    }
-
-    public boolean isFileSizeValid(long fileSize, long maxSize) {
-        return fileSize > 0 && fileSize <= maxSize;
-    }
-
-    public boolean isFileFormatAllowed(String format, String[] allowedFormats) {
-        if (format == null || format.isEmpty()) {
-            return false;
-        }
-        for (String allowedFormat : allowedFormats) {
-            if (allowedFormat.equalsIgnoreCase(format)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean areVideoRequiredFieldsValid(VideoDTO videoDTO) {
+        return areContentRequiredFieldsValid(videoDTO) &&
+               isURLValid(videoDTO.getUrl()) &&
+               videoDTO.getResolution() > 0;
     }
 
     public boolean isDurationValid(double duration) {
@@ -101,6 +87,30 @@ public class ValidateService {
             return false;
         }
         return deadline.after(changeDate);
+    }
+
+    public boolean isFilePresent(MultipartFile file) {
+        return file != null && !file.isEmpty();
+    }
+
+    public boolean isFileSizeValid(long fileSize, long maxSize) {
+        return fileSize > 0 && fileSize <= maxSize;
+    }
+
+    public boolean isFileFormatAllowed(String format, String[] allowedFormats) {
+        if (format == null || format.isEmpty()) {
+            return false;
+        }
+        for (String allowedFormat : allowedFormats) {
+            if (allowedFormat.equalsIgnoreCase(format)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isURLValid(String url) {
+        return url != null && URL_PATTERN.matcher(url).matches();
     }
 
     public boolean isBirthDateValid(Date fechaNacimiento) {
