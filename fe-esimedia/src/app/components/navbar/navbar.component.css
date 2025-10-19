@@ -7,7 +7,6 @@ mat-toolbar {
   color: white;
   button {
     margin-right: 8px;
-    font-family: var(--fonts);
     font-size: 16px;
     border: none;
     background-color: transparent;

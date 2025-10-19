@@ -46,7 +46,7 @@ export const routes: Routes = [
     },
 
     {
-        path: 'dashboard',
+        path: 'dashboard/creator',
         component: DashboardCreatorComponent
     }
 ];
