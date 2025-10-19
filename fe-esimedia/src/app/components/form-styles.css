@@ -31,6 +31,7 @@
     font-weight: bold;
     color: var(--gris);
   }
+
   input {
     width: 100%;
     font-size: 14px;
@@ -40,6 +41,7 @@
     border: 1px solid var(--gris);
     box-sizing: border-box;
   }
+  
   input.ng-invalid.ng-touched {
     border-color: var(--rojo);
   }
