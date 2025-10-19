@@ -1,45 +1,102 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { UserService } from '../../services/user.service';
+import { User, RegisterResponse } from '../../models/user.model';
 
 @Component({
   selector: 'app-registeruser',
+  standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './registeruser.component.html',
-  styleUrl: './registeruser.component.css'
+  styleUrls: ['./registeruser.component.css']
 })
 export class RegisteruserComponent {
   isVip = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false;
   selectedPhoto: string | null = null;
-  defaultAvatar = '/assets/avatars/default-avatar.png';
-  photoOptions = [
-    { name: 'Avatar 1', url: '/assets/avatars/avatar1.PNG' },
-    { name: 'Avatar 2', url: '/assets/avatars/avatar2.PNG' },
-    { name: 'Avatar 3', url: '/assets/avatars/avatar3.PNG' },
-    { name: 'Avatar 4', url: '/assets/avatars/avatar4.PNG' },
-    { name: 'Avatar 5', url: '/assets/avatars/avatar5.PNG' },
-    { name: 'Avatar 6', url: '/assets/avatars/avatar6.PNG' }
+  registrationResponse: RegisterResponse | null = null;
+
+  avatarOptions = [
+    { identifier: '1', displayName: 'Avatar 1', imagePath: '/assets/avatars/avatar1.PNG' },
+    { identifier: '2', displayName: 'Avatar 2', imagePath: '/assets/avatars/avatar2.PNG' },
+    { identifier: '3', displayName: 'Avatar 3', imagePath: '/assets/avatars/avatar3.PNG' },
+    { identifier: '4', displayName: 'Avatar 4', imagePath: '/assets/avatars/avatar4.PNG' },
+    { identifier: '5', displayName: 'Avatar 5', imagePath: '/assets/avatars/avatar5.PNG' },
+    { identifier: '6', displayName: 'Avatar 6', imagePath: '/assets/avatars/avatar6.PNG' }
   ];
 
   fb = inject(FormBuilder);
-  registerForm: FormGroup = this.fb.group({
-    nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
-    alias: ['',[Validators.maxLength(20)]],
-    vip: [false],
-    fotoPerfil: [this.defaultAvatar],
-    cumpleanos: ['',[Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/), this.minAgeValidator(4)]],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), this.passwordStrengthValidator()]],
-    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
-  }, { validators: this.passwordMatchValidator() });
+  private readonly userService = inject(UserService);
 
-  onSubmit():void{
+  registerForm = this.fb.nonNullable.group({
+    nombre: ['', [Validators.required, Validators.maxLength(25)]],
+    apellidos: ['', [Validators.required, Validators.maxLength(25)]],
+    email: ['', [Validators.required, Validators.email]],
+    alias: ['', [Validators.minLength(3), Validators.maxLength(20)]],
+    vip: [false],
+    foto_perfil: [null as string | null],
+    fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+    contrasena: ['', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.maxLength(20),
+      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    ]],
+    repetirContrasena: ['', [Validators.required]]
+  }, {
+    validators: this.passwordMatchValidator
+  });
+
+  private passwordMatchValidator(): ValidatorFn {
+    return (formGroup: AbstractControl): ValidationErrors | null => {
+      if (formGroup instanceof FormGroup) {
+        const password = formGroup.get('contrasena')?.value;
+        const confirmPassword = formGroup.get('repetirContrasena')?.value;
+        return password && confirmPassword && password === confirmPassword ? null : { passwordMismatch: true };
+      }
+      return null;
+    };
+  }
+
+  onSubmit(): void {
     if (this.registerForm.valid) {
-      console.log('Form submitted:', this.registerForm.value);
+      const formValue = this.registerForm.getRawValue();
+      const userData: User = {
+        nombre: formValue.nombre,
+        apellidos: formValue.apellidos,
+        email: formValue.email,
+        alias: formValue.alias,
+  fecha_nacimiento: formValue.fecha_nacimiento,
+  contrasena: formValue.contrasena,
+        vip: formValue.vip,
+        foto_perfil: formValue.foto_perfil
+      };
+
+      console.log('Enviando datos de registro:', userData);
+
+      this.userService.register(userData).subscribe({
+        next: (response) => {
+          console.log('Respuesta del servidor:', response);
+          this.registrationResponse = response;
+          if (!response.error) {
+            this.registerForm.reset();
+          }
+        },
+        error: (error) => {
+          console.error('Error en el registro:', error);
+          this.registrationResponse = {
+            message: '',
+            error: error.message || 'Error en el registro'
+          };
+        }
+      });
+    } else {
+      this.registrationResponse = {
+        message: '',
+        error: 'Por favor, complete todos los campos requeridos correctamente'
+      };
     }
   }
 
@@ -87,12 +144,8 @@ passwordStrengthValidator() {
     };
   }
 
-  passwordMatchValidator() {
-    return (group: AbstractControl): ValidationErrors | null => {
-      const password = group.get('contrasena')?.value;
-      const repeatPassword = group.get('repetirContrasena')?.value;
-      return password && repeatPassword && password === repeatPassword ? null : { passwordMismatch: true };
-    };
+  togglePasswordVisibility(): void {
+    this.visiblePassword = !this.visiblePassword;
   }
 
 //MANEJO ERRORES
@@ -111,12 +164,10 @@ getControl(controlName: string): AbstractControl | null {
   togglePhotoOptions(): void {
     this.showPhotoOptions = !this.showPhotoOptions;
   }
-  togglePasswordVisibility(){
-    this.visiblePassword = !this.visiblePassword;
-  }
-  selectPhoto(photoUrl: string): void {
-    this.selectedPhoto = photoUrl;
-    this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
+
+  selectPhoto(imagePath: string): void {
+    this.selectedPhoto = imagePath;
+    this.registerForm.get('foto_perfil')?.setValue(imagePath);
     this.showPhotoOptions = false;
   }
 }
