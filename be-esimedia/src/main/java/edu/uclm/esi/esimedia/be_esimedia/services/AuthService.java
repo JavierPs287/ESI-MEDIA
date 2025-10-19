@@ -1,11 +1,19 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import java.nio.charset.StandardCharsets;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
 
 @Service
 public class AuthService {
@@ -13,13 +21,17 @@ public class AuthService {
     private final UserRepository userRepository;
     private final ValidateService validateService;
     private final UserService userService;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @Value("${jwt.secret}")
+    private String secret;
+
     public AuthService(UserRepository userRepository, ValidateService validateService, UserService userService) {
         this.userRepository = userRepository;
         this.validateService = validateService;
         this.userService = userService;
     }
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Usuario register(Usuario usuario) {
         // Validar campos requeridos
@@ -77,9 +89,14 @@ public class AuthService {
             throw new IllegalArgumentException("Credenciales inválidas");
         }
         
-        // Generar token JWT
+        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
-        return "token"; // Reemplaza esto con la generación real del token
+        // Generar token de autenticación JWT
+        return Jwts.builder()
+                .setSubject(usuario.getEmail())
+                .signWith(SignatureAlgorithm.HS512, key)
+                .compact();
+
     }
 
 }

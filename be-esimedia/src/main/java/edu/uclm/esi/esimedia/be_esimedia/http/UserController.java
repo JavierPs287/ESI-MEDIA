@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
+import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
 
 
 @RestController
@@ -34,12 +35,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUsuario(@RequestBody String mail, @RequestBody String contrasena){
+    public ResponseEntity<String> loginUsuario(@RequestBody LoginRequest loginRequest){
         try {
-            String token = authService.login(mail, contrasena);
+            String token = authService.login(loginRequest.getEmail(), loginRequest.getContrasena());
             return ResponseEntity.ok(token);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error de autenticación, pruebalo de nuevo");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
