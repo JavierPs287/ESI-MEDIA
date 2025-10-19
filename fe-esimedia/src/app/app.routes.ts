@@ -3,6 +3,7 @@ import { RegisteruserComponent } from './components/registeruser/registeruser.co
 import { RegistercreatorComponent } from './components/registercreator/registercreator.component';
 import { RegisteradminComponent } from './components/registeradmin/registeradmin.component';
 import { HomeComponent } from './components/home/home.component';
+import { LoginuserComponent } from './components/loginuser/loginuser.component';
 export const routes: Routes = [
 
     {
@@ -29,5 +30,10 @@ export const routes: Routes = [
     {
         path: 'register/admin',
         component: RegisteradminComponent
+    },
+
+    {
+        path: 'login',
+        component: LoginuserComponent
     }
 ];

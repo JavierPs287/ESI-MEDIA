@@ -28,7 +28,7 @@ export class RegisteruserComponent {
   registerForm: FormGroup = this.fb.group({
     nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100), this.emailRegisteredValidator()]],
+    email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
     alias: ['',[Validators.maxLength(20)]],
     vip: [false],
     fotoPerfil: [this.defaultAvatar],
@@ -58,18 +58,6 @@ export class RegisteruserComponent {
         age--;
       }
       return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
-    };
-  }
-
-  emailRegisteredValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null;
-      }
-      // TODO: Implementar consulta a backend para verificar si el email ya existe
-      // const isRegistered = await this.userService.checkEmail(control.value);
-      // return isRegistered ? { emailRegistered: true } : null;
-      return null;
     };
   }
 
