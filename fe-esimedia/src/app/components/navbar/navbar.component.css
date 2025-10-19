@@ -1,0 +1,36 @@
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+mat-toolbar {
+  background-color: var(--azul-oscuro);
+  color: white;
+  button {
+    margin-right: 8px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    border: none;
+    background-color: transparent;
+    color: var(--blanco);
+    &:hover {
+      color: var(--azul);
+      transition: 0.3s;
+    }
+  }
+}
+
+.btn-logo {
+  background-color: transparent;
+  border : none;
+  cursor: pointer;
+  width: 100px;
+  height: 100px;
+  padding: 0;
+}
+.logo {
+    height: 100%;
+    width: 100%;
+    margin-top: 15px;
+    object-fit: contain;
+
+}
