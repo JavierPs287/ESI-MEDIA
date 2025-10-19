@@ -1,0 +1,34 @@
+@import '../form-styles.css';
+
+.area-descripcion {
+    width: 100%;
+    font-size: 14px;
+    font-family: Roboto, Arial, sans-serif;
+    padding: 10px;
+    margin: 5px 0 5px;
+    border-radius: 5px;
+    border: 1px solid var(--gris);
+    box-sizing: border-box;
+}
+
+.content-btn {
+    width: 30%;
+    font-size: 14px;
+    padding: 10px;
+    margin: 5px 10px 5px 0;
+    border-radius: 5px;
+    border: 1px solid var(--gris);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    &:hover {
+        background-color: var(--azul-oscuro);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    &.active {
+        background-color: var(--azul-oscuro);
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+}

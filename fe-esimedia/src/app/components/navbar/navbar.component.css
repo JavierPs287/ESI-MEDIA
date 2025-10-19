@@ -15,6 +15,7 @@ mat-toolbar {
     &:hover {
       color: var(--azul);
       transition: 0.3s;
+      transform: translateY(-2px);
     }
   }
 }

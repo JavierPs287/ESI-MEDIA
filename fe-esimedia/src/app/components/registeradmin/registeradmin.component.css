@@ -1,0 +1,10 @@
+@import '../form-styles.css';
+
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 15px;
+  color: var(--gris);
+}
