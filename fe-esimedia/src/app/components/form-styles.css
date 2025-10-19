@@ -142,8 +142,8 @@
   border-color: var(--azul-oscuro);
 }
 
-/* inicio de sesión */
-.log-in {
+/* link */
+.link {
   text-align: center;
   color : var(--gris);
 }
