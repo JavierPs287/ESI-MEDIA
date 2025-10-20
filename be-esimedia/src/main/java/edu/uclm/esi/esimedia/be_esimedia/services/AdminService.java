@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
 
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
-import edu.uclm.esi.esimedia.be_esimedia.model.User;
+import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 
@@ -68,7 +68,7 @@ public class AdminService {
     }
 
     public void setUserBlocked(String email, boolean blocked) {
-        User user = userRepository.findByEmail(email);
+        Usuario user = userRepository.findByEmail(email);
         if (user == null) {
             throw new NoSuchElementException("Usuario no encontrado");
         }

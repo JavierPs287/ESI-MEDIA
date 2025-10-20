@@ -6,6 +6,7 @@ public class User {
     private String email;
     private String contrasena;
     private int foto = 0;
+    private boolean bloqueado = false;
     
     // Getters and Setters
     public String getNombre() {
@@ -41,5 +42,13 @@ public class User {
     }
     public void setFoto(int foto) {
         this.foto = foto;
+    }
+
+    public boolean isBloqueado() {
+        return bloqueado;
+    }
+
+    public void setBloqueado(boolean bloqueado) {
+        this.bloqueado = bloqueado;
     }
 }
