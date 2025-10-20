@@ -1,8 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { CreatorService } from '../../../services/creator.service';
+import { Creator, Campo, Tipo } from '../../../models/creator.model';
+import { Router } from '@angular/router';
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
+
 
 @Component({
   selector: 'app-registercreator',
@@ -32,6 +36,13 @@ isVip = false;
   ];
 
   fb = inject(FormBuilder);
+  creatorService = inject(CreatorService);
+  router = inject(Router);
+  
+  isSubmitting = false;
+  errorMessage = '';
+  successMessage = '';
+
   registerForm: FormGroup = this.fb.group({
 
     nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
