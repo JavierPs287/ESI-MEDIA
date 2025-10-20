@@ -50,16 +50,22 @@
     </div>
 
     <div class="form-field">
-      <label for="foto_perfil">Foto de perfil</label>
+      <label for="foto">Foto de perfil </label>
       <button type="button" class="photo-selector-btn" (click)="togglePhotoOptions()">
         {{ selectedPhoto ? 'Cambiar foto' : 'Seleccionar foto' }}
       </button>
+
       <div class="photo-options" *ngIf="showPhotoOptions">
         <div class="photo-grid">
-          <button *ngFor="let avatar of avatarOptions" type="button" class="photo-option-button" [class.selected]="selectedPhoto === avatar.imagePath" (click)="selectPhoto(avatar.imagePath)">
-            <img [src]="avatar.imagePath" [alt]="avatar.displayName" class="photo-option">
-          </button>
+          <img *ngFor="let avatar of avatarOptions" 
+               [src]="avatar.url" 
+               [alt]="avatar.name"
+               class="photo-option"
+               [class.selected]="selectedPhoto === avatar.url"
+               (click)="selectPhoto(avatar.url)"
+               (keydown.enter)="selectPhoto(avatar.url)">
         </div>
+      <a class="link" href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
       </div>
     </div>
 

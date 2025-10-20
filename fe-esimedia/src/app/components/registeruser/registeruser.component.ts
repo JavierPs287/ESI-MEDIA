@@ -20,12 +20,12 @@ export class RegisteruserComponent {
   registrationResponse: RegisterResponse | null = null;
 
   avatarOptions = [
-    { identifier: '1', displayName: 'Avatar 1', imagePath: '/assets/avatars/avatar1.PNG' },
-    { identifier: '2', displayName: 'Avatar 2', imagePath: '/assets/avatars/avatar2.PNG' },
-    { identifier: '3', displayName: 'Avatar 3', imagePath: '/assets/avatars/avatar3.PNG' },
-    { identifier: '4', displayName: 'Avatar 4', imagePath: '/assets/avatars/avatar4.PNG' },
-    { identifier: '5', displayName: 'Avatar 5', imagePath: '/assets/avatars/avatar5.PNG' },
-    { identifier: '6', displayName: 'Avatar 6', imagePath: '/assets/avatars/avatar6.PNG' }
+    { id: '1', name: 'Avatar 1', url: '/assets/avatars/avatar1.png' },
+    { id: '2', name: 'Avatar 2', url: '/assets/avatars/avatar2.png' },
+    { id: '3', name: 'Avatar 3', url: '/assets/avatars/avatar3.png' },
+    { id: '4', name: 'Avatar 4', url: '/assets/avatars/avatar4.png' },
+    { id: '5', name: 'Avatar 5', url: '/assets/avatars/avatar5.png' },
+    { id: '6', name: 'Avatar 6', url: '/assets/avatars/avatar6.png' }
   ];
 
   fb = inject(FormBuilder);
