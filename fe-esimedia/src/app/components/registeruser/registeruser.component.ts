@@ -38,12 +38,10 @@ export class RegisteruserComponent {
     alias: ['', [Validators.minLength(3), Validators.maxLength(20)]],
     vip: [false],
     foto_perfil: [null as string | null],
-    fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+    fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/), this.minAgeValidator(4)]],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), this.passwordStrengthValidator()]],
-    repetirContrasena: ['', [Validators.required]]
-  }, {
-    validators: this.passwordMatchValidator
-  });
+    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+  }, { validators: this.passwordMatchValidator() });
 
   private passwordMatchValidator(): ValidatorFn {
     return (formGroup: AbstractControl): ValidationErrors | null => {

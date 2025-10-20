@@ -37,7 +37,7 @@ export class RegisteradminComponent {
 
     nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100), this.emailRegisteredValidator()]],
+    email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
     departamento: ['',[Validators.required]],
     fotoPerfil: [this.defaultAvatar],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), this.passwordStrengthValidator()]],
@@ -51,18 +51,6 @@ export class RegisteradminComponent {
   }
 
  //VALIDADORES PERSONALIZADOS
-
-  emailRegisteredValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null;
-      }
-      // TODO: Implementar consulta a backend para verificar si el email ya existe
-      // const isRegistered = await this.userService.checkEmail(control.value);
-      // return isRegistered ? { emailRegistered: true } : null;
-      return null;
-    };
-  }
 
 passwordStrengthValidator() {
     return (control: AbstractControl): ValidationErrors | null => {
