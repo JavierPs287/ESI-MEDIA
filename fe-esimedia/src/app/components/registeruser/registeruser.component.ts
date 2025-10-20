@@ -39,12 +39,7 @@ export class RegisteruserComponent {
     vip: [false],
     foto_perfil: [null as string | null],
     fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
-    contrasena: ['', [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.maxLength(20),
-      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-    ]],
+    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), this.passwordStrengthValidator()]],
     repetirContrasena: ['', [Validators.required]]
   }, {
     validators: this.passwordMatchValidator
