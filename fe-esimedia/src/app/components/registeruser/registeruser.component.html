@@ -76,15 +76,8 @@
       <label for="contrasena">Contraseña *</label>
       <div class="password-field">
         <input id="contrasena" [type]="visiblePassword ? 'text' : 'password'" placeholder="Contraseña" formControlName="contrasena">
-        <button type="button" class="toggle-password" (click)="togglePasswordVisibility()" aria-label="Mostrar u ocultar contraseña">
-          <svg *ngIf="!visiblePassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-          <svg *ngIf="visiblePassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.69 21.69 0 0 1 5.06-6.06"></path>
-            <path d="M1 1l22 22"></path>
-          </svg>
+        <button type="button" class="eyeicon" (click)="togglePasswordVisibility()" aria-label="Mostrar u ocultar contraseña">
+          <i [ngClass]="visiblePassword ? 'fa fa-eye' : 'fa fa-eye-slash'"></i>
         </button>
       </div>
       <div *ngIf="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched">
