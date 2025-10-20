@@ -9,6 +9,7 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
+import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
@@ -127,11 +128,11 @@ public class AdminService {
     }
 
     public void setUserBlocked(String email, boolean blocked) {
-        Usuario user = userRepository.findByEmail(email);
+        Usuario user = usuarioRepository.findByEmail(email);
         if (user == null) {
             throw new NoSuchElementException("Usuario no encontrado");
         }
         user.setBloqueado(blocked);
-        userRepository.save(user);
+        usuarioRepository.save(user);
     }
 }

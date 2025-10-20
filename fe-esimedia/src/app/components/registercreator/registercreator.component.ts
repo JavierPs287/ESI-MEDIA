@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { CreatorService } from '../../services/creator.service';
+import { Creator, Campo, Tipo } from '../../models/creator.model';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -38,6 +41,13 @@ isVip = false;
   ];
 
   fb = inject(FormBuilder);
+  creatorService = inject(CreatorService);
+  router = inject(Router);
+  
+  isSubmitting = false;
+  errorMessage = '';
+  successMessage = '';
+
   registerForm: FormGroup = this.fb.group({
 
     nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -53,9 +63,104 @@ isVip = false;
   }, { validators: this.passwordMatchValidator() });
 
   onSubmit():void{
-    if (this.registerForm.valid) {
-      console.log('Form submitted:', this.registerForm.value);
+    if (this.registerForm.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+      this.errorMessage = '';
+      this.successMessage = '';
+
+      const formValue = this.registerForm.value;
+      
+      // Mapear especialidad al enum Campo del backend
+      const campoMap: { [key: string]: Campo } = {
+        'Música': Campo.MUSICA,
+        'Podcast': Campo.MUSICA,
+        'Educación': Campo.LIBRO,
+        'Deportes': Campo.VIDEOJUEGO,
+        'Gaming': Campo.VIDEOJUEGO,
+        'Tecnología': Campo.VIDEOJUEGO,
+        'Arte': Campo.PELICULA,
+        'Comedia': Campo.PELICULA,
+        'Documentales': Campo.PELICULA,
+        'Otros': Campo.PELICULA
+      };
+
+      // Mapear tipoContenido al enum Tipo del backend
+      const tipoMap: { [key: string]: Tipo } = {
+        'Audio': Tipo.AUDIO,
+        'Video': Tipo.VIDEO,
+        'audio': Tipo.AUDIO,
+        'video': Tipo.VIDEO
+      };
+
+      // Obtener el número de avatar de la URL
+      const fotoNum = this.getAvatarNumber(formValue.fotoPerfil);
+
+      const creator: Creator = {
+        nombre: formValue.nombre,
+        apellidos: formValue.apellido,
+        email: formValue.email,
+        contrasena: formValue.contrasena,
+        foto: fotoNum,
+        alias: formValue.alias,
+        descripcion: formValue.descripcion || '',
+        campo: campoMap[formValue.especialidad] || Campo.PELICULA,
+        tipo: tipoMap[formValue.tipoContenido] || Tipo.VIDEO
+      };
+
+      console.log('Registrando creador:', creator);
+
+      this.creatorService.registerCreator(creator).subscribe({
+        next: (response) => {
+          if (response.error) {
+            this.errorMessage = response.error;
+            this.isSubmitting = false;
+          } else {
+            this.successMessage = response.message || 'Creador registrado correctamente';
+            console.log('Registro exitoso:', response.message);
+            
+            // Resetear el formulario
+            this.registerForm.reset({
+              fotoPerfil: this.defaultAvatar
+            });
+            this.selectedPhoto = null;
+            
+            // Redirigir después de 2 segundos
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 2000);
+          }
+        },
+        error: (error) => {
+          console.error('Error en el registro:', error);
+          this.errorMessage = 'Error al registrar el creador. Por favor, intente nuevamente.';
+          this.isSubmitting = false;
+        },
+        complete: () => {
+          if (this.errorMessage) {
+            this.isSubmitting = false;
+          }
+        }
+      });
+    } else {
+      // Marcar todos los campos como touched para mostrar errores
+      for (const key of Object.keys(this.registerForm.controls)) {
+        this.registerForm.get(key)?.markAsTouched();
+      }
     }
+  }
+
+  /**
+   * Extrae el número del avatar de la URL de la foto de perfil
+   */
+  private getAvatarNumber(photoUrl: string): number {
+    if (!photoUrl || photoUrl === this.defaultAvatar) {
+      return 0; // Avatar por defecto
+    }
+    
+    // Extraer el número del avatar (ejemplo: /assets/avatars/avatar1.PNG -> 1)
+    const regex = /avatar(\d+)/i;
+    const match = regex.exec(photoUrl);
+    return match ? Number.parseInt(match[1], 10) : 0;
   }
 
  //VALIDADORES PERSONALIZADOS
