@@ -32,3 +32,29 @@
   background-color: var(--gris);
   color: var(--blanco);
 }
+
+/* Password field with eye icon */
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-field input {
+  flex: 1 1 auto;
+  padding-right: 40px; /* space for the icon */
+}
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: var(--azul-oscuro);
+}
+.toggle-password svg {
+  display: block;
+}
