@@ -1,0 +1,100 @@
+@import '../../register/form-styles.css';
+* {
+  font-family: var(--fonts);
+}
+.uploadContent-container {
+  max-width: 100%;
+  margin: 30px;
+}
+
+.uploadContent-card {
+  box-shadow: 10px 4px 15px var(--gris);
+  color: var(--azul);
+  padding: 0px 30px;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.file-input-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+.file-name {
+  color: var(--azul-oscuro);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.duration-group {
+  border: none;
+  padding: 0;
+  legend {
+  color: var(--azul);
+}
+}
+
+.duration-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.toggle-group {
+    margin: none;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+button {
+  min-width: 120px;
+}
+
+mat-tab-group {
+  margin-top: 20px;
+}
+
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+  padding: 0.75em 0.75em 0.25em 0.75em;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .duration-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .file-input-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

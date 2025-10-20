@@ -1,0 +1,71 @@
+<app-navbar></app-navbar>
+<section class="home">
+  <div class="home-content">
+    <h1 class="home-title">Bienvenido a <span class="highlight">ESI-Media</span></h1>
+    <p class="home-subtitle">Tu plataforma de audio y vídeo de la más alta calidad</p>
+    <p class="home-description">Descubre y comparte contenido multimedia extraordinario</p>
+    
+    <div class="home-buttons">
+      <button mat-raised-button color="primary" routerLink="/register/user" class="btn-register">
+        <mat-icon>person_add</mat-icon>Únete como Usuario</button>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+  <h2>¿Por qué elegir ESI-Media?</h2>
+  <p class="section-subtitle">Somos más que una plataforma, somos una comunidad</p>
+  
+  <div class="features-grid">
+    <div class="feature-card" *ngFor="let feature of features">
+      <div class="feature-icon">{{ feature.icon }}</div>
+      <h3>{{ feature.title }}</h3>
+      <p>{{ feature.description }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats">
+  <div class="stat-item">
+    <h3>50K+</h3>
+    <p>Creadores Activos</p>
+  </div>
+  <div class="stat-item">
+    <h3>1M+</h3>
+    <p>Usuarios Registrados</p>
+  </div>
+  <div class="stat-item">
+    <h3>10K+</h3>
+    <p>Horas de Contenido</p>
+  </div>
+  <div class="stat-item">
+    <h3>24/7</h3>
+    <p>Disponibilidad</p>
+  </div>
+</section>
+
+<!-- Footer Section -->
+<section class="footer-section">
+  <div class="footer-content">
+    <div class="footer-column">
+      <h4>ESI-Media</h4>
+      <p>La mejor plataforma de contenido multimedia</p>
+    </div>
+    <div class="footer-column">
+      <h4>Enlaces</h4>
+      <ul>
+        <li><a href="#">Inicio</a></li>
+        <li><a href="#">Explorar</a></li>
+        <li><a href="#">Contacto</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h4>Redes Sociales</h4>
+      <div class="social-icons">
+        <mat-icon>facebook</mat-icon>
+      </div>
+    </div>
+  </div>
+</section>

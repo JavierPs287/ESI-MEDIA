@@ -1,13 +1,25 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.annotation.Id;
+
 public class User {
+    @Id
+    private String id;
     private String nombre;
     private String apellidos;
     private String email;
     private String contrasena;
     private int foto = 0;
+    private boolean bloqueado = false;
     
     // Getters and Setters
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -41,5 +53,13 @@ public class User {
     }
     public void setFoto(int foto) {
         this.foto = foto;
+    }
+
+    public boolean isBloqueado() {
+        return bloqueado;
+    }
+
+    public void setBloqueado(boolean bloqueado) {
+        this.bloqueado = bloqueado;
     }
 }

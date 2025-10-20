@@ -1,6 +1,5 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.Date;
 
 @Document(collection = "USUARIOS")

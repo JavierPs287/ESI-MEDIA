@@ -1,1 +1,48 @@
-/* You can add global styles to this file, and also import other style files */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+:root {
+  --gris: #a7aeb2;
+  --azul:#0097d7;
+  --rojo: #B30033;
+  --azul-oscuro: #1d2262;
+  --blanco: #ffffff;
+  --negro: #000000;
+  --radial-background: radial-gradient(circle,rgba(255, 255, 255, 1) 20%, rgba(0, 151, 215, 1) 60%, rgba(29, 34, 98, 0.9) 100%);
+  --linear-gradient: linear-gradient(135deg, rgba(0, 151, 215, 1) 0%, rgba(29, 34, 98, 1) 100%);
+  --fonts: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+* {
+  font-family: var(--fonts);
+}
+
+.background {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--radial-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider {
+  border-top: 1px solid var(--gris);
+  margin: 10px 50px;
+  opacity: 0.6;
+}
+
+.link {
+  color: var(--azul);
+  text-decoration: 15px;
+  font-size: small;
+  margin-top: 10px;
+  text-align: center;
+  display: block;
+}
+
+.link:hover {
+  text-decoration: underline;
+  color: var(--azul-oscuro);
+}
+
