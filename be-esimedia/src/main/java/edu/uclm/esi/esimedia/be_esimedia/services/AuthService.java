@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 public class AuthService {
@@ -65,5 +68,26 @@ public class AuthService {
         // Guardar usuario
         return userRepository.save(usuario);
     }
+
+        /**
+         * Simple login: verifica las credenciales y devuelve un mapa con message y token
+         */
+        public Map<String, String> login(String email, String contrasena) {
+            if (email == null || contrasena == null) {
+                throw new IllegalArgumentException("Email y contrase\u00f1a son requeridos");
+            }
+            Usuario u = userRepository.findByEmail(email);
+            if (u == null) {
+                throw new NoSuchElementException("Usuario no encontrado");
+            }
+            if (!passwordEncoder.matches(contrasena, u.getContrasena())) {
+                throw new IllegalArgumentException("Credenciales inv\u00e1lidas");
+            }
+            String token = java.util.UUID.randomUUID().toString();
+            Map<String, String> res = new HashMap<>();
+            res.put("message", "Login correcto");
+            res.put("token", token);
+            return res;
+        }
 
 }

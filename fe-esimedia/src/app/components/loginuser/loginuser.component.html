@@ -30,7 +30,11 @@
     </div>
 
     <!-- Botón de envío -->
-    <button type="submit" class="create-btn">Iniciar sesión</button>
+      <button type="submit" class="create-btn">Iniciar sesión</button>
+      <div class="message-container">
+        <div class="success-message" *ngIf="loginResponse?.message && !loginResponse?.error">{{ loginResponse?.message }}</div>
+        <div class="error-message" *ngIf="loginResponse?.error">{{ loginResponse?.error }}</div>
+      </div>
   </form>
   <hr class="divider">
   <div>
