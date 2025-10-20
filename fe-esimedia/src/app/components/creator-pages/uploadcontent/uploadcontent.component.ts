@@ -39,8 +39,7 @@ export class UploadContentComponent implements OnInit {
   videoForm!: FormGroup;
 
   tags = ['Acción', 'Comedia', 'Drama', 'Terror', 'Thriller', 'Educativo', 'Infantil', 'Documentales'];
-  ageRestrictions = ['G', 'PG', 'PG-13', '14', '16', '18+'];
-  videoResolutions = ['720p', '1080p', '4K'];
+  videoResolutions = ['360p','720p', '1080p', '4K'];
   hours = Array.from({ length: 24 }, (_, i) => i);
   minutes = Array.from({ length: 60 }, (_, i) => i);
   seconds = Array.from({ length: 60 }, (_, i) => i);
@@ -66,13 +65,13 @@ export class UploadContentComponent implements OnInit {
       audioFile: ['', Validators.required],
       tags: [[], [Validators.required, this.minTagsValidator(1)]],
       duration: this.fb.group({
-        hours: [0, [Validators.required, Validators.min(0)]],
-        minutes: [0, [Validators.required, Validators.min(0), Validators.max(59)]],
-        seconds: [0, [Validators.required, Validators.min(0), Validators.max(59)]]
+        hours: ['0', [Validators.required, Validators.min(0)]],
+        minutes: ['0', [Validators.required, Validators.min(0), Validators.max(59)]],
+        seconds: ['', [Validators.required, Validators.min(0), Validators.max(59)]]
       }, { validators: this.durationValidator() }),
       vip: [false, Validators.required],
       visible: [true, Validators.required],
-      ageRestriction: ['G', Validators.required],
+      ageRestriction: ['', Validators.required],
       availableUntil: [null],
       image: ['']
     });
@@ -85,13 +84,13 @@ export class UploadContentComponent implements OnInit {
       videoUrl: ['', [Validators.required, this.urlValidator()]],
       tags: [[], [Validators.required, this.minTagsValidator(1)]],
       duration: this.fb.group({
-        hours: [0, [Validators.required, Validators.min(0)]],
-        minutes: [0, [Validators.required, Validators.min(0), Validators.max(59)]],
-        seconds: [0, [Validators.required, Validators.min(0), Validators.max(59)]]
+        hours: ['0', [ Validators.min(0)]],
+        minutes: ['0', [ Validators.min(0), Validators.max(59)]],
+        seconds: ['', [Validators.required, Validators.min(0), Validators.max(59)]]
       }, { validators: this.durationValidator() }),
       resolution: ['1080p', Validators.required],
-      vip: [false, Validators.required],
-      visible: [true, Validators.required],
+      vip: ['', Validators.required],
+      visible: ['', Validators.required],
       ageRestriction: ['G', Validators.required],
       availableUntil: [null],
       image: ['']
@@ -205,10 +204,17 @@ export class UploadContentComponent implements OnInit {
     };
   }
 
+  private convertDurationToSeconds(duration: any): number {
+  const hours = duration.hours || 0;
+  const minutes = duration.minutes || 0;
+  const seconds = duration.seconds || 0;
+  return (hours * 3600) + (minutes * 60) + seconds;
+}
+
   submitAudioForm(): void {
     if (this.audioForm.valid && this.selectedAudioFile) {
       console.log('Formulario de audio:', this.audioForm.value);
-      console.log('Archivo:', this.selectedAudioFile);
+      this.convertDurationToSeconds(this.audioForm.value.duration);
       // Implementar envío al servidor
       alert('Contenido de audio registrado correctamente');
     } else {

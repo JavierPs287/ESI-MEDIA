@@ -7,7 +7,7 @@
           <form [formGroup]="audioForm" (ngSubmit)="submitAudioForm()">
             <div class="form-container">
               <!-- Título -->
-               <label for="title">Título*</label>
+               <label for="title">Título *</label>
               <mat-form-field>
                 <mat-label>Título</mat-label>
                 <input matInput formControlName="title" maxlength="100" />
@@ -49,7 +49,7 @@
 
               <!-- Duración -->
               <fieldset formGroupName="duration" class="duration-group">
-                <legend>Duración</legend>
+                <legend>Duración *</legend>
                 <div class="duration-inputs">
                   <mat-form-field >
                     <mat-label>Horas</mat-label>
@@ -71,16 +71,20 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <mat-error *ngIf="audioForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a 0</mat-error>
+                <div class="error-container" *ngIf="videoForm.get('duration')?.invalid && (videoForm.get('duration')?.touched || videoForm.get('duration')?.dirty)">
+                  <mat-error *ngIf="videoForm.get('duration')?.hasError('required')">La duración es obligatoria</mat-error>
+                  <mat-error *ngIf="videoForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a 0</mat-error>
+                </div>
               </fieldset>
 
               <!-- Restricción de edad -->
             <label for="age-restriction">Restricción de edad *</label>
               <mat-form-field >
                 <mat-label>Restricción de edad</mat-label>
-                <mat-select formControlName="ageRestriction">
-                  <mat-option *ngFor="let age of ageRestrictions" [value]="age">{{ age }}</mat-option>
-                </mat-select>
+                <input matInput formControlName="ageRestriction" type="number" min="4" max="110" placeholder="Ej: 18" />
+                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('required')">La restricción de edad es obligatoria</mat-error>
+                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('min')">Valor mínimo 4</mat-error>
+                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('max')">Valor máximo 110</mat-error>
               </mat-form-field>
 
               <!-- Disponible hasta -->
@@ -124,9 +128,9 @@
           <form [formGroup]="videoForm" (ngSubmit)="submitVideoForm()">
             <div class="form-container">
               <!-- Título -->
-               <label for="video-title">Título</label>
+               <label for="video-title">Título *</label>
               <mat-form-field >
-                <mat-label>Título *</mat-label>
+                <mat-label>Título</mat-label>
                 <input matInput formControlName="title" maxlength="100" />
                 <mat-error *ngIf="videoForm.get('title')?.hasError('required')">El título es obligatorio</mat-error>
                 <mat-error *ngIf="videoForm.get('title')?.hasError('maxlength')">Máximo 100 caracteres</mat-error>
@@ -143,7 +147,7 @@
               </mat-form-field>
 
               <!-- URL de vídeo -->
-              <label for="video-url">URL de vídeo</label>
+              <label for="video-url">URL de vídeo *</label>
               <mat-form-field >
                 <mat-label>URL de vídeo</mat-label>
                 <input matInput formControlName="videoUrl" placeholder="https://ejemplo.com/video.mp4" />
@@ -152,7 +156,7 @@
               </mat-form-field>
 
               <!-- Tags -->
-                <label for="video-tags">Tags</label>
+                <label for="video-tags">Tags </label>
               <mat-form-field >
                 <mat-label>Tags</mat-label>
                 <mat-select formControlName="tags" multiple>
@@ -187,7 +191,10 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <mat-error *ngIf="videoForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a 0</mat-error>
+                <div class="error-container" *ngIf="videoForm.get('duration')?.invalid && (videoForm.get('duration')?.touched || videoForm.get('duration')?.dirty)">
+                  <mat-error *ngIf="videoForm.get('duration')?.hasError('required')">La duración es obligatoria</mat-error>
+                  <mat-error *ngIf="videoForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a 0</mat-error>
+                </div>
               </fieldset>
 
               <!-- Resolución -->
@@ -200,12 +207,13 @@
               </mat-form-field>
 
               <!-- Restricción de edad -->
-            <label for="video-age-restriction">Restricción de edad *</label>
+            <label for="age-restriction">Restricción de edad *</label>
               <mat-form-field >
-                <mat-label>Restricción de edad *</mat-label>
-                <mat-select formControlName="ageRestriction">
-                  <mat-option *ngFor="let age of ageRestrictions" [value]="age">{{ age }}</mat-option>
-                </mat-select>
+                <mat-label>Restricción de edad</mat-label>
+                <input matInput formControlName="ageRestriction" type="number" min="4" max="110" placeholder="Ej: 18" />
+                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('min')">Valor mínimo 4</mat-error>
+                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('max')">Valor máximo 110</mat-error>
+                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('required')">La restricción de edad es obligatoria</mat-error>
               </mat-form-field>
 
               <!-- Disponible hasta -->
