@@ -2,16 +2,21 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.NoSuchElementException;
 
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 
 @Service
 public class AdminService {
     private final AdminRepository adminRepository;
+    private final UserRepository userRepository;
     private final ValidateService validateService;
-    public AdminService(AdminRepository adminRepository, ValidateService validateService) {
+    public AdminService(AdminRepository adminRepository, UserRepository userRepository, ValidateService validateService) {
         this.adminRepository = adminRepository;
+        this.userRepository = userRepository;
         this.validateService = validateService;
     }
 
@@ -60,5 +65,14 @@ public class AdminService {
 
         // Guardar creador
         return adminRepository.save(creador);
+    }
+
+    public void setUserBlocked(String email, boolean blocked) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new NoSuchElementException("Usuario no encontrado");
+        }
+        user.setBloqueado(blocked);
+        userRepository.save(user);
     }
 }
