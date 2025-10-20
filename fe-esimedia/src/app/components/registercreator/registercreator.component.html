@@ -2,6 +2,16 @@
   <h1 class="form-title">Únete como Creador de Contenido</h1>
   <p class="form-subtitle">Sube tu contenido para que otros lo descubran.</p>
 
+  <!-- Mensaje de éxito -->
+  <div class="success-message" *ngIf="successMessage">
+    <p>✅ {{ successMessage }}</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div class="error-message-box" *ngIf="errorMessage">
+    <p>❌ {{ errorMessage }}</p>
+  </div>
+
   <form [formGroup]="registerForm" >
 
     <!-- Campo: Nombre -->
@@ -148,7 +158,9 @@
     </div>
 
     <!-- Botón de envío -->
-    <button (click)="onSubmit()" [disabled]="!registerForm.valid" type="submit" class="create-btn">Crear cuenta</button>
+    <button (click)="onSubmit()" [disabled]="!registerForm.valid || isSubmitting" type="submit" class="create-btn">
+      {{ isSubmitting ? 'Registrando...' : 'Crear cuenta' }}
+    </button>
 
 </form>
   <hr class="divider">

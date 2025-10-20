@@ -1,12 +1,9 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 @Document(collection = "USUARIOS")
 public class Usuario extends User {
-    @Id
-    private String id;
     private String alias;
     private Date fechaNacimiento;
     private boolean esVIP = false;
@@ -31,13 +28,5 @@ public class Usuario extends User {
     }
     public void setEsVIP(boolean esVIP) {
         this.esVIP = esVIP;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 }

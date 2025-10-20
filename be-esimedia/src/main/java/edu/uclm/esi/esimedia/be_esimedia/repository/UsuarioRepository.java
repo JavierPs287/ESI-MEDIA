@@ -9,4 +9,5 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 public interface UsuarioRepository extends MongoRepository<Usuario, String> {
     boolean existsByEmail(String email);
     boolean existsByAlias(String alias);
+    Usuario findByEmail(String email);
 }

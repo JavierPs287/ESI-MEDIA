@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -16,8 +17,10 @@ public class AuthService {
     private final UsuarioRepository usuarioRepository;
     private final ValidateService validateService;
     private final UserService userService;
-    public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, UserService userService) {
+    private final UserRepository userRepository;
+    public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, UserService userService, UserRepository userRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.userRepository = userRepository;
         this.validateService = validateService;
         this.userService = userService;
     }
@@ -101,7 +104,7 @@ public class AuthService {
     }
 
     private void validateFechaNacimiento(java.util.Date fechaNacimiento) {
-        if (!validateService.isDateValid(fechaNacimiento)) {
+        if (!validateService.isBirthDateValid(fechaNacimiento)) {
             throw new IllegalArgumentException("La fecha de nacimiento no es válida o el usuario debe tener al menos 4 años");
         }
     }
