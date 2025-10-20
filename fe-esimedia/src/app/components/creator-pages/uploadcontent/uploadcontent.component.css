@@ -1,4 +1,4 @@
-@import '../form-styles.css';
+@import '../../register/form-styles.css';
 * {
   font-family: var(--fonts);
 }
