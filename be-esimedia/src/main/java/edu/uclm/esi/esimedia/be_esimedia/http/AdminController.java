@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 // removed invalid import org.springframework.web.bind.annotationPatchMapping
 
-import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
+import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 
 import java.util.Map;
@@ -27,12 +28,22 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @PostMapping("/registerCreador")
-    public ResponseEntity<String> registerCreador(@RequestBody Creador creador){
+    // Manda la contraseña mal y la foto en null
+    @PostMapping("/registerAdmin")
+    public ResponseEntity<String> registerAdmin(@RequestBody AdminDTO adminDTO){
         try {
-            adminService.registerCreador(creador);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Creador registrado correctamente");
+            adminService.registerAdmin(adminDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Administrador registrado correctamente");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
 
+    @PostMapping("/registerCreador")
+    public ResponseEntity<String> registerCreador(@RequestBody CreadorDTO creadorDTO){
+        try {
+            adminService.registerCreador(creadorDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Creador registrado correctamente");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }

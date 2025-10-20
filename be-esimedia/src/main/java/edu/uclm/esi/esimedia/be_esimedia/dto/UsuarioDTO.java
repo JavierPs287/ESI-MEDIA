@@ -1,12 +1,12 @@
-package edu.uclm.esi.esimedia.be_esimedia.model;
-import org.springframework.data.mongodb.core.mapping.Document;
+package edu.uclm.esi.esimedia.be_esimedia.dto;
+
 import java.util.Date;
 
-@Document(collection = "USUARIOS")
-public class Usuario extends User {
+public class UsuarioDTO extends UserDTO {
     private String alias;
     private Date fechaNacimiento;
     private boolean esVIP = false;
+
 
     // Getters and Setters
     public String getAlias() {

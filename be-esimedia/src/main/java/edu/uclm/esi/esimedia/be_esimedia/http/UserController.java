@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 
 
@@ -25,9 +25,9 @@ public class UserController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<String> registerUsuario(@RequestBody Usuario usuario){
+    public ResponseEntity<String> registerUsuario(@RequestBody UsuarioDTO usuarioDTO){
         try {
-            authService.register(usuario);
+            authService.register(usuarioDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
             
         } catch (IllegalArgumentException e) {

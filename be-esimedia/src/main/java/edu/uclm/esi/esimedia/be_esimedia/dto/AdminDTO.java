@@ -1,11 +1,9 @@
-package edu.uclm.esi.esimedia.be_esimedia.model;
+package edu.uclm.esi.esimedia.be_esimedia.dto;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import edu.uclm.esi.esimedia.be_esimedia.model.Admin.Departamento;
 
-@Document(collection = "ADMINISTRADORES")
-public class Admin extends User {
+public class AdminDTO extends UserDTO {
     private Departamento departamento;
-    public enum Departamento {RRHH, IT, MARKETING, VENTAS}
 
     // Getters and Setters
     public Departamento getDepartamento() {
