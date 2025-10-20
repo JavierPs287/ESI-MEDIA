@@ -1,1 +1,249 @@
-<p>uploadcontent works!</p>
+<div class="uploadContent-container">
+  <mat-card class="uploadContent-card">
+    <mat-card-content>
+      <mat-tab-group>
+        <!-- TAB AUDIO -->
+        <mat-tab label="Audio">
+          <form [formGroup]="audioForm" (ngSubmit)="submitAudioForm()">
+            <div class="form-container">
+              <!-- Título -->
+               <label for="title">Título*</label>
+              <mat-form-field>
+                <mat-label>Título</mat-label>
+                <input matInput formControlName="title" maxlength="100" />
+                <mat-error *ngIf="audioForm.get('title')?.hasError('required')">El título es obligatorio</mat-error>
+                <mat-error *ngIf="audioForm.get('title')?.hasError('maxlength')">Máximo 100 caracteres</mat-error>
+                <mat-hint align="end">{{ audioForm.get('title')?.value?.length || 0 }}/100</mat-hint>
+              </mat-form-field>
+
+              <!-- Descripción -->
+                <label for="description">Descripción</label>
+              <mat-form-field >
+                <mat-label>Descripción</mat-label>
+                <textarea matInput formControlName="description" maxlength="500" rows="4"></textarea>
+                <mat-error *ngIf="audioForm.get('description')?.hasError('maxlength')">Máximo 500 caracteres</mat-error>
+                <mat-hint align="end">{{ audioForm.get('description')?.value?.length || 0 }}/500</mat-hint>
+              </mat-form-field>
+
+              <!-- Fichero de audio -->
+              <div class="file-input-group">
+                <label for="audio-file">Fichero de audios (máx 1MB)</label>
+                <input #audioFileInput type="file" id="audio-file" accept="audio/*"
+                  (change)="onAudioFileSelected($event)"
+                  style="display: none"/>
+                <button mat-raised-button color="primary" type="button"
+                  (click)="audioFileInput.click()">Seleccionar archivo</button>
+                <span *ngIf="audioFileName" class="file-name">{{ audioFileName }}</span>
+              </div>
+
+              <!-- Tags -->
+              <label for="tags">Tags *</label>
+              <mat-form-field >
+                <mat-label>Select tag</mat-label>
+                <mat-select formControlName="tags" multiple>
+                  <mat-option *ngFor="let tag of tags" [value]="tag">{{ tag }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="audioForm.get('tags')?.hasError('required')">Selecciona al menos un tag</mat-error>
+                <mat-error *ngIf="audioForm.get('tags')?.hasError('minTags')">Mínimo 1 tag requerido</mat-error>
+              </mat-form-field>
+
+              <!-- Duración -->
+              <fieldset formGroupName="duration" class="duration-group">
+                <legend>Duración</legend>
+                <div class="duration-inputs">
+                  <mat-form-field >
+                    <mat-label>Horas</mat-label>
+                    <mat-select formControlName="hours">
+                      <mat-option *ngFor="let h of hours" [value]="h">{{ h }}</mat-option></mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field >
+                    <mat-label>Minutos</mat-label>
+                    <mat-select formControlName="minutes">
+                      <mat-option *ngFor="let m of minutes" [value]="m">{{ m < 10 ? '0' + m : m }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field >
+                    <mat-label>Segundos</mat-label>
+                    <mat-select formControlName="seconds">
+                      <mat-option *ngFor="let s of seconds" [value]="s">{{ s < 10 ? '0' + s : s }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <mat-error *ngIf="audioForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a 0</mat-error>
+              </fieldset>
+
+              <!-- Restricción de edad -->
+            <label for="age-restriction">Restricción de edad *</label>
+              <mat-form-field >
+                <mat-label>Restricción de edad</mat-label>
+                <mat-select formControlName="ageRestriction">
+                  <mat-option *ngFor="let age of ageRestrictions" [value]="age">{{ age }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Disponible hasta -->
+            <label for="available-until">Disponible hasta</label>
+              <mat-form-field >
+                <mat-label>Disponible hasta</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="availableUntil" />
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+
+              <!-- VIP --><!-- Estado (Visible) -->
+              <div class="toggle-group">
+                <mat-slide-toggle formControlName="vip">¿Es contenido VIP?</mat-slide-toggle>
+                <mat-slide-toggle formControlName="visible">Visible</mat-slide-toggle>
+              </div>
+
+              <!-- Imagen -->
+              <div class="file-input-group">
+                <label for="audio-image">Imagen</label>
+                <input #audioImageInput type="file" id="audio-image" accept="image/*"
+                  (change)="onImageSelected($event, 'audio')" style="display: none"/>
+                <button mat-raised-button color="accent" type="button"
+                  (click)="audioImageInput.click()">Seleccionar imagen</button>
+                <span *ngIf="imageFileName" class="file-name">{{ imageFileName }}</span>
+              </div>
+
+              <!-- Botones -->
+              <div class="button-group">
+                <button mat-raised-button color="primary" type="submit"
+                  [disabled]="!audioForm.valid || !selectedAudioFile">Guardar
+                </button>
+                <button mat-raised-button type="button" (click)="resetAudioForm()">Limpiar</button>
+              </div>
+            </div>
+          </form>
+        </mat-tab>
+
+        <!-- TAB VÍDEO ------------------------------------------------------------------->
+        <mat-tab label="Vídeo">
+          <form [formGroup]="videoForm" (ngSubmit)="submitVideoForm()">
+            <div class="form-container">
+              <!-- Título -->
+               <label for="video-title">Título</label>
+              <mat-form-field >
+                <mat-label>Título *</mat-label>
+                <input matInput formControlName="title" maxlength="100" />
+                <mat-error *ngIf="videoForm.get('title')?.hasError('required')">El título es obligatorio</mat-error>
+                <mat-error *ngIf="videoForm.get('title')?.hasError('maxlength')">Máximo 100 caracteres</mat-error>
+                <mat-hint align="end">{{ videoForm.get('title')?.value?.length || 0 }}/100</mat-hint>
+              </mat-form-field>
+
+              <!-- Descripción -->
+                <label for="video-description">Descripción</label>
+              <mat-form-field >
+                <mat-label>Descripción</mat-label>
+                <textarea matInput formControlName="description" maxlength="500" rows="4"></textarea>
+                <mat-error *ngIf="videoForm.get('description')?.hasError('maxlength')">Máximo 500 caracteres</mat-error>
+                <mat-hint align="end">{{ videoForm.get('description')?.value?.length || 0 }}/500</mat-hint>
+              </mat-form-field>
+
+              <!-- URL de vídeo -->
+              <label for="video-url">URL de vídeo</label>
+              <mat-form-field >
+                <mat-label>URL de vídeo</mat-label>
+                <input matInput formControlName="videoUrl" placeholder="https://ejemplo.com/video.mp4" />
+                <mat-error *ngIf="videoForm.get('videoUrl')?.hasError('required')">La URL es obligatoria</mat-error>
+                <mat-error *ngIf="videoForm.get('videoUrl')?.hasError('invalidUrl')">Por favor ingresa una URL válida</mat-error>
+              </mat-form-field>
+
+              <!-- Tags -->
+                <label for="video-tags">Tags</label>
+              <mat-form-field >
+                <mat-label>Tags</mat-label>
+                <mat-select formControlName="tags" multiple>
+                  <mat-option *ngFor="let tag of tags" [value]="tag">{{ tag }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="videoForm.get('tags')?.hasError('required')">Selecciona al menos un tag</mat-error>
+                <mat-error *ngIf="videoForm.get('tags')?.hasError('minTags')"> Mínimo 1 tag requerido</mat-error>
+              </mat-form-field>
+
+              <!-- Duración -->
+              <fieldset formGroupName="duration" class="duration-group">
+                <legend>Duración *</legend>
+                <div class="duration-inputs">
+                  <mat-form-field >
+                    <mat-label>Horas</mat-label>
+                    <mat-select formControlName="hours">
+                      <mat-option *ngFor="let h of hours" [value]="h">{{ h }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field >
+                    <mat-label>Minutos</mat-label>
+                    <mat-select formControlName="minutes">
+                      <mat-option *ngFor="let m of minutes" [value]="m"> {{ m < 10 ? '0' + m : m }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field >
+                    <mat-label>Segundos</mat-label>
+                    <mat-select formControlName="seconds">
+                      <mat-option *ngFor="let s of seconds" [value]="s">{{ s < 10 ? '0' + s : s }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <mat-error *ngIf="videoForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a 0</mat-error>
+              </fieldset>
+
+              <!-- Resolución -->
+              <label for="video-resolution">Resolución *</label>
+              <mat-form-field >
+                <mat-label>Resolución *</mat-label>
+                <mat-select formControlName="resolution">
+                  <mat-option *ngFor="let res of videoResolutions" [value]="res">{{ res }} </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Restricción de edad -->
+            <label for="video-age-restriction">Restricción de edad *</label>
+              <mat-form-field >
+                <mat-label>Restricción de edad *</mat-label>
+                <mat-select formControlName="ageRestriction">
+                  <mat-option *ngFor="let age of ageRestrictions" [value]="age">{{ age }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Disponible hasta -->
+            <label for="video-available-until">Disponible hasta</label>
+              <mat-form-field >
+                <mat-label>Disponible hasta</mat-label>
+                <input matInput [matDatepicker]="pickerVideo" formControlName="availableUntil" />
+                <mat-datepicker-toggle matSuffix [for]="pickerVideo"></mat-datepicker-toggle>
+                <mat-datepicker #pickerVideo></mat-datepicker>
+              </mat-form-field>
+
+              <!-- VIP --><!-- Estado (Visible) -->
+              <div class="toggle-group">
+                <mat-slide-toggle formControlName="vip">¿Es contenido VIP? *</mat-slide-toggle>
+                <mat-slide-toggle formControlName="visible">Visible * </mat-slide-toggle>
+              </div>
+
+              <!-- Imagen -->
+              <div class="file-input-group">
+                <label for="video-image">Imagen</label>
+                <input #videoImageInput type="file"id="video-image" accept="image/*"
+                  (change)="onImageSelected($event, 'video')"style="display: none"/>
+                <button mat-raised-button color="accent" type="button"
+                  (click)="videoImageInput.click()">Seleccionar imagen</button>
+                <span *ngIf="imageFileName" class="file-name">{{ imageFileName }}</span>
+              </div>
+
+              <!-- Botones -->
+              <div class="button-group">
+                <button mat-raised-button color="primary" type="submit"
+                  [disabled]="!videoForm.valid || !selectedVideoFile">Guardar
+                </button>
+                <button mat-raised-button type="button" (click)="resetVideoForm()">Limpiar</button>
+              </div>
+            </div>
+          </form>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

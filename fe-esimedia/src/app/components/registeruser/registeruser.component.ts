@@ -62,8 +62,8 @@ export class RegisteruserComponent {
         apellidos: formValue.apellidos,
         email: formValue.email,
         alias: formValue.alias,
-  fecha_nacimiento: formValue.fecha_nacimiento,
-  contrasena: formValue.contrasena,
+        fecha_nacimiento: formValue.fecha_nacimiento,
+        contrasena: formValue.contrasena,
         vip: formValue.vip,
         foto_perfil: formValue.foto_perfil
       };
