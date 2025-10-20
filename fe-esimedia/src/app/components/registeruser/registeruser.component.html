@@ -30,6 +30,7 @@
       <div class="error-container" *ngIf="getControl('email')?.invalid && (getControl('email')?.touched || getControl('email')?.dirty)">
         <p class="error-message" *ngIf="getControl('email')?.hasError('required')"> El campo es obligatorio. </p>
         <p class="error-message" *ngIf="getControl('email')?.hasError('email')"> Formato de email inválido. </p>
+        <p class="error-message" *ngIf="getControl('email')?.hasError('minAge')"> Debes tener al menos 4 años para registrarte. </p>
       </div>
     </div>
 
@@ -43,6 +44,8 @@
       <input id="fecha_nacimiento" type="date" formControlName="fecha_nacimiento">
       <div class="error-container" *ngIf="getControl('fecha_nacimiento')?.invalid && (getControl('fecha_nacimiento')?.touched || getControl('fecha_nacimiento')?.dirty)">
         <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('pattern')"> Formato de fecha inválido. </p>
+        <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('minAge')"> Debes tener al menos 4 años para registrarte. </p>
       </div>
     </div>
 
@@ -72,7 +75,6 @@
       </div>
     </div>
 
-        <!-- Campo: Contraseña -->
   <div class="form-field">
     <label for="contrasena">Contraseña *</label>
       <div class="password-field">

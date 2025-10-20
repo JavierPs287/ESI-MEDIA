@@ -5,6 +5,7 @@ import { RegisteradminComponent } from './components/registeradmin/registeradmin
 import { HomeComponent } from './components/home/home.component';
 import { LoginuserComponent } from './components/loginuser/loginuser.component';
 import { UploadContentComponent } from './components/uploadcontent/uploadcontent.component';
+import { MainMenuCreator } from './components/main-menu-creator/main-menu-creator.component';
 
 export const routes: Routes = [
 
@@ -35,12 +36,18 @@ export const routes: Routes = [
     },
 
     {
-        path: 'uploadContent',
-        component: UploadContentComponent
+        path: 'login',
+        component: LoginuserComponent
     },
 
     {
-        path: 'login',
-        component: LoginuserComponent
+        path: 'menu/creator',
+        component: MainMenuCreator,
+        children: [
+            {
+                path: 'uploadContent',
+                component: UploadContentComponent
+            }
+        ]
     }
 ];
