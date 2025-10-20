@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
+import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
 
 @Component({
   selector: 'app-registeradmin',
@@ -13,15 +15,8 @@ export class RegisteradminComponent {
   showPhotoOptions = false;
   visiblePassword: boolean = false;
   selectedPhoto: string | null = null;
-  defaultAvatar = '/assets/avatars/default-avatar.png';
-  photoOptions = [
-    { name: 'Avatar 1', url: '/assets/avatars/avatar1.PNG' },
-    { name: 'Avatar 2', url: '/assets/avatars/avatar2.PNG' },
-    { name: 'Avatar 3', url: '/assets/avatars/avatar3.PNG' },
-    { name: 'Avatar 4', url: '/assets/avatars/avatar4.PNG' },
-    { name: 'Avatar 5', url: '/assets/avatars/avatar5.PNG' },
-    { name: 'Avatar 6', url: '/assets/avatars/avatar6.PNG' }
-  ];
+  defaultAvatar = DEFAULT_AVATAR;
+  photoOptions = PHOTO_OPTIONS;
   departamentos: string[] = [
   'Recursos Humanos',
   'Finanzas',
@@ -40,50 +35,14 @@ export class RegisteradminComponent {
     email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
     departamento: ['',[Validators.required]],
     fotoPerfil: [this.defaultAvatar],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), this.passwordStrengthValidator()]],
+    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
-  }, { validators: this.passwordMatchValidator() });
+  }, { validators: passwordMatchValidator() });
 
   onSubmit():void{
     if (this.registerForm.valid) {
       console.log('Form submitted:', this.registerForm.value);
     }
-  }
-
- //VALIDADORES PERSONALIZADOS
-
-passwordStrengthValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null;
-      }
-
-      const password = control.value;
-      const errors: ValidationErrors = {};
-
-      if (!/[a-z]/.test(password)) {
-        errors['noLowercase'] = true;
-      }
-      if (!/[A-Z]/.test(password)) {
-        errors['noUppercase'] = true;
-      }
-      if (!/\d/.test(password)) {
-        errors['noNumber'] = true;
-      }
-      if (!/[@$#!%*?&]/.test(password)) {
-        errors['noSpecialChar'] = true;
-      }
-
-      return Object.keys(errors).length > 0 ? errors : null;
-    };
-  }
-
-  passwordMatchValidator() {
-    return (group: AbstractControl): ValidationErrors | null => {
-      const password = group.get('contrasena')?.value;
-      const repeatPassword = group.get('repetirContrasena')?.value;
-      return password && repeatPassword && password === repeatPassword ? null : { passwordMismatch: true };
-    };
   }
 
 //MANEJO ERRORES

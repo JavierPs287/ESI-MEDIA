@@ -1,9 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
-import { UserService } from '../../services/user.service';
-import { User, RegisterResponse } from '../../models/user.model';
-import { NavbarComponent } from "../navbar/navbar.component";
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { UserService } from '../../../services/user.service';
+import { User, RegisterResponse } from '../../../models/user.model';
+import { NavbarComponent } from "../../navbar/navbar.component";
+import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
+import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
 
 @Component({
   selector: 'app-registeruser',
@@ -19,14 +21,8 @@ export class RegisteruserComponent {
   selectedPhoto: string | null = null;
   registrationResponse: RegisterResponse | null = null;
 
-  avatarOptions = [
-    { id: '1', name: 'Avatar 1', url: '/assets/avatars/avatar1.png' },
-    { id: '2', name: 'Avatar 2', url: '/assets/avatars/avatar2.png' },
-    { id: '3', name: 'Avatar 3', url: '/assets/avatars/avatar3.png' },
-    { id: '4', name: 'Avatar 4', url: '/assets/avatars/avatar4.png' },
-    { id: '5', name: 'Avatar 5', url: '/assets/avatars/avatar5.png' },
-    { id: '6', name: 'Avatar 6', url: '/assets/avatars/avatar6.png' }
-  ];
+  avatarOptions = PHOTO_OPTIONS;
+  defaultAvatar = DEFAULT_AVATAR;
 
   fb = inject(FormBuilder);
   private readonly userService = inject(UserService);
@@ -39,20 +35,9 @@ export class RegisteruserComponent {
     vip: [false],
     foto_perfil: [null as string | null],
     fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/), this.minAgeValidator(4)]],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), this.passwordStrengthValidator()]],
+    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
-  }, { validators: this.passwordMatchValidator() });
-
-  private passwordMatchValidator(): ValidatorFn {
-    return (formGroup: AbstractControl): ValidationErrors | null => {
-      if (formGroup instanceof FormGroup) {
-        const password = formGroup.get('contrasena')?.value;
-        const confirmPassword = formGroup.get('repetirContrasena')?.value;
-        return password && confirmPassword && password === confirmPassword ? null : { passwordMismatch: true };
-      }
-      return null;
-    };
-  }
+  }, { validators: passwordMatchValidator() });
 
   onSubmit(): void {
     if (this.registerForm.valid) {
@@ -109,32 +94,6 @@ export class RegisteruserComponent {
         age--;
       }
       return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
-    };
-  }
-
-passwordStrengthValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null;
-      }
-
-      const password = control.value;
-      const errors: ValidationErrors = {};
-
-      if (!/[a-z]/.test(password)) {
-        errors['noLowercase'] = true;
-      }
-      if (!/[A-Z]/.test(password)) {
-        errors['noUppercase'] = true;
-      }
-      if (!/\d/.test(password)) {
-        errors['noNumber'] = true;
-      }
-      if (!/[@$#!%*?&]/.test(password)) {
-        errors['noSpecialChar'] = true;
-      }
-
-      return Object.keys(errors).length > 0 ? errors : null;
     };
   }
 
