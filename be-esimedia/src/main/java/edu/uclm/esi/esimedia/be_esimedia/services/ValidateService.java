@@ -18,7 +18,10 @@ public class ValidateService {
         if (password == null || password.length() < 8) {
             return false;
         }
-        boolean hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        boolean hasSpecial = false;
         for (char ch : password.toCharArray()) {
             if (Character.isUpperCase(ch)) hasUpper = true;
             else if (Character.isLowerCase(ch)) hasLower = true;
