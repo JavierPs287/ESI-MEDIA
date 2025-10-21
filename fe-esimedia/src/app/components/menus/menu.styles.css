@@ -1,10 +1,19 @@
-.drawer-container {
-  height: 98vh;
-  display: flex;
+::ng-deep * {
+  font-family: var(--fonts) !important;
+}
+
+::ng-deep .mat-icon,
+::ng-deep .material-icons {
+  font-family: 'Material Icons', sans-serif !important;
 }
 
 ::ng-deep .mat-drawer {
   border-radius: 0 !important;
+}
+
+.drawer-container {
+  height: 98vh;
+  display: flex;
 }
 
 .sidebar-container {
