@@ -34,14 +34,17 @@ export class MainMenuCreatorComponent {
   }
   getAvatar(): string {
     const storedAvatar = localStorage.getItem('creatorAvatar');
+    //TO DO cambiar por email de la bbdd
     return storedAvatar ?? 'assets/avatars/avatar1.PNG';
   }
   getUsername(): string {
     const storedUsername = localStorage.getItem('creatorUsername');
+    //TO DO cambiar por email de la bbdd
     return storedUsername ?? 'UserName';
   }
   getEmail(): string {
     const storedEmail = localStorage.getItem('creatorEmail');
+    //TO DO cambiar por email de la bbdd
     return storedEmail ?? 'Email';
   }
 

@@ -6,6 +6,8 @@ import { HomeComponent } from './components/home/home.component';
 import { LoginuserComponent } from './components/loginuser/loginuser.component';
 import { UploadContentComponent } from './components/creator-pages/uploadcontent/uploadcontent.component';
 import { MainMenuCreatorComponent } from './components/menus/main-menu-creator/main-menu-creator.component';
+import { MainMenuAdminComponent } from './components/menus/main-menu-admin/main-menu-admin.component';
+import { UserManagementComponent } from './components/admin-pages/user-management/user-management.component';
 
 export const routes: Routes = [
 
@@ -47,6 +49,17 @@ export const routes: Routes = [
             {
                 path: 'uploadContent',
                 component: UploadContentComponent
+            }
+        ]
+    },
+
+    {
+        path: 'menu/admin',
+        component: MainMenuAdminComponent,
+        children: [
+            {
+                path: 'userManagement',
+                component: UserManagementComponent
             }
         ]
     }
