@@ -8,7 +8,6 @@ public class Usuario extends User {
     private String alias;
     private Date fechaNacimiento;
     private boolean esVIP = false;
-    private boolean bloqueado = false;
 
     // Getters and Setters
     public String getAlias() {

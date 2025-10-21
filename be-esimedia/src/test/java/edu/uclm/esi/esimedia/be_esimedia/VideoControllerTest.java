@@ -20,6 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -363,4 +364,7 @@ class VideoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
+
+    @Field("usuario_bloqueado")
+    private boolean bloqueado;
 }

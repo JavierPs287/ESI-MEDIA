@@ -1,9 +1,12 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.annotation.Id;
+
 public class User {
+    @Id
+    private String email;
     private String nombre;
     private String apellidos;
-    private String email;
     private String contrasena;
     private int foto = 0;
     private boolean bloqueado = false;
