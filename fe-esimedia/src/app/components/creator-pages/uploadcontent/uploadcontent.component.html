@@ -53,22 +53,17 @@
                 <div class="duration-inputs">
                   <mat-form-field >
                     <mat-label>Horas</mat-label>
-                    <mat-select formControlName="hours">
-                      <mat-option *ngFor="let h of hours" [value]="h">{{ h }}</mat-option></mat-select>
+                    <input matInput formControlName="hours" type="number" min="0" max="23 " />
                   </mat-form-field>
 
                   <mat-form-field >
                     <mat-label>Minutos</mat-label>
-                    <mat-select formControlName="minutes">
-                      <mat-option *ngFor="let m of minutes" [value]="m">{{ m < 10 ? '0' + m : m }}</mat-option>
-                    </mat-select>
+                    <input matInput formControlName="minutes" type="number" min="0" max="59"/>
                   </mat-form-field>
 
                   <mat-form-field >
                     <mat-label>Segundos</mat-label>
-                    <mat-select formControlName="seconds">
-                      <mat-option *ngFor="let s of seconds" [value]="s">{{ s < 10 ? '0' + s : s }}</mat-option>
-                    </mat-select>
+                    <input matInput formControlName="seconds" type="number" min="0" max="59" />
                   </mat-form-field>
                 </div>
                 <div class="error-container" *ngIf="videoForm.get('duration')?.invalid && (videoForm.get('duration')?.touched || videoForm.get('duration')?.dirty)">
@@ -83,8 +78,8 @@
                 <mat-label>Restricción de edad</mat-label>
                 <input matInput formControlName="ageRestriction" type="number" min="4" max="110" placeholder="Ej: 18" />
                 <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('required')">La restricción de edad es obligatoria</mat-error>
-                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('min')">Valor mínimo 4</mat-error>
-                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('max')">Valor máximo 110</mat-error>
+                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('min')">Edad mínima 4</mat-error>
+                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('max')">Edad máxima 110</mat-error>
               </mat-form-field>
 
               <!-- Disponible hasta -->
@@ -103,14 +98,25 @@
               </div>
 
               <!-- Imagen -->
-              <div class="file-input-group">
-                <label for="audio-image">Imagen</label>
-                <input #audioImageInput type="file" id="audio-image" accept="image/*"
-                  (change)="onImageSelected($event, 'audio')" style="display: none"/>
-                <button mat-raised-button color="accent" type="button"
-                  (click)="audioImageInput.click()">Seleccionar imagen</button>
-                <span *ngIf="imageFileName" class="file-name">{{ imageFileName }}</span>
+            <div class="form-field">
+            <label for="video-image">Imagen</label>
+            <button 
+              type="button" class="photo-selector-btn" 
+              (click)="toggleImageOptions()">
+              {{ selectedImage ? 'Cambiar imagen' : 'Seleccionar imagen' }}
+            </button>
+            <div class="photo-options" *ngIf="showImageOptions">
+              <div class="photo-grid">
+                <img *ngFor="let img of availableImages" 
+                    [src]="img.url" 
+                    [alt]="img.name"
+                    class="photo-option"
+                    [class.selected]="selectedImage === img.url"
+                    (click)="selectImage(img.url)"
+                    (keydown.enter)="selectImage(img.url)">
               </div>
+            </div>
+          </div>
 
               <!-- Botones -->
               <div class="button-group">
@@ -119,7 +125,8 @@
                 </button>
                 <button mat-raised-button type="button" (click)="resetAudioForm()">Limpiar</button>
               </div>
-            </div>
+
+          </div>
           </form>
         </mat-tab>
 
@@ -172,23 +179,17 @@
                 <div class="duration-inputs">
                   <mat-form-field >
                     <mat-label>Horas</mat-label>
-                    <mat-select formControlName="hours">
-                      <mat-option *ngFor="let h of hours" [value]="h">{{ h }}</mat-option>
-                    </mat-select>
+                    <input matInput formControlName="hours" type="number" min="0" max="23"/>
                   </mat-form-field>
 
                   <mat-form-field >
                     <mat-label>Minutos</mat-label>
-                    <mat-select formControlName="minutes">
-                      <mat-option *ngFor="let m of minutes" [value]="m"> {{ m < 10 ? '0' + m : m }}</mat-option>
-                    </mat-select>
+                    <input matInput formControlName="minutes" type="number" min="0" max="59"/>
                   </mat-form-field>
 
                   <mat-form-field >
                     <mat-label>Segundos</mat-label>
-                    <mat-select formControlName="seconds">
-                      <mat-option *ngFor="let s of seconds" [value]="s">{{ s < 10 ? '0' + s : s }}</mat-option>
-                    </mat-select>
+                    <input matInput formControlName="seconds" type="number" min="0" max="59" />
                   </mat-form-field>
                 </div>
                 <div class="error-container" *ngIf="videoForm.get('duration')?.invalid && (videoForm.get('duration')?.touched || videoForm.get('duration')?.dirty)">
@@ -232,22 +233,33 @@
               </div>
 
               <!-- Imagen -->
-              <div class="file-input-group">
-                <label for="video-image">Imagen</label>
-                <input #videoImageInput type="file"id="video-image" accept="image/*"
-                  (change)="onImageSelected($event, 'video')"style="display: none"/>
-                <button mat-raised-button color="accent" type="button"
-                  (click)="videoImageInput.click()">Seleccionar imagen</button>
-                <span *ngIf="imageFileName" class="file-name">{{ imageFileName }}</span>
+              <div class="form-field">
+            <label for="video-image">Imagen</label>
+            <button 
+              type="button" class="photo-selector-btn" 
+              (click)="toggleImageOptions()">
+              {{ selectedImage ? 'Cambiar imagen' : 'Seleccionar imagen' }}
+            </button>
+            <div class="photo-options" *ngIf="showImageOptions">
+              <div class="photo-grid">
+                <img *ngFor="let img of availableImages" 
+                    [src]="img.url" 
+                    [alt]="img.name"
+                    class="photo-option"
+                    [class.selected]="selectedImage === img.url"
+                    (click)="selectImage(img.url)"
+                    (keydown.enter)="selectImage(img.url)">
               </div>
-
+            </div>
+          </div>
               <!-- Botones -->
               <div class="button-group">
                 <button mat-raised-button color="primary" type="submit"
-                  [disabled]="!videoForm.valid || !selectedVideoFile">Guardar
+                  [disabled]="!audioForm.valid || !selectedAudioFile">Guardar
                 </button>
-                <button mat-raised-button type="button" (click)="resetVideoForm()">Limpiar</button>
+                <button mat-raised-button type="button" (click)="resetAudioForm()">Limpiar</button>
               </div>
+
             </div>
           </form>
         </mat-tab>

@@ -84,7 +84,7 @@ getControl(controlName: string): AbstractControl | null {
     this.visiblePassword = !this.visiblePassword;
   }
 
-  selectPhoto(photoUrl: string): void {
+  selectImage(photoUrl: string): void {
     this.selectedPhoto = photoUrl;
     this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
     this.showPhotoOptions = false;

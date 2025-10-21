@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { IMAGE_OPTIONS, DEFAULT_IMAGE } from '../../../constants/image-constants';
 
 @Component({
   selector: 'app-uploadcontent',
@@ -38,15 +39,15 @@ export class UploadContentComponent implements OnInit {
   audioForm!: FormGroup;
   videoForm!: FormGroup;
 
+  availableImages = IMAGE_OPTIONS;
+  showImageOptions = false;
+
   tags = ['Acción', 'Comedia', 'Drama', 'Terror', 'Thriller', 'Educativo', 'Infantil', 'Documentales'];
   videoResolutions = ['360p','720p', '1080p', '4K'];
-  hours = Array.from({ length: 24 }, (_, i) => i);
-  minutes = Array.from({ length: 60 }, (_, i) => i);
-  seconds = Array.from({ length: 60 }, (_, i) => i);
 
   selectedAudioFile: File | null = null;
   selectedVideoFile: File | null = null;
-  selectedImage: File | null = null;
+  selectedImage: string | null = null;
   audioFileName = '';
   videoFileName = '';
   imageFileName = '';
@@ -121,20 +122,14 @@ export class UploadContentComponent implements OnInit {
     }
   }
 
-  onImageSelected(event: Event, formType: string): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files?.length) {
-      const file = input.files[0];
-      if (this.validateImage(file)) {
-        this.selectedImage = file;
-        this.imageFileName = file.name;
-        if (formType === 'audio') {
-          this.audioForm.patchValue({ image: file.name });
-        } else {
-          this.videoForm.patchValue({ image: file.name });
-        }
-      }
-    }
+  toggleImageOptions(): void {
+    this.showImageOptions = !this.showImageOptions;
+  }
+
+  selectImage(imageUrl: string): void {
+    this.selectedImage = imageUrl;
+    this.audioForm.get('image')?.setValue(imageUrl);
+    this.showImageOptions = false;
   }
 
   validateFile(file: File, type: string): boolean {
