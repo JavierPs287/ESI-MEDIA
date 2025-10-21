@@ -46,7 +46,7 @@ isVip = false;
   registerForm: FormGroup = this.fb.group({
 
     nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+    apellidos: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
     alias: ['',[Validators.required,Validators.minLength(2),Validators.maxLength(20)]],
     fotoPerfil: [this.defaultAvatar],
@@ -59,7 +59,14 @@ isVip = false;
 
   onSubmit():void{
     if (this.registerForm.valid) {
-      console.log('Form submitted:', this.registerForm.value);
+      this.creatorService.registerCreator(this.registerForm.value).subscribe({
+        next: (response) => {
+          console.log('Form submitted successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error submitting form:', error);
+        }
+      });
     }
   }
 

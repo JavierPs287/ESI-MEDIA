@@ -27,12 +27,12 @@
 
     <!-- Campo: Apellido -->
     <div class="form-field">
-      <label for="apellido">Apellido *</label>
-      <input type="text" placeholder="Apellido" formControlName="apellido">
-        <div class="error-container" *ngIf="getControl('apellido')?.invalid && (getControl('apellido')?.touched || getControl('apellido')?.dirty)">
-        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('required')"> El campo es obligatorio. </p>
-        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
-        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
+      <label for="apellidos">Apellido *</label>
+      <input type="text" placeholder="Apellido" formControlName="apellidos">
+        <div class="error-container" *ngIf="getControl('apellidos')?.invalid && (getControl('apellidos')?.touched || getControl('apellidos')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('apellidos')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('apellidos')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('apellidos')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
       </div>
     </div>
 
