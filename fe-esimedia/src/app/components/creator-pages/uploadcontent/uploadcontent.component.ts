@@ -69,8 +69,8 @@ export class UploadContentComponent implements OnInit {
       audioFile: ['', Validators.required],
       tags: [[], [Validators.required, this.minTagsValidator(1)]],
       duration: this.fb.group({
-        hours: ['0', [Validators, Validators.min(0)]],
-        minutes: ['0', [Validators, Validators.min(0), Validators.max(59)]],
+        hours: ['0', [ Validators.min(0), Validators.max(23)]],
+        minutes: ['0', [ Validators.min(0), Validators.max(59)]],
         seconds: ['', [Validators.required, Validators.min(0), Validators.max(59)]]
       }, { validators: this.durationValidator() }),
       vip: [false, Validators.required],

@@ -5,7 +5,9 @@ import { RegisteradminComponent } from './components/register/registeradmin/regi
 import { HomeComponent } from './components/home/home.component';
 import { LoginuserComponent } from './components/loginuser/loginuser.component';
 import { UploadContentComponent } from './components/creator-pages/uploadcontent/uploadcontent.component';
-import { MainMenuCreator } from './components/menus/main-menu-creator/main-menu-creator.component';
+import { MainMenuCreatorComponent } from './components/menus/main-menu-creator/main-menu-creator.component';
+import { MainMenuAdminComponent } from './components/menus/main-menu-admin/main-menu-admin.component';
+import { UserManagementComponent } from './components/admin-pages/user-management/user-management.component';
 
 export const routes: Routes = [
 
@@ -42,11 +44,22 @@ export const routes: Routes = [
 
     {
         path: 'menu/creator',
-        component: MainMenuCreator,
+        component: MainMenuCreatorComponent,
         children: [
             {
                 path: 'uploadContent',
                 component: UploadContentComponent
+            }
+        ]
+    },
+
+    {
+        path: 'menu/admin',
+        component: MainMenuAdminComponent,
+        children: [
+            {
+                path: 'userManagement',
+                component: UserManagementComponent
             }
         ]
     }
