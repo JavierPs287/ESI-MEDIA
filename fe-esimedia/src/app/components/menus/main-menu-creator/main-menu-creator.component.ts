@@ -23,7 +23,7 @@ interface MenuItem {
   templateUrl: './main-menu-creator.component.html',
   styleUrls: ['./main-menu-creator.component.css'],
 })
-export class MainMenuCreator {
+export class MainMenuCreatorComponent {
   showFiller = false;
   username = 'UserName';
   userEmail = 'Email';
@@ -32,4 +32,17 @@ export class MainMenuCreator {
   navigateTo(route: string) {
     this.router.navigate([`/${route}`]);
   }
+  getAvatar(): string {
+    const storedAvatar = localStorage.getItem('creatorAvatar');
+    return storedAvatar ?? 'assets/avatars/avatar1.PNG';
+  }
+  getUsername(): string {
+    const storedUsername = localStorage.getItem('creatorUsername');
+    return storedUsername ?? 'UserName';
+  }
+  getEmail(): string {
+    const storedEmail = localStorage.getItem('creatorEmail');
+    return storedEmail ?? 'Email';
+  }
+
 }
