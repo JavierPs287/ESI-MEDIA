@@ -78,9 +78,9 @@ public class AdminService {
     }
 
     private Admin registerAdminInternal(Admin admin) {
-        // if (!validateService.isEnumValid(admin.getDepartamento())) {
-        //     throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
-        // }
+        if (!validateService.isEnumValid(admin.getDepartamento())) {
+            throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
+        }
         // Guardar administrador
         return adminRepository.save(admin);
     }
@@ -117,12 +117,12 @@ public class AdminService {
             throw new IllegalArgumentException("La descripción no puede tener más de 500 caracteres");
         }
         
-        // if (!validateService.isEnumValid(creador.getCampo())) {
-        //     throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
-        // }
-        // if (!validateService.isEnumValid(creador.getTipo())) {
-        //     throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
-        // }
+        if (!validateService.isEnumValid(creador.getCampo())) {
+            throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
+        }
+        if (!validateService.isEnumValid(creador.getTipo())) {
+            throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
+        }
         // Guardar creador
         return creadorRepository.save(creador);
     }

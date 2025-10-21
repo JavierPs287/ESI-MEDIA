@@ -15,7 +15,7 @@ import { passwordStrengthValidator, passwordMatchValidator } from './../custom-v
   styleUrl: './registercreator.component.css'
 })
 export class RegistercreatorComponent {
-isVip = false;
+  isVip = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false;
   selectedPhoto: string | null = null;
@@ -38,26 +38,26 @@ isVip = false;
   fb = inject(FormBuilder);
   creatorService = inject(CreatorService);
   router = inject(Router);
-  
+
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
 
   registerForm: FormGroup = this.fb.group({
 
-    nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    apellidos: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
-    alias: ['',[Validators.required,Validators.minLength(2),Validators.maxLength(20)]],
-    fotoPerfil: [this.defaultAvatar],
-    descripcion: ['',[Validators.maxLength(500)]],
-    especialidad: ['',[Validators.required]],
-    tipoContenido: ['',[Validators.required]],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+    apellidos: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+    email: ['', [Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
+    alias: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
+    fotoPerfil: ['', [Validators.required]],
+    descripcion: ['', [Validators.maxLength(500)]],
+    especialidad: ['', [Validators.required]],
+    tipoContenido: ['', [Validators.required]],
+    contrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
+    repetirContrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   }, { validators: passwordMatchValidator() });
 
-  onSubmit():void{
+  onSubmit(): void {
     if (this.registerForm.valid) {
       this.creatorService.registerCreator(this.registerForm.value).subscribe({
         next: (response) => {
@@ -70,14 +70,14 @@ isVip = false;
     }
   }
 
-//MANEJO ERRORES
-getControl(controlName: string): AbstractControl | null {
-  return this.registerForm.get(controlName);
-}
+  //MANEJO ERRORES
+  getControl(controlName: string): AbstractControl | null {
+    return this.registerForm.get(controlName);
+  }
 
 
 
-//metodos toggles
+  //metodos toggles
   toggleVip(): void {
     this.isVip = !this.isVip;
     this.registerForm.get('vip')?.setValue(this.isVip);
@@ -85,20 +85,24 @@ getControl(controlName: string): AbstractControl | null {
 
   togglePhotoOptions(): void {
     this.showPhotoOptions = !this.showPhotoOptions;
+    if (this.showPhotoOptions) {
+      this.registerForm.get('fotoPerfil')?.markAsTouched();
+    }
   }
 
-  togglePasswordVisibility(){
+  togglePasswordVisibility() {
     this.visiblePassword = !this.visiblePassword;
   }
 
   selectPhoto(photoUrl: string): void {
     this.selectedPhoto = photoUrl;
     this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
+    this.registerForm.get('fotoPerfil')?.markAsTouched();
     this.showPhotoOptions = false;
   }
 
   selectContentType(type: string) {
-  this.registerForm.get('tipoContenido')?.setValue(type);
-}
+    this.registerForm.get('tipoContenido')?.setValue(type);
+  }
 
 }

@@ -48,7 +48,7 @@
 
     <!-- Campo: Alias: UNICO no repetir -->
     <div class="form-field">
-      <label for="alias">Alias</label>
+      <label for="alias">Alias *</label>
       <input type="text" placeholder="Alias" formControlName="alias">
       <div class="error-container" *ngIf="getControl('alias')?.invalid && (getControl('alias')?.touched || getControl('alias')?.dirty)">
         <p class ="error-message" *ngIf="getControl('alias')?.hasError('required')"> El campo es obligatorio. </p>
@@ -59,7 +59,7 @@
 
     <!-- Campo: Foto de perfil -->
     <div class="form-field">
-      <label for="foto">Foto de perfil </label>
+      <label for="foto">Foto de perfil *</label>
       <button 
         type="button" class="photo-selector-btn" 
         (click)="togglePhotoOptions()">
@@ -77,6 +77,9 @@
                (keydown.enter)="selectPhoto(avatar.url)">
         </div>
       <a class="link" href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
+      </div>
+      <div class="error-container" *ngIf="getControl('fotoPerfil')?.invalid && (getControl('fotoPerfil')?.touched || getControl('fotoPerfil')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('fotoPerfil')?.hasError('required')"> El campo es obligatorio. </p>
       </div>
     </div>
 

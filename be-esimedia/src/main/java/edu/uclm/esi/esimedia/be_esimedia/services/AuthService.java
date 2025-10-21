@@ -1,5 +1,9 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -7,9 +11,6 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 @Service
 public class AuthService {
@@ -124,10 +125,10 @@ public class AuthService {
             }
             Usuario u = userRepository.findByEmail(email);
             if (u == null) {
-                throw new NoSuchElementException("Usuario no encontrado");
+                throw new NoSuchElementException("Credenciales inválidas");
             }
             if (!passwordEncoder.matches(contrasena, u.getContrasena())) {
-                throw new IllegalArgumentException("Credenciales inv\u00e1lidas");
+                throw new IllegalArgumentException("Credenciales inválidas");
             }
             String token = java.util.UUID.randomUUID().toString();
             Map<String, String> res = new HashMap<>();
