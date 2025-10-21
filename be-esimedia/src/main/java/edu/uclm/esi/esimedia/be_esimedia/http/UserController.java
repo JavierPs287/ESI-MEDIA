@@ -1,16 +1,21 @@
 package edu.uclm.esi.esimedia.be_esimedia.http;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
-import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
+import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
+import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
+import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 
 
 @RestController
@@ -19,8 +24,11 @@ import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
 public class UserController {
 
     private final AuthService authService;
-    public UserController(AuthService authService) {
+    private final UserService userService;
+
+    public UserController(AuthService authService, UserService userService) {
         this.authService = authService;
+        this.userService = userService;
     }
     
     @PostMapping("/register")
@@ -44,4 +52,9 @@ public class UserController {
         }
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.findAll();
+        return ResponseEntity.ok(users);
+    }
 }

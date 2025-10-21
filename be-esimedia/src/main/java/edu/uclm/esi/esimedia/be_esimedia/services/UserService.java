@@ -1,5 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
@@ -18,5 +19,9 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }
