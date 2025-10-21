@@ -66,9 +66,9 @@
                     <input matInput formControlName="seconds" type="number" min="0" max="59" />
                   </mat-form-field>
                 </div>
-                <div class="error-container" *ngIf="videoForm.get('duration')?.invalid && (videoForm.get('duration')?.touched || videoForm.get('duration')?.dirty)">
-                  <mat-error *ngIf="videoForm.get('duration')?.hasError('required')">La duración es obligatoria</mat-error>
-                  <mat-error *ngIf="videoForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a 0</mat-error>
+                <div class="error-container" *ngIf="audioForm.get('duration')?.invalid && (audioForm.get('duration')?.touched || audioForm.get('duration')?.dirty)">
+                  <mat-error *ngIf="audioForm.get('duration')?.hasError('required')">La duración es obligatoria</mat-error>
+                  <mat-error *ngIf="audioForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a 0</mat-error>
                 </div>
               </fieldset>
 
@@ -99,7 +99,7 @@
 
               <!-- Imagen -->
             <div class="form-field">
-            <label for="video-image">Imagen</label>
+            <label for="audio">Imagen</label>
             <button 
               type="button" class="photo-selector-btn" 
               (click)="toggleImageOptions()">
@@ -212,9 +212,9 @@
               <mat-form-field >
                 <mat-label>Restricción de edad</mat-label>
                 <input matInput formControlName="ageRestriction" type="number" min="4" max="110" placeholder="Ej: 18" />
-                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('min')">Valor mínimo 4</mat-error>
-                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('max')">Valor máximo 110</mat-error>
-                <mat-error *ngIf="audioForm.get('ageRestriction')?.hasError('required')">La restricción de edad es obligatoria</mat-error>
+                <mat-error *ngIf="videoForm.get('ageRestriction')?.hasError('min')">Valor mínimo 4</mat-error>
+                <mat-error *ngIf="videoForm.get('ageRestriction')?.hasError('max')">Valor máximo 110</mat-error>
+                <mat-error *ngIf="videoForm.get('ageRestriction')?.hasError('required')">La restricción de edad es obligatoria</mat-error>
               </mat-form-field>
 
               <!-- Disponible hasta -->
@@ -255,9 +255,9 @@
               <!-- Botones -->
               <div class="button-group">
                 <button mat-raised-button color="primary" type="submit"
-                  [disabled]="!audioForm.valid || !selectedAudioFile">Guardar
+                  [disabled]="!videoForm.valid || !selectedVideoFile">Guardar
                 </button>
-                <button mat-raised-button type="button" (click)="resetAudioForm()">Limpiar</button>
+                <button mat-raised-button type="button" (click)="resetVideoForm()">Limpiar</button>
               </div>
 
             </div>
