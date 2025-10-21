@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { ContentService } from '../../../services/content.service';
 import { IMAGE_OPTIONS, DEFAULT_IMAGE } from '../../../constants/image-constants';
 
 @Component({
@@ -121,6 +122,14 @@ export class UploadContentComponent implements OnInit {
     this.showImageOptions = false;
   }
 
+  // Posible migración futura por duplicidad
+  getImageIdFromUrl(imageUrl: string | null): number {
+    if (!imageUrl) return 0;
+    
+    const imageOption = this.availableImages.find(img => img.url === imageUrl);
+    return imageOption ? parseInt(imageOption.name, 10) : 0;
+  }
+
   validateFile(file: File, type: string): boolean {
     const maxSize = 1 * 1024 * 1024; // 1MB
     if (file.size > maxSize) {
@@ -208,9 +217,8 @@ export class UploadContentComponent implements OnInit {
         formData.append('visibilityDeadline', this.audioForm.value.availableUntil.toISOString());
       }
       
-      if (this.selectedImage) {
-        formData.append('image', this.selectedImage);
-      }
+      const imageId = this.getImageIdFromUrl(this.selectedImage);
+      formData.append('imageId', imageId.toString());
 
       console.log('Enviando audio al servidor...');
       
@@ -264,9 +272,8 @@ export class UploadContentComponent implements OnInit {
         formData.append('visibilityDeadline', this.videoForm.value.availableUntil.toISOString());
       }
       
-      if (this.selectedImage) {
-        formData.append('image', this.selectedImage);
-      }
+      const imageId = this.getImageIdFromUrl(this.selectedImage);
+      formData.append('imageId', imageId.toString());
 
       console.log('Enviando vídeo al servidor...');
       
