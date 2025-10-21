@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Router } from '@angular/router';
-import { MainMenuCreator } from './main-menu-creator.component';
+import { MainMenuCreatorComponent } from './main-menu-creator.component';
 
 describe('MainMenuCreatorComponent', () => {
-  let component: MainMenuCreator;
-  let fixture: ComponentFixture<MainMenuCreator>;
+  let component: MainMenuCreatorComponent;
+  let fixture: ComponentFixture<MainMenuCreatorComponent>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [MainMenuCreator],
+      imports: [MainMenuCreatorComponent],
       providers: [
         { provide: Router, useValue: routerSpy }
       ],
@@ -20,7 +20,7 @@ describe('MainMenuCreatorComponent', () => {
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MainMenuCreator);
+    fixture = TestBed.createComponent(MainMenuCreatorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
