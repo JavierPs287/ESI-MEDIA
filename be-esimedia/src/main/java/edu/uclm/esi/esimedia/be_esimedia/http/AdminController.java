@@ -22,8 +22,10 @@ import java.util.NoSuchElementException;
 @CrossOrigin("*")
 
 public class AdminController {
-
+    
+    private static final String ERROR_KEY = "error";
     private final AdminService adminService;
+
     public AdminController(AdminService adminService) {
         this.adminService = adminService;
     }
@@ -56,20 +58,20 @@ public class AdminController {
 
         // Basic validation: ensure we received a plausible email
         if (email == null || !email.contains("@")) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email inválido"));
+            return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email inválido"));
         }
 
         Boolean blocked = body != null ? body.get("blocked") : null;
         if (blocked == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Campo 'blocked' requerido"));
+            return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Campo 'blocked' requerido"));
         }
         try {
             adminService.setUserBlocked(email, blocked);
             return ResponseEntity.ok(Map.of("ok", true));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Usuario no encontrado"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_KEY, "Usuario no encontrado"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "Error interno"));
         }
     }
 

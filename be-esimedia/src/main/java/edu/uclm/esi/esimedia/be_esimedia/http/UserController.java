@@ -19,7 +19,9 @@ import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 @CrossOrigin("*")
 public class UserController {
 
+    private static final String ERROR_KEY = "error";
     private final AuthService authService;
+
     public UserController(AuthService authService) {
         this.authService = authService;
     }
@@ -43,11 +45,11 @@ public class UserController {
             var res = authService.login(email, contrasena);
             return ResponseEntity.ok(res);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(ERROR_KEY, e.getMessage()));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_KEY, e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "Error interno"));
         }
     }
 
