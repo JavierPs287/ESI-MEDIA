@@ -1,18 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { UploadcontentComponent } from './uploadcontent.component';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { UploadContentComponent } from './uploadcontent.component';
 
 describe('UploadcontentComponent', () => {
-  let component: UploadcontentComponent;
-  let fixture: ComponentFixture<UploadcontentComponent>;
+  let component: UploadContentComponent;
+  let fixture: ComponentFixture<UploadContentComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UploadcontentComponent]
+      imports: [UploadContentComponent],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(UploadcontentComponent);
+    fixture = TestBed.createComponent(UploadContentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
