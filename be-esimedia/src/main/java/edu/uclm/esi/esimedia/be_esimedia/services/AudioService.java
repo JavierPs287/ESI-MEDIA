@@ -34,6 +34,11 @@ public class AudioService {
     }
 
     public String uploadAudio(AudioDTO audioDTO) throws IOException {
+        // Validar primero que audioDTO no sea null
+        if (audioDTO == null) {
+            throw new IllegalArgumentException("Error en la validación: El objeto AudioDTO no puede ser nulo.");
+        }
+        
         audioDTO.setVisibilityChangeDate(new Date());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
@@ -99,10 +104,6 @@ public class AudioService {
     }
 
     private void validateUploadAudio(AudioDTO audioDTO) {
-        if (audioDTO == null) {
-            throw new IllegalArgumentException("El objeto AudioDTO no puede ser nulo.");
-        }
-
         if (!validateService.areAudioRequiredFieldsValid(audioDTO)) {
             throw new IllegalArgumentException("Hay campos obligatorios incorrectos en la subida de audio.");
         }

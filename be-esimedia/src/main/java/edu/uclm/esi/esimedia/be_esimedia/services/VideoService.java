@@ -23,6 +23,11 @@ public class VideoService {
     }
 
     public String uploadVideo(VideoDTO videoDTO) {
+        // Validar primero que videoDTO no sea null
+        if (videoDTO == null) {
+            throw new IllegalArgumentException("Error en la validación: El objeto VideoDTO no puede ser nulo.");
+        }
+        
         videoDTO.setVisibilityChangeDate(new Date());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
@@ -48,10 +53,6 @@ public class VideoService {
     }
 
     private void validateUploadVideo(VideoDTO videoDTO) {
-        if (videoDTO == null) {
-            throw new IllegalArgumentException("El objeto VideoDTO no puede ser nulo.");
-        }
-
         if (!validateService.areVideoRequiredFieldsValid(videoDTO)) {
             throw new IllegalArgumentException("Faltan campos obligatorios o no son válidos.");
         }
