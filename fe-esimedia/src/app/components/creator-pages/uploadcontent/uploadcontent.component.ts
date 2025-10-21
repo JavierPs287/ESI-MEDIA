@@ -46,10 +46,8 @@ export class UploadContentComponent implements OnInit {
   seconds = Array.from({ length: 60 }, (_, i) => i);
 
   selectedAudioFile: File | null = null;
-  selectedVideoFile: File | null = null;
   selectedImage: File | null = null;
   audioFileName = '';
-  videoFileName = '';
   imageFileName = '';
 
   constructor(
@@ -93,8 +91,8 @@ export class UploadContentComponent implements OnInit {
         seconds: ['', [Validators.required, Validators.min(0), Validators.max(59)]]
       }, { validators: this.durationValidator() }),
       resolution: ['1080p', Validators.required],
-      vip: ['', Validators.required],
-      visible: ['', Validators.required],
+      vip: [false, Validators.required],
+      visible: [true, Validators.required],
       ageRestriction: ['G', Validators.required],
       availableUntil: [null],
       image: ['']
@@ -109,18 +107,6 @@ export class UploadContentComponent implements OnInit {
         this.selectedAudioFile = file;
         this.audioFileName = file.name;
         this.audioForm.patchValue({ audioFile: file.name });
-      }
-    }
-  }
-
-  onVideoFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files?.length) {
-      const file = input.files[0];
-      if (this.validateFile(file, 'video')) {
-        this.selectedVideoFile = file;
-        this.videoFileName = file.name;
-        this.videoForm.patchValue({ videoFile: file.name });
       }
     }
   }
@@ -345,7 +331,5 @@ export class UploadContentComponent implements OnInit {
 
   resetVideoForm(): void {
     this.videoForm.reset({ vip: false, visible: true, ageRestriction: 4, resolution: '1080p' });
-    this.selectedVideoFile = null;
-    this.videoFileName = '';
   }
 }
