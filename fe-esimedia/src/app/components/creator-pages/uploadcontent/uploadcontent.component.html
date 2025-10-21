@@ -39,7 +39,7 @@
               <!-- Tags -->
               <label for="tags">Tags *</label>
               <mat-form-field >
-                <mat-label>Select tag</mat-label>
+                <mat-label>Tags</mat-label>
                 <mat-select formControlName="tags" multiple>
                   <mat-option *ngFor="let tag of tags" [value]="tag">{{ tag }}</mat-option>
                 </mat-select>
@@ -163,7 +163,7 @@
               </mat-form-field>
 
               <!-- Tags -->
-                <label for="video-tags">Tags </label>
+                <label for="video-tags">Tags *</label>
               <mat-form-field >
                 <mat-label>Tags</mat-label>
                 <mat-select formControlName="tags" multiple>
@@ -201,7 +201,7 @@
               <!-- Resolución -->
               <label for="video-resolution">Resolución *</label>
               <mat-form-field >
-                <mat-label>Resolución *</mat-label>
+                <mat-label>Resolución</mat-label>
                 <mat-select formControlName="resolution">
                   <mat-option *ngFor="let res of videoResolutions" [value]="res">{{ res }} </mat-option>
                 </mat-select>
@@ -255,7 +255,7 @@
               <!-- Botones -->
               <div class="button-group">
                 <button mat-raised-button color="primary" type="submit"
-                  [disabled]="!videoForm.valid || !selectedVideoFile">Guardar
+                  [disabled]="!videoForm.valid">Guardar
                 </button>
                 <button mat-raised-button type="button" (click)="resetVideoForm()">Limpiar</button>
               </div>

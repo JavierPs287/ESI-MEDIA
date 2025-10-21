@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { ContentService } from '../../../services/content.service';
 import { IMAGE_OPTIONS, DEFAULT_IMAGE } from '../../../constants/image-constants';
 
 @Component({
@@ -46,13 +47,14 @@ export class UploadContentComponent implements OnInit {
   videoResolutions = ['360p','720p', '1080p', '4K'];
 
   selectedAudioFile: File | null = null;
-  selectedVideoFile: File | null = null;
   selectedImage: string | null = null;
   audioFileName = '';
-  videoFileName = '';
   imageFileName = '';
 
-  constructor(private readonly fb: FormBuilder) {}
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly contentService: ContentService
+  ) {}
 
   ngOnInit(): void {
     this.initializeAudioForm();
@@ -90,8 +92,8 @@ export class UploadContentComponent implements OnInit {
         seconds: ['', [Validators.required, Validators.min(0), Validators.max(59)]]
       }, { validators: this.durationValidator() }),
       resolution: ['1080p', Validators.required],
-      vip: ['', Validators.required],
-      visible: ['', Validators.required],
+      vip: [false, Validators.required],
+      visible: [true, Validators.required],
       ageRestriction: ['G', Validators.required],
       availableUntil: [null],
       image: [DEFAULT_IMAGE]
@@ -110,18 +112,6 @@ export class UploadContentComponent implements OnInit {
     }
   }
 
-  onVideoFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files?.length) {
-      const file = input.files[0];
-      if (this.validateFile(file, 'video')) {
-        this.selectedVideoFile = file;
-        this.videoFileName = file.name;
-        this.videoForm.patchValue({ videoFile: file.name });
-      }
-    }
-  }
-
   toggleImageOptions(): void {
     this.showImageOptions = !this.showImageOptions;
   }
@@ -130,6 +120,14 @@ export class UploadContentComponent implements OnInit {
     this.selectedImage = imageUrl;
     this.audioForm.get('image')?.setValue(imageUrl);
     this.showImageOptions = false;
+  }
+
+  // Posible migración futura por duplicidad
+  getImageIdFromUrl(imageUrl: string | null): number {
+    if (!imageUrl) return 0;
+    
+    const imageOption = this.availableImages.find(img => img.url === imageUrl);
+    return imageOption ? parseInt(imageOption.name, 10) : 0;
   }
 
   validateFile(file: File, type: string): boolean {
@@ -184,43 +182,139 @@ export class UploadContentComponent implements OnInit {
   }
 
   private convertDurationToSeconds(duration: any): number {
-  const hours = duration.hours || 0;
-  const minutes = duration.minutes || 0;
-  const seconds = duration.seconds || 0;
-  return (hours * 3600) + (minutes * 60) + seconds;
-}
+    const hours = duration.hours || 0;
+    const minutes = duration.minutes || 0;
+    const seconds = duration.seconds || 0;
+    return (hours * 3600) + (minutes * 60) + seconds;
+  }
 
   submitAudioForm(): void {
     if (this.audioForm.valid && this.selectedAudioFile) {
-      console.log('Formulario de audio:', this.audioForm.value);
-      this.convertDurationToSeconds(this.audioForm.value.duration);
-      // Implementar envío al servidor
-      alert('Contenido de audio registrado correctamente');
+      const formData = new FormData();
+      
+      // Campos obligatorios 
+      formData.append('title', this.audioForm.value.title);
+      formData.append('duration', this.convertDurationToSeconds(this.audioForm.value.duration).toString());
+      formData.append('vip', this.audioForm.value.vip.toString());
+      formData.append('visible', this.audioForm.value.visible.toString());
+      formData.append('minAge', this.audioForm.value.ageRestriction);
+
+      // Campos específicos de audio
+      formData.append('file', this.selectedAudioFile);
+      
+      // Campos opcionales
+      if (this.audioForm.value.description) {
+        formData.append('description', this.audioForm.value.description);
+      }
+      
+      if (this.audioForm.value.tags && this.audioForm.value.tags.length > 0) {
+        this.audioForm.value.tags.forEach((tag: string) => {
+          formData.append('tags', tag);
+        });
+      }
+      
+      if (this.audioForm.value.availableUntil) {
+        formData.append('visibilityDeadline', this.audioForm.value.availableUntil.toISOString());
+      }
+      
+      const imageId = this.getImageIdFromUrl(this.selectedImage);
+      formData.append('imageId', imageId.toString());
+
+      console.log('Enviando audio al servidor...');
+      
+      this.contentService.uploadAudio(formData).subscribe({
+        next: (response) => {
+          if (response.error) {
+            alert(`Error: ${response.error}`);
+          } else {
+            alert(`Éxito: ${response.message}\nID del audio: ${response.audioId}`);
+            this.resetAudioForm();
+          }
+        },
+        error: (error) => {
+          console.error('Error en la subida:', error);
+          alert('Error al subir el contenido de audio');
+        }
+      });
     } else {
       alert('Por favor, completa todos los campos requeridos');
+      this.markFormGroupTouched(this.audioForm);
     }
   }
 
   submitVideoForm(): void {
-    if (this.videoForm.valid && this.selectedVideoFile) {
-      console.log('Formulario de vídeo:', this.videoForm.value);
-      console.log('Archivo:', this.selectedVideoFile);
-      // Implementar envío al servidor
-      alert('Contenido de vídeo registrado correctamente');
+    if (this.videoForm.valid) {
+      const formData = new FormData();
+      
+      // Campos obligatorios comunes
+      formData.append('title', this.videoForm.value.title);
+      formData.append('duration', this.convertDurationToSeconds(this.videoForm.value.duration).toString());
+      formData.append('vip', this.videoForm.value.vip.toString());
+      formData.append('visible', this.videoForm.value.visible.toString());
+      formData.append('minAge', this.videoForm.value.ageRestriction);
+      
+      // Campos específicos de Video
+      formData.append('url', this.videoForm.value.videoUrl);
+      formData.append('resolution', this.videoForm.value.resolution.replace('p', ''));
+      
+      // Campos opcionales comunes
+      if (this.videoForm.value.description) {
+        formData.append('description', this.videoForm.value.description);
+      }
+      
+      if (this.videoForm.value.tags && this.videoForm.value.tags.length > 0) {
+        this.videoForm.value.tags.forEach((tag: string) => {
+          formData.append('tags', tag);
+        });
+      }
+      
+      if (this.videoForm.value.availableUntil) {
+        formData.append('visibilityDeadline', this.videoForm.value.availableUntil.toISOString());
+      }
+      
+      const imageId = this.getImageIdFromUrl(this.selectedImage);
+      formData.append('imageId', imageId.toString());
+
+      console.log('Enviando vídeo al servidor...');
+      
+      this.contentService.uploadVideo(formData).subscribe({
+        next: (response) => {
+          if (response.error) {
+            alert(`Error: ${response.error}`);
+          } else {
+            alert(`Éxito: ${response.message}\nID del vídeo: ${response.videoId}`);
+            this.resetVideoForm();
+          }
+        },
+        error: (error) => {
+          console.error('Error en la subida:', error);
+          alert('Error al subir el contenido de vídeo');
+        }
+      });
     } else {
       alert('Por favor, completa todos los campos requeridos');
+      this.markFormGroupTouched(this.videoForm);
     }
   }
 
+  private markFormGroupTouched(formGroup: FormGroup): void {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      control?.markAsTouched();
+
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+
   resetAudioForm(): void {
-    this.audioForm.reset({ vip: false, visible: true, ageRestriction: 'G' });
+    this.audioForm.reset({ vip: false, visible: true, ageRestriction: 4 });
     this.selectedAudioFile = null;
     this.audioFileName = '';
   }
 
   resetVideoForm(): void {
-    this.videoForm.reset({ vip: false, visible: true, ageRestriction: 'G', resolution: '1080p' });
-    this.selectedVideoFile = null;
-    this.videoFileName = '';
+    this.videoForm.reset({ vip: false, visible: true, ageRestriction: 4, resolution: '1080p' });
   }
 }

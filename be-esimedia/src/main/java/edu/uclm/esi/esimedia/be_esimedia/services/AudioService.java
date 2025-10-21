@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class AudioService {
     // TODO Pasar a archivo de configuración
     private static final String UPLOAD_DIR = "src/main/resources/audios/";
     private static final long MAX_FILE_SIZE = 1024 * 1024; // 1 MB
-    private static final String[] ALLOWED_FORMATS = {"mp3", "wav", "ogg", "m4a"};
+    private static final String[] ALLOWED_FORMATS = { "mp3", "wav", "ogg", "m4a" };
 
     private final ValidateService validateService;
 
@@ -33,6 +34,14 @@ public class AudioService {
     }
 
     public String uploadAudio(AudioDTO audioDTO) throws IOException {
+        audioDTO.setVisibilityChangeDate(new Date());
+
+        // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
+        if (audioDTO.getCreador() == null || audioDTO.getCreador().isEmpty()) {
+            // TODO: Obtener del usuario autenticado
+            audioDTO.setCreador("creador_temporal");
+        }
+        
         // Validación
         try {
             validateUploadAudio(audioDTO);
@@ -64,7 +73,7 @@ public class AudioService {
         // Retornar el ID del audio subido
         return savedAudio.getId();
     }
-    
+
     // Método generado
     private static String getFileExtension(String fileName) {
         if (fileName == null || fileName.lastIndexOf('.') == -1) {
@@ -74,7 +83,7 @@ public class AudioService {
     }
 
     private static String saveFile(MultipartFile file, String fileName) throws IOException {
-        try{
+        try {
             Path uploadPath = Path.of(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
@@ -103,15 +112,19 @@ public class AudioService {
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
         if (!validateService.isFileSizeValid(file.getSize(), MAX_FILE_SIZE)) {
-            throw new IllegalArgumentException("El tamaño del archivo excede el límite permitido de " + (MAX_FILE_SIZE / (1024 * 1024)) + " MB.");
+            throw new IllegalArgumentException(
+                    "El tamaño del archivo excede el límite permitido de " + (MAX_FILE_SIZE / (1024 * 1024)) + " MB.");
         }
 
         if (!validateService.isFileFormatAllowed(fileExtension, ALLOWED_FORMATS)) {
-            throw new IllegalArgumentException("El formato del archivo no es válido. Formatos permitidos: mp3, wav, ogg, m4a.");
+            throw new IllegalArgumentException(
+                    "El formato del archivo no es válido. Formatos permitidos: mp3, wav, ogg, m4a.");
         }
 
-        if (!validateService.isVisibilityDeadlineValid(audioDTO.getVisibilityChangeDate(), audioDTO.getVisibilityDeadline())) {
-            throw new IllegalArgumentException("La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
+        if (!validateService.isVisibilityDeadlineValid(audioDTO.getVisibilityChangeDate(),
+                audioDTO.getVisibilityDeadline())) {
+            throw new IllegalArgumentException(
+                    "La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
         }
     }
 }

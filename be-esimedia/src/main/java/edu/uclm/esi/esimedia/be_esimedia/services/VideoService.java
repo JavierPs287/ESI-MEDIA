@@ -1,5 +1,7 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,13 @@ public class VideoService {
     }
 
     public String uploadVideo(VideoDTO videoDTO) {
+        videoDTO.setVisibilityChangeDate(new Date());
+
+        // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
+        if (videoDTO.getCreador() == null || videoDTO.getCreador().isEmpty()) {
+            // TODO: Obtener del usuario autenticado
+            videoDTO.setCreador("creador_temporal"); 
+        }
         // Validación
         try {
             validateUploadVideo(videoDTO);
@@ -46,9 +55,11 @@ public class VideoService {
         if (!validateService.areVideoRequiredFieldsValid(videoDTO)) {
             throw new IllegalArgumentException("Faltan campos obligatorios o no son válidos.");
         }
-        
-        if (!validateService.isVisibilityDeadlineValid(videoDTO.getVisibilityChangeDate(), videoDTO.getVisibilityDeadline())) {
-            throw new IllegalArgumentException("La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
+
+        if (!validateService.isVisibilityDeadlineValid(videoDTO.getVisibilityChangeDate(),
+                videoDTO.getVisibilityDeadline())) {
+            throw new IllegalArgumentException(
+                    "La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
         }
     }
 

@@ -2,6 +2,8 @@ package edu.uclm.esi.esimedia.be_esimedia.dto;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 public abstract class ContenidoDTO {
     
     private String title; // Campo obligatorio
@@ -10,8 +12,12 @@ public abstract class ContenidoDTO {
     private double duration; // Campo obligatorio // Segundos, se podría implementar de otra forma
     private boolean vip; // Campo obligatorio
     private boolean visible; // Campo obligatorio
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date visibilityChangeDate; // No es campo rellenable, se pone la fecha actual al crear el contenido
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date visibilityDeadline;
+    
     private int minAge; // Campo obligatorio
     private int imageId;
     private String creador; // No es campo rellenable, se pone el creador al crear el contenido
