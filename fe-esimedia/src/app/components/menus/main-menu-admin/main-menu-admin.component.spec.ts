@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MainMenuAdminComponent } from './main-menu-admin.component';
 
 describe('MainMenuAdminComponent', () => {
@@ -8,7 +8,8 @@ describe('MainMenuAdminComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainMenuAdminComponent]
+      imports: [MainMenuAdminComponent],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 
