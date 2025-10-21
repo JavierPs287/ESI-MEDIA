@@ -19,6 +19,14 @@
         <mat-icon class="icon-sideBar">video_library</mat-icon>
         <span class="info-sideBar">Gestión de Usuarios</span>
       </button>
+      <button mat-button class="item-sideBar" (click)="navigateTo('/menu/admin/register/creator')">
+        <mat-icon class="icon-sideBar">people</mat-icon>
+        <span class="info-sideBar">Añadir Gestor de Contenido</span>
+      </button>
+      <button mat-button class="item-sideBar" (click)="navigateTo('/menu/admin/register/admin')">
+        <mat-icon class="icon-sideBar">people</mat-icon>
+        <span class="info-sideBar">Añadir Administrador</span>
+      </button>
       <button mat-button class="item-sideBar">
         <mat-icon class="icon-sideBar">settings</mat-icon>
         <span class="info-sideBar">Configuración</span>

@@ -28,16 +28,6 @@ export const routes: Routes = [
     },
 
     {
-        path: 'register/creator',
-        component: RegistercreatorComponent
-    },
-
-    {
-        path: 'register/admin',
-        component: RegisteradminComponent
-    },
-
-    {
         path: 'login',
         component: LoginuserComponent
     },
@@ -60,7 +50,15 @@ export const routes: Routes = [
             {
                 path: 'userManagement',
                 component: UserManagementComponent
-            }
+            },
+            {
+                path: 'register/admin',
+                component: RegisteradminComponent
+            },
+            {
+                path: 'register/creator',
+                component: RegistercreatorComponent
+            },
         ]
     }
 ];
