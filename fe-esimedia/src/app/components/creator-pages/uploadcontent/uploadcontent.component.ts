@@ -74,7 +74,7 @@ export class UploadContentComponent implements OnInit {
       visible: [true, Validators.required],
       ageRestriction: ['', Validators.required],
       availableUntil: [null],
-      image: ['']
+      image: [DEFAULT_IMAGE]
     });
   }
 
@@ -94,7 +94,7 @@ export class UploadContentComponent implements OnInit {
       visible: ['', Validators.required],
       ageRestriction: ['G', Validators.required],
       availableUntil: [null],
-      image: ['']
+      image: [DEFAULT_IMAGE]
     });
   }
 
@@ -165,22 +165,6 @@ export class UploadContentComponent implements OnInit {
     }
   };
 }
-
-  validateImage(file: File): boolean {
-    const maxSize = 5 * 1024 * 1024; // 5MB para imágenes
-    if (file.size > maxSize) {
-      alert(`La imagen no puede exceder 5MB`);
-      return false;
-    }
-    
-    if (!file.type.startsWith('image/')) {
-      alert('Por favor, selecciona una imagen válida');
-      return false;
-    }
-    
-    return true;
-  }
-
   minTagsValidator(min: number) {
     return (control: any) => {
       const tags = control.value;
