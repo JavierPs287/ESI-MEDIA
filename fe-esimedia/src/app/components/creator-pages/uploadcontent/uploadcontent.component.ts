@@ -127,7 +127,7 @@ export class UploadContentComponent implements OnInit {
     if (!imageUrl) return 0;
     
     const imageOption = this.availableImages.find(img => img.url === imageUrl);
-    return imageOption ? parseInt(imageOption.name, 10) : 0;
+    return imageOption ? Number.parseInt(imageOption.name, 10) : 0;
   }
 
   validateFile(file: File, type: string): boolean {
@@ -208,9 +208,9 @@ export class UploadContentComponent implements OnInit {
       }
       
       if (this.audioForm.value.tags && this.audioForm.value.tags.length > 0) {
-        this.audioForm.value.tags.forEach((tag: string) => {
+        for (const tag of this.audioForm.value.tags) {
           formData.append('tags', tag);
-        });
+        }
       }
       
       if (this.audioForm.value.availableUntil) {
@@ -263,9 +263,9 @@ export class UploadContentComponent implements OnInit {
       }
       
       if (this.videoForm.value.tags && this.videoForm.value.tags.length > 0) {
-        this.videoForm.value.tags.forEach((tag: string) => {
+        for (const tag of this.videoForm.value.tags) {
           formData.append('tags', tag);
-        });
+        }
       }
       
       if (this.videoForm.value.availableUntil) {
@@ -298,14 +298,15 @@ export class UploadContentComponent implements OnInit {
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach(key => {
+    // Object.keys(formGroup.controls).forEach(key => {
+    for (const key in formGroup.controls) {
       const control = formGroup.get(key);
       control?.markAsTouched();
 
       if (control instanceof FormGroup) {
         this.markFormGroupTouched(control);
       }
-    });
+    }
   }
 
   resetAudioForm(): void {
