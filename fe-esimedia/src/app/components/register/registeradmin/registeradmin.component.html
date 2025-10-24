@@ -86,7 +86,9 @@
     <label for="contrasena">Contraseña *</label>
       <div class="password-field">
       <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
-      <button class="eyeicon" (click)="togglePasswordVisibility()"><i [ngClass]="visiblePassword?'fa fa-eye':'fa fa-eye-slash'"></i>
+      <button class="eyeicon" (click)="togglePasswordVisibility()">
+        <mat-icon *ngIf="visiblePassword">visibility</mat-icon>
+        <mat-icon *ngIf="!visiblePassword">visibility_off</mat-icon>
       </button>
     </div>
     <div class="error-container" *ngIf="getControl('contrasena')?.invalid && (getControl('contrasena')?.touched || getControl('contrasena')?.dirty)">

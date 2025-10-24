@@ -6,10 +6,11 @@ import { passwordStrengthValidator, passwordMatchValidator } from './../custom-v
 import { AdminService } from '../../../services/admin.service';
 import { Admin, Departamento } from '../../../models/admin.model';
 import { Router } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-registeradmin',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, MatIcon],
   templateUrl: './registeradmin.component.html',
   styleUrl: './registeradmin.component.css'
 })

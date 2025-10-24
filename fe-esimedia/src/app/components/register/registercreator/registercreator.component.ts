@@ -6,11 +6,12 @@ import { Creator, Campo, Tipo } from '../../../models/creator.model';
 import { Router } from '@angular/router';
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
+import { MatIcon } from '@angular/material/icon';
 
 
 @Component({
   selector: 'app-registercreator',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, MatIcon],
   templateUrl: './registercreator.component.html',
   styleUrl: './registercreator.component.css'
 })

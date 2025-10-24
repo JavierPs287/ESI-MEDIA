@@ -6,11 +6,12 @@ import { User, RegisterResponse } from '../../../models/user.model';
 import { NavbarComponent } from "../../navbar/navbar.component";
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-registeruser',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, NavbarComponent],
+  imports: [ReactiveFormsModule, CommonModule, NavbarComponent, MatIcon],
   templateUrl: './registeruser.component.html',
   styleUrls: ['./registeruser.component.css']
 })
