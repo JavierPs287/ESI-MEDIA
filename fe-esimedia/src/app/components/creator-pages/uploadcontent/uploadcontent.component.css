@@ -30,6 +30,7 @@ mat-form-field {
   gap: 15px;
   margin: 15px 0;
 }
+
 .file-name {
   color: var(--azul-oscuro);
   font-size: 14px;
@@ -48,7 +49,7 @@ mat-form-field {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .toggle-group {
@@ -97,4 +98,14 @@ mat-tab-group {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+[specific-content] {
+  display: contents; /* Los hijos se comportan como si estuvieran directamente en .form-container */
+}
+
+[specific-content] > div {
+  /* Cada div hijo hereda el comportamiento del gap del padre */
+  display: flex;
+  flex-direction: column;
 }

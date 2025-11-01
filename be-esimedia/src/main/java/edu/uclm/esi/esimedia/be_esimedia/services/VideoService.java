@@ -41,6 +41,7 @@ public class VideoService {
             // TODO: Obtener del usuario autenticado
             videoDTO.setCreador("creador_temporal"); 
         }
+        
         // Validación
         validateUploadVideo(videoDTO);
 

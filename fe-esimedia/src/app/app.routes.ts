@@ -8,6 +8,8 @@ import { UploadContentComponent } from './components/creator-pages/uploadcontent
 import { MainMenuCreatorComponent } from './components/menus/main-menu-creator/main-menu-creator.component';
 import { MainMenuAdminComponent } from './components/menus/main-menu-admin/main-menu-admin.component';
 import { UserManagementComponent } from './components/admin-pages/user-management/user-management.component';
+import { UploadAudioComponent } from './components/creator-pages/uploadcontent/uploadaudio/uploadaudio.component';
+import { UploadVideoComponent } from './components/creator-pages/uploadcontent/uploadvideo/uploadvideo.component';
 
 export const routes: Routes = [
 
@@ -38,7 +40,9 @@ export const routes: Routes = [
         children: [
             {
                 path: 'uploadContent',
-                component: UploadContentComponent
+                // component: UploadContentComponent
+                // component: UploadAudioComponent
+                component: UploadVideoComponent
             }
         ]
     },
