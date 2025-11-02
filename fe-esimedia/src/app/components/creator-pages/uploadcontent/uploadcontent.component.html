@@ -69,8 +69,8 @@
             <input matInput formControlName="ageRestriction" type="number" min="4" max="110" placeholder="Ej: 18" />
             <mat-error *ngIf="contentForm.get('ageRestriction')?.hasError('required')">La restricción de edad es
               obligatoria</mat-error>
-            <mat-error *ngIf="contentForm.get('ageRestriction')?.hasError('min')">Edad mínima 4</mat-error>
-            <mat-error *ngIf="contentForm.get('ageRestriction')?.hasError('max')">Edad máxima 110</mat-error>
+            <mat-error *ngIf="contentForm.get('ageRestriction')?.hasError('min')">Edad mínima: 4</mat-error>
+            <mat-error *ngIf="contentForm.get('ageRestriction')?.hasError('max')">Edad máxima: 110</mat-error>
           </mat-form-field>
 
           <!-- Disponible hasta -->

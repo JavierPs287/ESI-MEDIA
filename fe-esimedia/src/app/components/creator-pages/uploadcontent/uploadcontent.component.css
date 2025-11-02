@@ -103,9 +103,3 @@ mat-tab-group {
 [specific-content] {
   display: contents; /* Los hijos se comportan como si estuvieran directamente en .form-container */
 }
-
-[specific-content] > div {
-  /* Cada div hijo hereda el comportamiento del gap del padre */
-  display: flex;
-  flex-direction: column;
-}

@@ -4,7 +4,6 @@ import { RegistercreatorComponent } from './components/register/registercreator/
 import { RegisteradminComponent } from './components/register/registeradmin/registeradmin.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginuserComponent } from './components/loginuser/loginuser.component';
-import { UploadContentComponent } from './components/creator-pages/uploadcontent/uploadcontent.component';
 import { MainMenuCreatorComponent } from './components/menus/main-menu-creator/main-menu-creator.component';
 import { MainMenuAdminComponent } from './components/menus/main-menu-admin/main-menu-admin.component';
 import { UserManagementComponent } from './components/admin-pages/user-management/user-management.component';
@@ -39,9 +38,11 @@ export const routes: Routes = [
         component: MainMenuCreatorComponent,
         children: [
             {
-                path: 'uploadContent',
-                // component: UploadContentComponent
-                // component: UploadAudioComponent
+                path: 'uploadContent/audio',
+                component: UploadAudioComponent
+            },
+            {
+                path: 'uploadContent/video',
                 component: UploadVideoComponent
             }
         ]
