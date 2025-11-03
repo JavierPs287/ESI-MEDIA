@@ -5,9 +5,9 @@
     </div>
 
     <div class="profile-section">
-      <img src="assets/avatars/avatar1.png" alt="Foto de perfil" class="profile-photo">
-      <h3 class="username">{{ username }}</h3>
-      <p class="user-email">{{ userEmail }}</p>
+      <img [src]="getAvatar()" alt="Foto de perfil" class="profile-photo">
+      <h3 class="username">{{ getUsername() }}</h3>
+      <p class="user-email">{{ getEmail() }}</p>
     </div>
 
     <nav class="sidebar-nav">
@@ -21,7 +21,7 @@
       </button>
       <button mat-button class="item-sideBar" (click)="navigateTo('/menu/admin/register/creator')">
         <mat-icon class="icon-sideBar">people</mat-icon>
-        <span class="info-sideBar">Añadir Gestor de Contenido</span>
+        <span class="info-sideBar">Añadir Creador de Contenido</span>
       </button>
       <button mat-button class="item-sideBar" (click)="navigateTo('/menu/admin/register/admin')">
         <mat-icon class="icon-sideBar">people</mat-icon>
