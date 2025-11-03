@@ -4,7 +4,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
 
-<<<<<<< HEAD
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
@@ -14,17 +13,10 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
-=======
-import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
-import edu.uclm.esi.esimedia.be_esimedia.model.User;
-import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
-import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
->>>>>>> rodrigo
 
 @Service
 public class AdminService {
     private final AdminRepository adminRepository;
-<<<<<<< HEAD
     private final CreadorRepository creadorRepository;
     private final UsuarioRepository usuarioRepository;
     private final ValidateService validateService;
@@ -32,19 +24,11 @@ public class AdminService {
         this.adminRepository = adminRepository;
         this.creadorRepository = creadorRepository;
         this.usuarioRepository = usuarioRepository;
-=======
-    private final UserRepository userRepository;
-    private final ValidateService validateService;
-    public AdminService(AdminRepository adminRepository, UserRepository userRepository, ValidateService validateService) {
-        this.adminRepository = adminRepository;
-        this.userRepository = userRepository;
->>>>>>> rodrigo
         this.validateService = validateService;
     }
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-<<<<<<< HEAD
     public Admin registerAdmin(AdminDTO adminDTO) {
         // Convertir DTO a entidad
         Admin admin = new Admin();
@@ -133,72 +117,22 @@ public class AdminService {
             throw new IllegalArgumentException("La descripción no puede tener más de 500 caracteres");
         }
         
-=======
-    public Creador registerCreador(Creador creador) {
-        if (validateService.isRequiredFieldEmpty(creador.getNombre(), 2, 50)) {
-            throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
-        }
-        if (validateService.isRequiredFieldEmpty(creador.getApellidos(), 2, 100)) {
-            throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
-        }
-        if (validateService.isRequiredFieldEmpty(creador.getEmail(), 5, 100)) {
-            throw new IllegalArgumentException("El email es obligatorio y debe tener entre 5 y 100 caracteres");
-        }
-        if (!validateService.isEmailValid(creador.getEmail())) {
-            throw new IllegalArgumentException("El formato del email no es válido");
-        }
-        if (validateService.isRequiredFieldEmpty(creador.getAlias(), 3, 30)) {
-            throw new IllegalArgumentException("El alias es obligatorio y debe tener entre 3 y 30 caracteres");
-        }
->>>>>>> rodrigo
         if (!validateService.isEnumValid(creador.getCampo())) {
             throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
         }
         if (!validateService.isEnumValid(creador.getTipo())) {
             throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
         }
-<<<<<<< HEAD
         // Guardar creador
         return creadorRepository.save(creador);
     }
 
     public void setUserBlocked(String email, boolean blocked) {
         Usuario user = usuarioRepository.findByEmail(email);
-=======
-        if (validateService.isRequiredFieldEmpty(creador.getContrasena(),8, 128)) {
-            throw new IllegalArgumentException("La contraseña es obligatoria y debe tener entre 8 y 128 caracteres");
-        }
-        if (!validateService.isPasswordSecure(creador.getContrasena())) {
-            throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
-        }
-
-        if (adminRepository.existsByEmail(creador.getEmail())) {
-            throw new IllegalArgumentException("El email ya está registrado");
-        }
-
-        // Establecer foto por defecto si no se proporciona
-        if (validateService.isRequiredFieldEmpty(String.valueOf(creador.getFoto()), 1, 10)) {
-            creador.setFoto(0);
-        }
-
-        // Encriptar contraseña
-        creador.setContrasena(passwordEncoder.encode(creador.getContrasena()));
-
-        // Guardar creador
-        return adminRepository.save(creador);
-    }
-
-    public void setUserBlocked(String email, boolean blocked) {
-        User user = userRepository.findByEmail(email);
->>>>>>> rodrigo
         if (user == null) {
             throw new NoSuchElementException("Usuario no encontrado");
         }
         user.setBloqueado(blocked);
-<<<<<<< HEAD
         usuarioRepository.save(user);
-=======
-        userRepository.save(user);
->>>>>>> rodrigo
     }
 }

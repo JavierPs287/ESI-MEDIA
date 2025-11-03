@@ -4,15 +4,22 @@ import org.springframework.data.annotation.Id;
 
 public class User {
     @Id
-    private String email;
+    private String id;
     private String nombre;
     private String apellidos;
+    private String email;
     private String contrasena;
     private int foto = 0;
     private boolean bloqueado = false;
-    private boolean activo = true;
     
     // Getters and Setters
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -37,23 +44,6 @@ public class User {
     public String getContrasena() {
         return contrasena;
     }
-
-    public boolean isBloqueado() {
-        return bloqueado;
-    }
-
-    public void setBloqueado(boolean bloqueado) {
-        this.bloqueado = bloqueado;
-    }
-
-    public boolean isActivo() {
-        return activo;
-    }
-
-    public void setActivo(boolean activo) {
-        this.activo = activo;
-    }
-
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
@@ -61,8 +51,15 @@ public class User {
     public int getFoto() {
         return foto;
     }
-
     public void setFoto(int foto) {
         this.foto = foto;
+    }
+
+    public boolean isBloqueado() {
+        return bloqueado;
+    }
+
+    public void setBloqueado(boolean bloqueado) {
+        this.bloqueado = bloqueado;
     }
 }

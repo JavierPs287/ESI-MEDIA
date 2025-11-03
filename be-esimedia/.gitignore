@@ -33,7 +33,6 @@ build/
 .vscode/
 
 ### SonarQube ###
-<<<<<<< HEAD
 .scannerwork/
 
 # Configuration files with secrets (remove application.properties in production)
@@ -43,6 +42,3 @@ application-local.properties
 *.env
 .env
 .env.local
-=======
-.scannerwork/
->>>>>>> rodrigo

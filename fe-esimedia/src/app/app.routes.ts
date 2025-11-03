@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-<<<<<<< HEAD
 import { RegisteruserComponent } from './components/register/registeruser/registeruser.component';
 import { RegistercreatorComponent } from './components/register/registercreator/registercreator.component';
 import { RegisteradminComponent } from './components/register/registeradmin/registeradmin.component';
@@ -63,7 +62,3 @@ export const routes: Routes = [
         ]
     }
 ];
-=======
-
-export const routes: Routes = [];
->>>>>>> rodrigo

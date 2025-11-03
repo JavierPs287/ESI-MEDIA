@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-<<<<<<< HEAD
 import java.util.Date;
-=======
->>>>>>> rodrigo
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +21,7 @@ public class AudioService {
     // TODO Pasar a archivo de configuración
     private static final String UPLOAD_DIR = "src/main/resources/audios/";
     private static final long MAX_FILE_SIZE = 1024 * 1024; // 1 MB
-<<<<<<< HEAD
     private static final String[] ALLOWED_FORMATS = { "mp3", "wav", "ogg", "m4a" };
-=======
-    private static final String[] ALLOWED_FORMATS = {"mp3", "wav", "ogg", "m4a"};
->>>>>>> rodrigo
 
     private final ValidateService validateService;
 
@@ -40,7 +33,6 @@ public class AudioService {
         this.audioRepository = audioRepository;
     }
 
-<<<<<<< HEAD
     public String uploadAudio(AudioDTO audioDTO) throws IOException {
         // Validar primero que audioDTO no sea null
         if (audioDTO == null) {
@@ -56,20 +48,13 @@ public class AudioService {
         }
         
         // Validación
-=======
-    public String uploadAudio(AudioDTO audioDTO) throws IOException, IllegalArgumentException {
->>>>>>> rodrigo
         try {
             validateUploadAudio(audioDTO);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Error en la validación: " + e.getMessage());
         }
 
-<<<<<<< HEAD
         // Esta asignación se hace dos veces en un flujo para facilitar la lectura del código
-=======
-        // Esta asignación se hace dos veces para facilitar la lectura del código
->>>>>>> rodrigo
         MultipartFile file = audioDTO.getFile();
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
@@ -93,11 +78,7 @@ public class AudioService {
         // Retornar el ID del audio subido
         return savedAudio.getId();
     }
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> rodrigo
     // Método generado
     private static String getFileExtension(String fileName) {
         if (fileName == null || fileName.lastIndexOf('.') == -1) {
@@ -107,11 +88,7 @@ public class AudioService {
     }
 
     private static String saveFile(MultipartFile file, String fileName) throws IOException {
-<<<<<<< HEAD
         try {
-=======
-        try{
->>>>>>> rodrigo
             Path uploadPath = Path.of(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
@@ -126,15 +103,7 @@ public class AudioService {
         }
     }
 
-<<<<<<< HEAD
     private void validateUploadAudio(AudioDTO audioDTO) {
-=======
-    private void validateUploadAudio(AudioDTO audioDTO) throws IllegalArgumentException {
-        if (audioDTO == null) {
-            throw new IllegalArgumentException("El objeto AudioDTO no puede ser nulo.");
-        }
-
->>>>>>> rodrigo
         if (!validateService.areAudioRequiredFieldsValid(audioDTO)) {
             throw new IllegalArgumentException("Hay campos obligatorios incorrectos en la subida de audio.");
         }
@@ -144,7 +113,6 @@ public class AudioService {
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
         if (!validateService.isFileSizeValid(file.getSize(), MAX_FILE_SIZE)) {
-<<<<<<< HEAD
             throw new IllegalArgumentException(
                     "El tamaño del archivo excede el límite permitido de " + (MAX_FILE_SIZE / (1024 * 1024)) + " MB.");
         }
@@ -158,17 +126,6 @@ public class AudioService {
                 audioDTO.getVisibilityDeadline())) {
             throw new IllegalArgumentException(
                     "La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
-=======
-            throw new IllegalArgumentException("El tamaño del archivo excede el límite permitido de " + (MAX_FILE_SIZE / (1024 * 1024)) + " MB.");
-        }
-
-        if (!validateService.isFileFormatAllowed(fileExtension, ALLOWED_FORMATS)) {
-            throw new IllegalArgumentException("El formato del archivo no es válido. Formatos permitidos: mp3, wav, ogg, m4a.");
-        }
-
-        if (!validateService.isVisibilityDeadlineValid(audioDTO.getVisibilityChangeDate(), audioDTO.getVisibilityDeadline())) {
-            throw new IllegalArgumentException("La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
->>>>>>> rodrigo
         }
     }
 }

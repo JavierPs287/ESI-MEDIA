@@ -4,7 +4,6 @@ package edu.uclm.esi.esimedia.be_esimedia.dto;
 
 public class VideoDTO extends ContenidoDTO {
 
-<<<<<<< HEAD
     private String url; // Campo obligatorio
     private int resolution; // Campo obligatorio
 
@@ -25,6 +24,4 @@ public class VideoDTO extends ContenidoDTO {
     public void setResolution(int resolution) {
         this.resolution = resolution;
     }
-=======
->>>>>>> rodrigo
 }
