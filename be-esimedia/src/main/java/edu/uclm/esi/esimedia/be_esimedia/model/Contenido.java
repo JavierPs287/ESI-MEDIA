@@ -66,11 +66,11 @@ public abstract class Contenido {
     }
 
     public String[] getTags() {
-        return tags != null ? (String[]) tags.clone() : null;
+        return tags.clone();
     }
 
     public void setTags(String[] tags) {
-        this.tags = tags != null ? (String[]) tags.clone() : null;
+        this.tags = tags.clone();
     }
 
     public double getDuration() {
@@ -98,19 +98,19 @@ public abstract class Contenido {
     }
 
     public Date getVisibilityChangeDate() {
-        return visibilityChangeDate != null ? (Date) visibilityChangeDate.clone() : null;
+        return (Date) visibilityChangeDate.clone();
     }
 
     public void setVisibilityChangeDate(Date visibilityChangeDate) {
-        this.visibilityChangeDate = visibilityChangeDate != null ? (Date) visibilityChangeDate.clone() : null;
+        this.visibilityChangeDate = (Date) visibilityChangeDate.clone();
     }
 
     public Date getVisibilityDeadline() {
-        return visibilityDeadline != null ? (Date) visibilityDeadline.clone() : null;
+        return (Date) visibilityDeadline.clone();
     }
 
     public void setVisibilityDeadline(Date visibilityDeadline) {
-        this.visibilityDeadline = visibilityDeadline != null ? (Date) visibilityDeadline.clone() : null;
+        this.visibilityDeadline = (Date) visibilityDeadline.clone();
     }
 
     public int getMinAge() {

@@ -1,5 +1,8 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
+<<<<<<< HEAD
 
+=======
+>>>>>>> rodrigo
 import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -9,14 +12,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
+<<<<<<< HEAD
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
+=======
+>>>>>>> rodrigo
 
 @Service
 public class ValidateService {
 
     // TODO Pasar a archivo de configuración
     private static final int MIN_AGE = 4;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> rodrigo
     // Compilar las expresiones regulares como constantes
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     private static final Pattern URL_PATTERN = Pattern.compile("^https?://.*");
@@ -38,6 +48,7 @@ public class ValidateService {
         boolean hasDigit = false;
         boolean hasSpecial = false;
         for (char ch : password.toCharArray()) {
+<<<<<<< HEAD
             if (Character.isUpperCase(ch))
                 hasUpper = true;
             else if (Character.isLowerCase(ch))
@@ -46,10 +57,17 @@ public class ValidateService {
                 hasDigit = true;
             else if ("!@#$%^&*()-+".indexOf(ch) >= 0)
                 hasSpecial = true;
+=======
+            if (Character.isUpperCase(ch)) hasUpper = true;
+            else if (Character.isLowerCase(ch)) hasLower = true;
+            else if (Character.isDigit(ch)) hasDigit = true;
+            else if ("!@#$%^&*()-+".indexOf(ch) >= 0) hasSpecial = true;
+>>>>>>> rodrigo
         }
         return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 
+<<<<<<< HEAD
     // Contenido
 
     public boolean areContentRequiredFieldsValid(ContenidoDTO contenidoDTO) {
@@ -58,10 +76,23 @@ public class ValidateService {
                 isDurationValid(contenidoDTO.getDuration()) &&
                 contenidoDTO.getVisibilityChangeDate() != null &&
                 isMinAgeValid(contenidoDTO.getMinAge());
+=======
+    public boolean isURLValid(String url) {
+        return url != null && URL_PATTERN.matcher(url).matches();
+    }
+
+    public boolean areContentRequiredFieldsValid(ContenidoDTO contenidoDTO) {
+        return !isRequiredFieldEmpty(contenidoDTO.getTitle(), 1, 100) &&
+               areTagsValid(contenidoDTO.getTags()) &&
+               isDurationValid(contenidoDTO.getDuration()) &&
+               contenidoDTO.getVisibilityChangeDate() != null &&
+               isMinAgeValid(contenidoDTO.getMinAge());
+>>>>>>> rodrigo
     }
 
     public boolean areAudioRequiredFieldsValid(AudioDTO audioDTO) {
         return areContentRequiredFieldsValid(audioDTO) &&
+<<<<<<< HEAD
                 isFilePresent(audioDTO.getFile());
     }
 
@@ -101,6 +132,9 @@ public class ValidateService {
             return false;
         }
         return deadline.after(changeDate);
+=======
+               isFilePresent(audioDTO.getFile());
+>>>>>>> rodrigo
     }
 
     public boolean isFilePresent(MultipartFile file) {
@@ -123,8 +157,31 @@ public class ValidateService {
         return false;
     }
 
+<<<<<<< HEAD
     public boolean isURLValid(String url) {
         return url != null && URL_PATTERN.matcher(url).matches();
+=======
+    public boolean isDurationValid(double duration) {
+        return duration > 0;
+    }
+
+    public boolean isMinAgeValid(int minAge) {
+        return minAge >= MIN_AGE;
+    }
+
+    public boolean areTagsValid(String[] tags) {
+        return tags != null && tags.length > 0;
+    }
+
+    public boolean isVisibilityDeadlineValid(Date changeDate, Date deadline) {
+        if (deadline == null) {
+            return true;
+        }
+        if (changeDate == null) {
+            return false;
+        }
+        return deadline.after(changeDate);
+>>>>>>> rodrigo
     }
 
     public boolean isBirthDateValid(Date fechaNacimiento) {

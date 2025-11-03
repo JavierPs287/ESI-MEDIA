@@ -1,5 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+<<<<<<< HEAD
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,4 +65,8 @@ public class VideoService {
         }
     }
 
+=======
+public class VideoService {
+
+>>>>>>> rodrigo
 }
