@@ -1,0 +1,44 @@
+<app-navbar></app-navbar>
+<body class="background">
+<div class="register-container">
+  <h1 class="form-title">Login ESI-Media</h1>
+  <p class="form-subtitle">El mejor audio y video con la mejor calidad y contenido exclusivo.</p>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <!-- Campo: Email -->
+    <div class="form-field">
+      <label for="email">Email *</label>
+      <input type="email" placeholder="Dirección de correo" formControlName="email">
+      <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+        <span *ngIf="loginForm.get('email')?.hasError('required')" class="error.message"> 
+          Correo electrónico es un campo obligatorio</span>
+        <span class="error.message" *ngIf="loginForm.get('email')?.hasError('email')"> 
+          El formato no es válido</span>
+      </div>
+    </div>
+
+    <!-- Campo: Contraseña -->
+    <div class="form-field">
+      <label for="contrasena">Contraseña *</label>
+      <input type="password" placeholder="Contraseña" formControlName="contrasena">
+      <div *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched">
+        <span class="error.message" *ngIf="loginForm.get('contrasena')?.hasError('required')">
+          Contraseña es un campo obligatorio</span>
+        <span class="error.message" *ngIf="loginForm.get('contrasena')?.hasError('minlength') || loginForm.get('contrasena')?.hasError('maxlength')">
+          Contraseña debe tener al menos 8 caracteres</span>
+      </div>
+    </div>
+
+    <!-- Botón de envío -->
+      <button type="submit" class="create-btn">Iniciar sesión</button>
+      <div class="message-container">
+        <div class="success-message" *ngIf="loginResponse?.message && !loginResponse?.error">{{ loginResponse?.message }}</div>
+        <div class="error-message" *ngIf="loginResponse?.error">{{ loginResponse?.error }}</div>
+      </div>
+  </form>
+  <hr class="divider">
+  <div>
+    <p class="info-link">¿No tienes cuenta? <a class="link" routerLink="/register/user">Regístrate</a></p>
+  </div>
+</div>
+</body>

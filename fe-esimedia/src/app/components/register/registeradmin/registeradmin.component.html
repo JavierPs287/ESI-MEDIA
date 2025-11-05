@@ -1,0 +1,121 @@
+<div class="register-container">
+  <h1 class="form-title">Crea un Administrador</h1>
+  <p class="form-subtitle">Gestiona al resto de usuarios</p>
+
+  <!-- Mensaje de éxito -->
+  <div class="success-message" *ngIf="successMessage">
+    <p>✅ {{ successMessage }}</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div class="error-message-box" *ngIf="errorMessage">
+    <p>❌ {{ errorMessage }}</p>
+  </div>
+
+  <form [formGroup]="registerForm" >
+
+    <!-- Campo: Nombre -->
+    <div class="form-field">
+    <label for="nombre">Nombre *</label>
+    <input type="text" placeholder="Nombre" formControlName="nombre">
+      <div class="error-container" *ngIf="getControl('nombre')?.invalid && (getControl('nombre')?.touched || getControl('nombre')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
+      </div>
+    </div>
+
+    <!-- Campo: Apellido -->
+    <div class="form-field">
+      <label for="apellido">Apellido *</label>
+      <input type="text" placeholder="Apellido" formControlName="apellido">
+        <div class="error-container" *ngIf="getControl('apellido')?.invalid && (getControl('apellido')?.touched || getControl('apellido')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('apellido')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
+      </div>
+    </div>
+
+    <!-- Campo: Email -->
+    <div class="form-field">
+      <label for="email">Email *</label>
+      <input type="email" placeholder="Dirección de correo" formControlName="email">
+        <div class="error-container" *ngIf="getControl('email')?.invalid && (getControl('email')?.touched || getControl('email')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('email')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('email')?.hasError('email')"> Formato de email inválido. </p>
+        </div>
+    </div>
+
+    <!-- Campo: Departamento -->
+    <div class="form-field">
+      <label for="departamento">Departamento *</label>
+      <select class="form-select" id="departamento" formControlName="departamento">
+        <option value="">Seleccionar departamento</option>
+        <option *ngFor="let dept of departamentos" [value]="dept">
+          {{ dept }}
+        </option>
+      </select>
+      <div class="error-container" *ngIf="getControl('departamento')?.invalid && (getControl('departamento')?.touched || getControl('departamento')?.dirty)">
+        <p class="error-message" *ngIf="getControl('departamento')?.hasError('required')">El departamento es obligatorio.</p>
+      </div>
+    </div>
+
+    <!-- Campo: Foto de perfil -->
+    <div class="form-field">
+      <label for="foto">Foto de perfil </label>
+      <button type="button" class="photo-selector-btn" (click)="togglePhotoOptions()">
+        {{ selectedPhoto ? 'Cambiar foto' : 'Seleccionar foto' }}
+      </button>
+
+      <div class="photo-options" *ngIf="showPhotoOptions">
+        <div class="photo-grid">
+          <img *ngFor="let avatar of photoOptions" 
+               [src]="avatar.url" 
+               [alt]="avatar.name"
+               class="photo-option"
+               [class.selected]="selectedPhoto === avatar.url"
+               (click)="selectPhoto(avatar.url)"
+               (keydown.enter)="selectPhoto(avatar.url)">
+        </div>
+      <a class="link" href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
+      </div>
+    </div>
+
+    <!-- Campo: Contraseña -->
+  <div class="form-field">
+    <label for="contrasena">Contraseña *</label>
+      <div class="password-field">
+      <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
+      <button class="eyeicon" (click)="togglePasswordVisibility()"><i [ngClass]="visiblePassword?'fa fa-eye':'fa fa-eye-slash'"></i>
+      </button>
+    </div>
+    <div class="error-container" *ngIf="getControl('contrasena')?.invalid && (getControl('contrasena')?.touched || getControl('contrasena')?.dirty)">
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('required')"> El campo es obligatorio. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noLowercase')">❌ Debe contener al menos una letra minúscula</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noUppercase')">❌ Debe contener al menos una letra mayúscula</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noNumber')">❌ Debe contener al menos un número</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noSpecialChar')">❌ Debe contener al menos un carácter especial</p>
+      </div>
+  </div>
+
+    <!-- Campo: Repetir Contraseña -->
+    <div class="form-field">
+      <label for="repetirContrasena">Repetir Contraseña *</label>
+      <input type="password" placeholder="Repetir contraseña" formControlName="repetirContrasena">
+      <div class="error-container" *ngIf="(getControl('repetirContrasena')?.invalid && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)) || (registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty))">
+        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
+        <p class ="error-message" *ngIf="registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)"> Las contraseñas no coinciden. </p>
+      </div>
+    </div>
+
+    <!-- Botón de envío -->
+    <button (click)="onSubmit()" [disabled]="!registerForm.valid || isSubmitting" type="submit" class="create-btn">
+      {{ isSubmitting ? 'Registrando...' : 'Crear cuenta' }}
+    </button>
+
+</form>
+</div>

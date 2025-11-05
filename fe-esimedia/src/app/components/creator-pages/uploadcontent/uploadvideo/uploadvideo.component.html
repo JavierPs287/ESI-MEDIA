@@ -1,0 +1,25 @@
+<app-uploadcontent [contentForm]="videoForm" [tags]="tags" [selectedImage]="selectedImage"
+  (contentSubmit)="submitVideoForm()" (contentReset)="resetForm()" (imageSelected)="onImageSelected($event)">
+
+  <!-- Contenido específico de vídeo proyectado -->
+  <div specific-content [formGroup]="videoForm">
+    <!-- URL de vídeo -->
+    <label for="video-url">URL de vídeo *</label>
+    <mat-form-field>
+      <mat-label>URL de vídeo</mat-label>
+      <input matInput formControlName="videoUrl" placeholder="https://ejemplo.com/video.mp4" />
+      <mat-error *ngIf="videoForm.get('videoUrl')?.hasError('required')">La URL es obligatoria</mat-error>
+      <mat-error *ngIf="videoForm.get('videoUrl')?.hasError('invalidUrl')">Por favor ingresa una URL válida</mat-error>
+    </mat-form-field>
+
+    <!-- Resolución -->
+    <label for="video-resolution">Resolución *</label>
+    <mat-form-field>
+      <mat-label>Resolución</mat-label>
+      <mat-select formControlName="resolution">
+        <mat-option *ngFor="let res of videoResolutions" [value]="res">{{ res }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="videoForm.get('resolution')?.hasError('required')">La resolución es obligatoria</mat-error>
+    </mat-form-field>
+  </div>
+</app-uploadcontent>
