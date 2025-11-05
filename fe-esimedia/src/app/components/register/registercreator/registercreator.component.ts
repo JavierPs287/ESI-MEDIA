@@ -4,8 +4,10 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractContro
 import { CreatorService } from '../../../services/creator.service';
 import { Router } from '@angular/router';
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
-import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
+import { passwordStrengthValidator, passwordMatchValidator, getAvatarNumber } from '../register-functions';
 import { MatIcon } from '@angular/material/icon';
+import { Creator } from '../../../models/creator.model';
+import { Response } from '../../../models/response.model';
 
 
 @Component({
@@ -42,7 +44,6 @@ export class RegistercreatorComponent implements OnInit {
 
   isSubmitting = false;
   errorMessage = '';
-  successMessage = '';
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
@@ -60,15 +61,38 @@ export class RegistercreatorComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.registerForm.valid) {
-      this.creatorService.registerCreator(this.registerForm.value).subscribe({
-        next: (response) => {
-          console.log('Form submitted successfully:', response);
+    if (this.registerForm.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+
+      const formValue = this.registerForm.value;
+      const creator: Creator = {
+        nombre: formValue.nombre,
+        apellidos: formValue.apellidos,
+        email: formValue.email,
+        alias: formValue.alias,
+        fotoPerfil: getAvatarNumber(formValue.fotoPerfil),
+        descripcion: formValue.descripcion,
+        especialidad: formValue.especialidad,
+        tipoContenido: formValue.tipoContenido,
+        contrasena: formValue.contrasena
+      };
+
+      this.creatorService.registerCreator(creator).subscribe({
+        next: (response: Response) => {
+          alert('Registro del creador exitoso.');
+          this.registerForm.reset();
         },
         error: (error) => {
-          console.error('Error submitting form:', error);
+          alert('Credenciales inválidas');
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
+    } else {
+      for (const key of Object.keys(this.registerForm.controls)) {
+        this.registerForm.get(key)?.markAsTouched();
+      }
     }
   }
 

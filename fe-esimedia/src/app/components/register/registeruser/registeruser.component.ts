@@ -2,10 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, FormGroup } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
-import { User, RegisterResponse } from '../../../models/user.model';
+import { User } from '../../../models/user.model';
+import { Response } from '../../../models/response.model';
 import { NavbarComponent } from "../../navbar/navbar.component";
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
-import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
+import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
@@ -21,7 +22,7 @@ export class RegisteruserComponent implements  OnInit {
   showPhotoOptions = false;
   visiblePassword: boolean = false;
   selectedPhoto: string | null = null;
-  registrationResponse: RegisterResponse | null = null;
+  registrationResponse: Response | null = null;
 
   avatarOptions = PHOTO_OPTIONS;
   defaultAvatar = DEFAULT_AVATAR;
@@ -45,8 +46,6 @@ export class RegisteruserComponent implements  OnInit {
     }, { validators: passwordMatchValidator() });
   }
 
-  
-
   onSubmit(): void {
     if (this.registerForm.valid) {
       const formValue = this.registerForm.getRawValue();
@@ -55,35 +54,25 @@ export class RegisteruserComponent implements  OnInit {
         apellidos: formValue.apellidos,
         email: formValue.email,
         alias: formValue.alias,
+        vip: formValue.vip,
+        foto_perfil: formValue.foto_perfil,
         fecha_nacimiento: formValue.fecha_nacimiento,
         contrasena: formValue.contrasena,
-        vip: formValue.vip,
-        foto_perfil: formValue.foto_perfil
       };
-
-      console.log('Enviando datos de registro:', userData);
-
       this.userService.register(userData).subscribe({
         next: (response) => {
-          console.log('Respuesta del servidor:', response);
-          this.registrationResponse = response;
-          if (!response.error) {
-            this.registerForm.reset();
-          }
+          alert('Registro usuario exitoso.');
+          this.router.navigate(['/login']);
+          this.registerForm.reset();
         },
         error: (error) => {
-          console.error('Error en el registro:', error);
-          this.registrationResponse = {
-            message: '',
-            error: error.message || 'Error en el registro'
-          };
+          alert('Credenciales inválidas');
         }
       });
     } else {
-      this.registrationResponse = {
-        message: '',
-        error: 'Por favor, complete todos los campos requeridos correctamente'
-      };
+      for (const key of Object.keys(this.registerForm.controls)) {
+        this.registerForm.get(key)?.markAsTouched();
+      }
     }
   }
 

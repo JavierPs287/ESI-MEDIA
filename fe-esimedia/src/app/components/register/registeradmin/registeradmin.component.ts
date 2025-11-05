@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
-import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
+import { passwordStrengthValidator, passwordMatchValidator, getAvatarNumber } from '../register-functions';
 import { AdminService } from '../../../services/admin.service';
-import { Admin, Departamento } from '../../../models/admin.model';
+import { Admin } from '../../../models/admin.model';
 import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 
@@ -56,66 +56,29 @@ export class RegisteradminComponent implements OnInit {
   onSubmit():void{
     if (this.registerForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      this.errorMessage = '';
-      this.successMessage = '';
 
       const formValue = this.registerForm.value;
-      
-      // Mapear departamento al enum Departamento del backend
-      const departamentoMap: { [key: string]: Departamento } = {
-        'Recursos Humanos': Departamento.RRHH,
-        'Finanzas': Departamento.VENTAS,
-        'Tecnología': Departamento.IT,
-        'Marketing': Departamento.MARKETING,
-        'Ventas': Departamento.VENTAS,
-        'Operaciones': Departamento.IT,
-        'Legal': Departamento.RRHH
-      };
-
-      // Obtener el número de avatar de la URL
-      const fotoNum = this.getAvatarNumber(formValue.fotoPerfil);
-
       const admin: Admin = {
         nombre: formValue.nombre,
         apellidos: formValue.apellido,
         email: formValue.email,
+        departamento: formValue.departamento,
+        fotoPerfil: getAvatarNumber(formValue.fotoPerfil),
         contrasena: formValue.contrasena,
-        foto: fotoNum,
-        departamento: departamentoMap[formValue.departamento] || Departamento.IT
       };
-
-      console.log('Registrando administrador:', admin);
 
       this.adminService.registerAdmin(admin).subscribe({
         next: (response) => {
-          if (response.error) {
-            this.errorMessage = response.error;
-            this.isSubmitting = false;
-          } else {
-            this.successMessage = response.message || 'Administrador registrado correctamente';
-            console.log('Registro exitoso:', response.message);
-            
-            // Resetear el formulario
+            alert('Registro del administrador exitoso.');
             this.registerForm.reset({
-              fotoPerfil: this.defaultAvatar
-            });
+              fotoPerfil: this.defaultAvatar});
             this.selectedPhoto = null;
-            
-            // Redirigir después de 2 segundos
-            setTimeout(() => {
-              this.router.navigate(['/login']);
-            }, 2000);
-          }
-        },
+          },
         error: (error) => {
-          console.error('Error en el registro:', error);
-          this.errorMessage = 'Error al registrar el administrador. Por favor, intente nuevamente.';
-          this.isSubmitting = false;
+          alert('Credenciales inválidas');
         },
         complete: () => {
-          if (this.errorMessage) {
             this.isSubmitting = false;
-          }
         }
       });
     } else {
@@ -124,20 +87,6 @@ export class RegisteradminComponent implements OnInit {
         this.registerForm.get(key)?.markAsTouched();
       }
     }
-  }
-
-  /**
-   * Extrae el número del avatar de la URL de la foto de perfil
-   */
-  private getAvatarNumber(photoUrl: string): number {
-    if (!photoUrl || photoUrl === this.defaultAvatar) {
-      return 0; // Avatar por defecto
-    }
-    
-    // Extraer el número del avatar (ejemplo: /assets/avatars/avatar1.PNG -> 1)
-    const regex = /avatar(\d+)/i;
-    const match = regex.exec(photoUrl);
-    return match ? Number.parseInt(match[1], 10) : 0;
   }
 
 //MANEJO ERRORES

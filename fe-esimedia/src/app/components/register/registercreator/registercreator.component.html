@@ -2,16 +2,6 @@
   <h1 class="form-title">Crea un Creador de Contenido</h1>
   <p class="form-subtitle">Sube tu contenido para que otros lo descubran.</p>
 
-  <!-- Mensaje de éxito -->
-  <div class="success-message" *ngIf="successMessage">
-    <p>✅ {{ successMessage }}</p>
-  </div>
-
-  <!-- Mensaje de error -->
-  <div class="error-message-box" *ngIf="errorMessage">
-    <p>❌ {{ errorMessage }}</p>
-  </div>
-
   <form [formGroup]="registerForm" >
 
     <!-- Campo: Nombre -->

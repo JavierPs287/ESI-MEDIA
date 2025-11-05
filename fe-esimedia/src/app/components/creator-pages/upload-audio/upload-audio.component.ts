@@ -196,9 +196,9 @@ initializeAudioForm(): void {
       this.contentService.uploadAudio(formData).subscribe({
         next: (response) => {
           if (response.error) {
-            alert(`Error: ${response.error}`);
+            alert('Error al subir el audio');
           } else {
-            alert(`Éxito: ${response.message}\nID del audio: ${response.audioId}`);
+            alert('Éxito al subir el audio');
             this.resetAudioForm();
           }
         },

@@ -2,10 +2,10 @@ export interface Creator {
     nombre: string;
     apellidos: string;
     email: string;
-    contrasena: string;
-    foto: number;
     alias: string;
+    fotoPerfil: number;
     descripcion?: string;
-    campo: string;
-    tipo: string;
+    especialidad: string;
+    tipoContenido: string;
+    contrasena: string;
 }

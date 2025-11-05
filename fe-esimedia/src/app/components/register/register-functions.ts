@@ -1,4 +1,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn, FormGroup } from '@angular/forms';
+import { DEFAULT_AVATAR } from '../../constants/avatar-constants';
+
 
 export function passwordStrengthValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -36,3 +38,17 @@ export function passwordMatchValidator(): ValidatorFn {
     return null;
   };
 }
+
+/**
+   * Extrae el número del avatar de la URL de la foto de perfil
+   */
+export function getAvatarNumber(photoUrl: string): number {
+    if (!photoUrl || photoUrl === DEFAULT_AVATAR) {
+      return 0; // Avatar por defecto
+    }
+    
+    // Extraer el número del avatar (ejemplo: /assets/avatars/avatar1.PNG -> 1)
+    const regex = /avatar(\d+)/i;
+    const match = regex.exec(photoUrl);
+    return match ? Number.parseInt(match[1], 10) : 0;
+  }

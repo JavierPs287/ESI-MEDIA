@@ -186,9 +186,9 @@ initializeVideoForm(): void {
       this.contentService.uploadVideo(formData).subscribe({
         next: (response) => {
           if (response.error) {
-            alert(`Error: ${response.error}`);
+            alert('Error al subir el vídeo');
           } else {
-            alert(`Éxito: ${response.message}\nID del vídeo: ${response.videoId}`);
+            alert('Vídeo subido correctamente');
             this.resetVideoForm();
           }
         },

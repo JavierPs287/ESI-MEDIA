@@ -17,21 +17,9 @@ export class AdminService {
    * @param admin Datos del administrador a registrar
    * @returns Observable con la respuesta del servidor
    */
-  registerAdmin(admin: Admin): Observable<Response> {
-    // Preparar los datos en el formato que espera el backend
-    const adminToSend = {
-      nombre: admin.nombre,
-      apellidos: admin.apellidos,
-      email: admin.email,
-      contrasena: admin.contrasena,
-      foto: admin.foto,
-      departamento: admin.departamento
-    };
-    
-    console.log('Enviando datos del administrador al backend:', adminToSend);
-    
+  registerAdmin(adminData: Admin): Observable<Response> {
     return new Observable<Response>(observer => {
-      this.http.post(`${this.baseUrl}/registerAdmin`, adminToSend, { responseType: 'text' }).subscribe({
+      this.http.post(`${this.baseUrl}/registerAdmin`, adminData, { responseType: 'text' }).subscribe({
         next: (response) => {
           console.log('Respuesta del servidor:', response);
           observer.next({ message: response, error: undefined });

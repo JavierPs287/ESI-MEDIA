@@ -17,24 +17,9 @@ export class CreatorService {
    * @param creator Datos del creador a registrar
    * @returns Observable con la respuesta del servidor
    */
-  registerCreator(creator: Creator): Observable<Response> {
-    // Preparar los datos en el formato que espera el backend
-    const creatorToSend = {
-      nombre: creator.nombre,
-      apellidos: creator.apellidos,
-      email: creator.email,
-      contrasena: creator.contrasena,
-      foto: creator.foto,
-      alias: creator.alias,
-      descripcion: creator.descripcion || '',
-      campo: creator.campo,
-      tipo: creator.tipo
-    };
-    
-    console.log('Enviando datos del creador al backend:', creatorToSend);
-    
+  registerCreator(creatorData: Creator): Observable<Response> {
     return new Observable<Response>(observer => {
-      this.http.post(`${this.baseUrl}/registerCreador`, creatorToSend, { responseType: 'text' }).subscribe({
+      this.http.post(`${this.baseUrl}/registerCreador`, creatorData, { responseType: 'text' }).subscribe({
         next: (response) => {
           console.log('Respuesta del servidor:', response);
           observer.next({ message: response, error: undefined });

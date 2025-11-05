@@ -17,23 +17,9 @@ export class UserService {
    * @param user Datos del usuario a registrar
    * @returns Observable con la respuesta del servidor
    */
-  register(user: User): Observable<Response> {
-    // Convertir el formato del usuario para que coincida con el backend
-    const userToSend = {
-      nombre: user.nombre,
-      apellidos: user.apellidos,
-      email: user.email,
-      contrasena: user.contrasena,
-      alias: user.alias,
-      fechaNacimiento: new Date(user.fecha_nacimiento),
-      esVIP: user.vip,
-      foto_perfil: user.foto_perfil || null
-    };
-    
-    console.log('Enviando datos al backend:', userToSend);
-    
+  register(userData: User): Observable<Response> {
     return new Observable<Response>(observer => {
-      this.http.post(`${this.baseUrl}/register`, userToSend, { responseType: 'text' }).subscribe({
+      this.http.post(`${this.baseUrl}/register`, userData, { responseType: 'text' }).subscribe({
         next: (response) => {
           observer.next({ message: response, error: undefined });
           observer.complete();
