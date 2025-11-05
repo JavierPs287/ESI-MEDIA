@@ -1,0 +1,13 @@
+<mat-toolbar *ngIf="showNavbar">
+    <button class="btn-logo" routerLink="/">
+        <img class="logo" src="/assets/logo/LogoESIGris.png" alt="ESI-Media Logo">
+    </button>
+        <span class="example-spacer"></span>
+        <ng-container *ngIf="(isAuthenticated$ | async) === false; else logged">
+            <button mat-button [routerLink]="['/login']" aria-hidden="false" aria-label="Boton Login">Login</button>
+            <button mat-button [routerLink]="['/register/user']">Registro</button>
+        </ng-container>
+        <ng-template #logged>
+            <button mat-button (click)="logout()">Cerrar sesión</button>
+        </ng-template>
+</mat-toolbar>

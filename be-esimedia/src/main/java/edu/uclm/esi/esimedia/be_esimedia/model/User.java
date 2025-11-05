@@ -1,11 +1,16 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.annotation.Id;
+
 public class User {
-    private String nombre;
-    private String apellido;
+    @Id
     private String email;
+    private String nombre;
+    private String apellidos;
     private String contrasena;
-    private String foto;
+    private int foto = 0;
+    private boolean bloqueado = false;
+    private boolean activo = true;
     
     // Getters and Setters
     public String getNombre() {
@@ -15,11 +20,11 @@ public class User {
         this.nombre = nombre;
     }
 
-    public String getApellido() {
-        return apellido;
+    public String getApellidos() {
+        return apellidos;
     }
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
     public String getEmail() {
@@ -32,14 +37,32 @@ public class User {
     public String getContrasena() {
         return contrasena;
     }
+
+    public boolean isBloqueado() {
+        return bloqueado;
+    }
+
+    public void setBloqueado(boolean bloqueado) {
+        this.bloqueado = bloqueado;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
 
-    public String getFoto() {
+    public int getFoto() {
         return foto;
     }
-    public void setFoto(String foto) {
+
+    public void setFoto(int foto) {
         this.foto = foto;
     }
 }

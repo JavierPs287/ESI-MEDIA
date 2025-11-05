@@ -1,0 +1,23 @@
+<app-uploadcontent 
+  [contentForm]="audioForm"
+  [tags]="tags"
+  [selectedImage]="selectedImage"
+  (contentSubmit)="submitAudioForm()"
+  (contentReset)="resetForm()"
+  (imageSelected)="onImageSelected($event)">
+  
+  <!-- Contenido específico de audio proyectado -->
+  <div specific-content [formGroup]="audioForm">
+    <div class="file-input-group">
+      <label for="audio-file">Fichero de audio * (máx 1MB)</label>
+      <input #audioFileInput type="file" id="audio-file" accept="audio/*"
+        (change)="onAudioFileSelected($event)" style="display: none"/>
+      <button mat-raised-button color="primary" type="button"
+        (click)="audioFileInput.click()">Seleccionar archivo</button>
+      <span *ngIf="audioFileName" class="file-name">{{ audioFileName }}</span>
+      <mat-error *ngIf="audioForm.get('audioFile')?.hasError('required') && audioForm.get('audioFile')?.touched">
+        El archivo de audio es obligatorio
+      </mat-error>
+    </div>
+  </div>
+</app-uploadcontent>

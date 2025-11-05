@@ -34,3 +34,11 @@ build/
 
 ### SonarQube ###
 .scannerwork/
+
+# Configuration files with secrets (remove application.properties in production)
+application.properties
+application-dev.properties
+application-local.properties
+*.env
+.env
+.env.local

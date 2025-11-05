@@ -1,11 +1,12 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
-
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
+@Document(collection = "USUARIOS")
 public class Usuario extends User {
     private String alias;
     private Date fechaNacimiento;
-    private boolean esVIP;
+    private boolean esVIP = false;
 
     // Getters and Setters
     public String getAlias() {
@@ -22,7 +23,7 @@ public class Usuario extends User {
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    public boolean isEsVIP() {
+    public boolean getEsVIP() {
         return esVIP;
     }
     public void setEsVIP(boolean esVIP) {

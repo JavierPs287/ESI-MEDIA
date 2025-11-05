@@ -1,0 +1,130 @@
+<app-navbar></app-navbar>
+<body class="background">
+<div class="register-container">
+  <h1 class="form-title">Join ESI-Media</h1>
+  <p class="form-subtitle">El mejor audio y vídeo con la mejor calidad y contenido exclusivo.</p>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+    <div class="form-field">
+      <label for="nombre">Nombre *</label>
+      <input id="nombre" type="text" placeholder="Nombre" formControlName="nombre">
+      <div class="error-container" *ngIf="getControl('nombre')?.invalid && (getControl('nombre')?.touched || getControl('nombre')?.dirty)">
+        <p class="error-message" *ngIf="getControl('nombre')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('nombre')?.hasError('maxlength')"> Máximo 25 caracteres. </p>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="apellidos">Apellidos *</label>
+      <input id="apellidos" type="text" placeholder="Apellidos" formControlName="apellidos">
+      <div class="error-container" *ngIf="getControl('apellidos')?.invalid && (getControl('apellidos')?.touched || getControl('apellidos')?.dirty)">
+        <p class="error-message" *ngIf="getControl('apellidos')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('apellidos')?.hasError('maxlength')"> Máximo 25 caracteres. </p>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="email">Email *</label>
+      <input id="email" type="email" placeholder="Dirección de correo" formControlName="email">
+      <div class="error-container" *ngIf="getControl('email')?.invalid && (getControl('email')?.touched || getControl('email')?.dirty)">
+        <p class="error-message" *ngIf="getControl('email')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('email')?.hasError('email')"> Formato de email inválido. </p>
+        <p class="error-message" *ngIf="getControl('email')?.hasError('minAge')"> Debes tener al menos 4 años para registrarte. </p>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="alias">Alias</label>
+      <input id="alias" type="text" placeholder="Alias" formControlName="alias">
+    </div>
+
+    <div class="form-field">
+      <label for="fecha_nacimiento">Fecha de nacimiento *</label>
+      <input id="fecha_nacimiento" type="date" formControlName="fecha_nacimiento">
+      <div class="error-container" *ngIf="getControl('fecha_nacimiento')?.invalid && (getControl('fecha_nacimiento')?.touched || getControl('fecha_nacimiento')?.dirty)">
+        <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('pattern')"> Formato de fecha inválido. </p>
+        <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('minAge')"> Debes tener al menos 4 años para registrarte. </p>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="foto">Foto de perfil </label>
+      <button type="button" class="photo-selector-btn" (click)="togglePhotoOptions()">
+        {{ selectedPhoto ? 'Cambiar foto' : 'Seleccionar foto' }}
+      </button>
+
+      <div class="photo-options" *ngIf="showPhotoOptions">
+        <div class="photo-grid">
+          <img *ngFor="let avatar of avatarOptions" 
+               [src]="avatar.url" 
+               [alt]="avatar.name"
+               class="photo-option"
+               [class.selected]="selectedPhoto === avatar.url"
+               (click)="selectPhoto(avatar.url)"
+               (keydown.enter)="selectPhoto(avatar.url)">
+        </div>
+      <a class="link" href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <p for="vip" class="form-subtitle">Hazte VIP y disfruta de contenido exclusivo y beneficios adicionales.</p>
+        <div class="btn-container">
+        <button
+          class="btn-vip"
+          (click)="toggleVip()"
+          [ngClass]="{'vip-active': isVip, 'vip-inactive': !isVip}">
+          {{ isVip ? 'VIP' : 'No eres VIP' }}
+        </button>
+      </div>
+    </div>
+
+  <div class="form-field">
+    <label for="contrasena">Contraseña *</label>
+      <div class="password-field">
+      <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
+      <button 
+        class="eyeicon" 
+        (click)="togglePasswordVisibility()">
+        <i [ngClass]="visiblePassword?'fa fa-eye':'fa fa-eye-slash'"></i>
+      </button>
+    </div>
+    <div class="error-container" *ngIf="getControl('contrasena')?.invalid && (getControl('contrasena')?.touched || getControl('contrasena')?.dirty)">
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('required')"> El campo es obligatorio. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noLowercase')">❌ Debe contener al menos una letra minúscula</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noUppercase')">❌ Debe contener al menos una letra mayúscula</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noNumber')">❌ Debe contener al menos un número</p>
+      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noSpecialChar')">❌ Debe contener al menos un carácter especial</p>
+      </div>
+  </div>
+
+    <div class="form-field">
+      <label for="repetirContrasena">Repetir Contraseña *</label>
+      <input id="repetirContrasena" type="password" placeholder="Repetir contraseña" formControlName="repetirContrasena">
+      <div class="error-container" *ngIf="(getControl('repetirContrasena')?.invalid && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)) || (registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty))">
+        <p class="error-message" *ngIf="getControl('repetirContrasena')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)"> Las contraseñas no coinciden. </p>
+      </div>
+    </div>
+
+    <div class="message-container">
+      <div class="success-message" *ngIf="registrationResponse?.message && !registrationResponse?.error">{{ registrationResponse?.message }}</div>
+      <div class="error-message" *ngIf="registrationResponse?.error">{{ registrationResponse?.error }}</div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="create-btn" [disabled]="!registerForm.valid">Crear cuenta</button>
+    </div>
+
+  </form>
+
+  <hr class="divider">
+  <div class="log-in">
+    <p class="info-link">¿Ya tienes una cuenta? <a class="link" href="/login">Iniciar sesión</a></p>
+  </div>
+</div>
+</body>
