@@ -1,17 +1,119 @@
 <div class="uploadContent-container">
   <mat-card class="uploadContent-card">
     <mat-card-content>
-      <mat-tab-group>
-        <!-- TAB AUDIO -->
-        <mat-tab label="Audio">
-          
-        </mat-tab>
+      <form [formGroup]="contentForm">
+        <div class="form-container">
+          <!-- Título -->
+          <label for="title">Título *</label>
+          <mat-form-field>
+            <mat-label>Título</mat-label>
+            <input matInput formControlName="title" maxlength="100" />
+            <mat-error *ngIf="contentForm.get('title')?.hasError('required')">El título es obligatorio</mat-error>
+            <mat-error *ngIf="contentForm.get('title')?.hasError('maxlength')">Máximo 100 caracteres</mat-error>
+            <mat-hint align="end">{{ contentForm.get('title')?.value?.length || 0 }}/100</mat-hint>
+          </mat-form-field>
 
-        <!-- TAB VÍDEO ------------------------------------------------------------------->
-        <mat-tab label="Vídeo">
-          
-        </mat-tab>
-      </mat-tab-group>
+          <!-- Descripción -->
+          <label for="description">Descripción</label>
+          <mat-form-field>
+            <mat-label>Descripción</mat-label>
+            <textarea matInput formControlName="description" maxlength="500" rows="4"></textarea>
+            <mat-error *ngIf="contentForm.get('description')?.hasError('maxlength')">Máximo 500 caracteres</mat-error>
+            <mat-hint align="end">{{ contentForm.get('description')?.value?.length || 0 }}/500</mat-hint>
+          </mat-form-field>
+
+          <!-- Contenido específico -->
+          <ng-content select="[specific-content]"></ng-content>
+
+          <!-- Tags -->
+          <label for="tags">Tags *</label>
+          <mat-form-field>
+            <mat-label>Tags</mat-label>
+            <mat-select formControlName="tags" multiple>
+              <mat-option *ngFor="let tag of tags" [value]="tag">{{ tag }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="contentForm.get('tags')?.hasError('required')">Selecciona al menos un tag</mat-error>
+            <mat-error *ngIf="contentForm.get('tags')?.hasError('minTags')">Mínimo 1 tag requerido</mat-error>
+          </mat-form-field>
+
+          <!-- Duración -->
+          <fieldset formGroupName="duration" class="duration-group">
+            <legend>Duración *</legend>
+            <div class="duration-inputs">
+              <mat-form-field>
+                <mat-label>Horas</mat-label>
+                <input matInput formControlName="hours" type="number" min="0" max="23" />
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Minutos</mat-label>
+                <input matInput formControlName="minutes" type="number" min="0" max="59" />
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Segundos</mat-label>
+                <input matInput formControlName="seconds" type="number" min="0" max="59" />
+              </mat-form-field>
+            </div>
+            <div class="error-container"
+              *ngIf="contentForm.get('duration')?.invalid && (contentForm.get('duration')?.touched || contentForm.get('duration')?.dirty)">
+              <mat-error *ngIf="contentForm.get('duration')?.hasError('invalidDuration')">La duración debe ser mayor a
+                0</mat-error>
+            </div>
+          </fieldset>
+
+          <!-- Restricción de edad -->
+          <label for="age-restriction">Restricción de edad *</label>
+          <mat-form-field>
+            <mat-label>Restricción de edad</mat-label>
+            <input matInput formControlName="ageRestriction" type="number" min="4" max="110" placeholder="Ej: 18" />
+            <mat-error *ngIf="contentForm.get('ageRestriction')?.hasError('required')">La restricción de edad es
+              obligatoria</mat-error>
+            <mat-error *ngIf="contentForm.get('ageRestriction')?.hasError('min')">Edad mínima: 4</mat-error>
+            <mat-error *ngIf="contentForm.get('ageRestriction')?.hasError('max')">Edad máxima: 110</mat-error>
+          </mat-form-field>
+
+          <!-- Disponible hasta -->
+          <label for="available-until">Disponible hasta</label>
+          <mat-form-field>
+            <mat-label>Disponible hasta</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="availableUntil" />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <!-- VIP y Visible -->
+          <div class="toggle-group">
+            <mat-slide-toggle formControlName="vip">¿Es contenido VIP?</mat-slide-toggle>
+            <mat-slide-toggle formControlName="visible">Visible</mat-slide-toggle>
+          </div>
+
+          <!-- Selector de imagen -->
+          <!-- <ng-content select="[image-selector]"></ng-content> -->
+          <!-- Imagen -->
+          <div class="form-field">
+            <label for="audio">Imagen</label>
+            <button type="button" class="photo-selector-btn" (click)="toggleImageOptions()">
+              {{ selectedImage ? 'Cambiar imagen' : 'Seleccionar imagen' }}
+            </button>
+            <div class="photo-options" *ngIf="showImageOptions">
+              <div class="photo-grid">
+                <img *ngFor="let img of availableImages" [src]="img.url" [alt]="img.name" class="photo-option"
+                  [class.selected]="selectedImage === img.url" (click)="selectImage(img.url)"
+                  (keydown.enter)="selectImage(img.url)">
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="button-group">
+            <button mat-raised-button color="primary" type="submit" [disabled]="!contentForm.valid">
+              Subir
+            </button>
+            <button mat-raised-button type="button" (click)="handleReset()">Limpiar</button>
+          </div>
+        </div>
+      </form>
     </mat-card-content>
   </mat-card>
 </div>

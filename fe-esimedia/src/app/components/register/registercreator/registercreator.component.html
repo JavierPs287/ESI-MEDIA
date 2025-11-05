@@ -118,7 +118,7 @@
     <button 
         type="button" class="content-btn"
         [class.active]="getControl('tipoContenido')?.value === 'Video'"
-        (click)="selectContentType('Video')">🎬 Video
+        (click)="selectContentType('Video')">🎬 Vídeo
     </button>
     </div>
     <div class="error-container" *ngIf="getControl('tipoContenido')?.invalid && (getControl('tipoContenido')?.touched || getControl('tipoContenido')?.dirty)">

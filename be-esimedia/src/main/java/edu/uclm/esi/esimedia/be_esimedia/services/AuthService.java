@@ -1,5 +1,7 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -8,9 +10,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class AuthService {
@@ -116,25 +122,30 @@ public class AuthService {
         }
     }
 
-        /**
-         * Simple login: verifica las credenciales y devuelve un mapa con message y token
-         */
-        public Map<String, String> login(String email, String contrasena) {
-            if (email == null || contrasena == null) {
-                throw new IllegalArgumentException("Email y contrase\u00f1a son requeridos");
-            }
-            Usuario u = userRepository.findByEmail(email);
-            if (u == null) {
-                throw new NoSuchElementException("Credenciales inválidas");
-            }
-            if (!passwordEncoder.matches(contrasena, u.getContrasena())) {
-                throw new IllegalArgumentException("Credenciales inválidas");
-            }
-            String token = java.util.UUID.randomUUID().toString();
-            Map<String, String> res = new HashMap<>();
-            res.put("message", "Login correcto");
-            res.put("token", token);
-            return res;
+    public String login(String email, String contrasena) {
+        if (!validateService.isEmailValid(email)) {
+            throw new IllegalArgumentException("El formato del email no es válido");
         }
+
+        User usuario = userService.findByEmail(email);
+        if (usuario == null || !passwordEncoder.matches(contrasena, usuario.getContrasena())) {
+            throw new IllegalArgumentException("Credenciales inválidas");
+        }
+
+        // Comprobar si el usuario esta bloqueado
+        if (usuario.isBloqueado()) {
+            throw new IllegalArgumentException("Este usuario está bloqueado");
+        }
+        
+        String secret = "${jwt.secret}";
+        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+
+        // Generar token de autenticación JWT
+        return Jwts.builder()
+                .setSubject(usuario.getEmail())
+                .signWith(SignatureAlgorithm.HS512, key)
+                .compact();
+
+    }
 
 }
