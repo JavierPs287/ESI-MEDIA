@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
@@ -32,9 +33,9 @@ public class UserController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<String> registerUsuario(@RequestBody Usuario usuario){
+    public ResponseEntity<String> registerUsuario(@RequestBody UsuarioDTO usuariodto){
         try {
-            authService.register(usuario);
+            authService.register(usuariodto);
             return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
             
         } catch (IllegalArgumentException e) {
