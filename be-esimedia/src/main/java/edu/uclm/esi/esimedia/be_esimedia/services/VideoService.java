@@ -30,7 +30,7 @@ public class VideoService {
         this.videoRepository = videoRepository;
     }
 
-    public String uploadVideo(VideoDTO videoDTO) {
+    public void uploadVideo(VideoDTO videoDTO) {
         // Validar primero que videoDTO no sea null
         if (videoDTO == null) {
             logger.error("El objeto VideoDTO es nulo");
@@ -55,7 +55,6 @@ public class VideoService {
         try {
             Video savedVideo = videoRepository.save(video);
             logger.info("Vídeo guardado exitosamente con ID: {}", savedVideo.getId());
-            return savedVideo.getId();
         } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
             logger.error("Error al guardar el vídeo en la base de datos: {}", e.getMessage(), e);
             throw new VideoUploadException();

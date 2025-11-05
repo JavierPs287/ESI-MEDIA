@@ -39,7 +39,7 @@ public class AudioService {
         this.audioRepository = audioRepository;
     }
 
-    public String uploadAudio(AudioDTO audioDTO) {
+    public void uploadAudio(AudioDTO audioDTO) {
         // Validar primero que audioDTO no sea null
         if (audioDTO == null) {
             logger.error("El objeto AudioDTO es nulo");
@@ -80,7 +80,6 @@ public class AudioService {
         try {
             Audio savedAudio = audioRepository.save(audio);
             logger.info("Audio guardado exitosamente con ID: {}", savedAudio.getId());
-            return savedAudio.getId();
         } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al guardar el audio en la base de datos: {}", e.getMessage(), e);
             throw new AudioUploadException();
