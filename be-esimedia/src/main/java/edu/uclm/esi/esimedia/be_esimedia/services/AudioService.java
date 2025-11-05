@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -14,12 +15,12 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
 
 @Service
 public class AudioService {
@@ -84,6 +85,13 @@ public class AudioService {
             logger.error("Error al guardar el audio en la base de datos: {}", e.getMessage(), e);
             throw new AudioUploadException();
         }
+    }
+
+    public List<AudioDTO> getAllAudios() {
+        List<Audio> audios = audioRepository.findAll();
+        return audios.stream()
+                .map(AudioDTO::new)
+                .toList();
     }
 
     // Método generado
