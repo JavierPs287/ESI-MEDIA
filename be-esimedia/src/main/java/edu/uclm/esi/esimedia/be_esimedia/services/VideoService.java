@@ -1,14 +1,17 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
+import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 import edu.uclm.esi.esimedia.be_esimedia.repository.VideoRepository;
 
@@ -58,6 +61,13 @@ public class VideoService {
             throw new VideoUploadException();
         }
         
+    }
+
+    public List<VideoDTO> getAllVideos() {
+        List<Video> videos = videoRepository.findAll();
+        return videos.stream()
+                .map(VideoDTO::new)
+                .toList();
     }
 
     private void validateUploadVideo(VideoDTO videoDTO) {

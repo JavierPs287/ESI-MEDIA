@@ -1,11 +1,13 @@
 package edu.uclm.esi.esimedia.be_esimedia.http;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +34,11 @@ public class VideoController {
         String videoId = videoService.uploadVideo(videoDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of(MESSAGE_KEY, "Vídeo subido exitosamente", "videoId", videoId));
+    }
+
+    @GetMapping("/videos")
+    public ResponseEntity<List<VideoDTO>> getAllVideos() {
+        List<VideoDTO> videos = videoService.getAllVideos();
+        return ResponseEntity.ok(videos);
     }
 }
