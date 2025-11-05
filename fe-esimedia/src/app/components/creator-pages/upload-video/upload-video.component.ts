@@ -56,7 +56,7 @@ initializeVideoForm(): void {
       resolution: ['1080p', Validators.required],
       vip: [false, Validators.required],
       visible: [true, Validators.required],
-      ageRestriction: ['G', Validators.required],
+      ageRestriction: ['', Validators.required],
       availableUntil: [null],
       image: [DEFAULT_IMAGE]
     });

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, RegisterResponse } from '../models/user.model';
+import { User } from '../models/user.model';
+import { Response } from '../models/response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class UserService {
    * @param user Datos del usuario a registrar
    * @returns Observable con la respuesta del servidor
    */
-  register(user: User): Observable<RegisterResponse> {
+  register(user: User): Observable<Response> {
     // Convertir el formato del usuario para que coincida con el backend
     const userToSend = {
       nombre: user.nombre,
@@ -31,7 +32,7 @@ export class UserService {
     
     console.log('Enviando datos al backend:', userToSend);
     
-    return new Observable<RegisterResponse>(observer => {
+    return new Observable<Response>(observer => {
       this.http.post(`${this.baseUrl}/register`, userToSend, { responseType: 'text' }).subscribe({
         next: (response) => {
           observer.next({ message: response, error: undefined });
@@ -45,15 +46,6 @@ export class UserService {
         }
       });
     });
-  }
-
-  /**
-   * Verifica si un email ya está registrado
-   * @param email Email a verificar
-   * @returns Observable<boolean>
-   */
-  checkEmail(email: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/check-email/${email}`);
   }
 
   /**

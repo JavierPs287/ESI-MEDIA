@@ -1,12 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, FormGroup } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { User, RegisterResponse } from '../../../models/user.model';
 import { NavbarComponent } from "../../navbar/navbar.component";
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
 import { MatIcon } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registeruser',
@@ -15,7 +16,7 @@ import { MatIcon } from '@angular/material/icon';
   templateUrl: './registeruser.component.html',
   styleUrls: ['./registeruser.component.css']
 })
-export class RegisteruserComponent {
+export class RegisteruserComponent implements  OnInit {
   isVip = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false;
@@ -26,9 +27,12 @@ export class RegisteruserComponent {
   defaultAvatar = DEFAULT_AVATAR;
 
   fb = inject(FormBuilder);
-  private readonly userService = inject(UserService);
+  registerForm!: FormGroup;
+  userService = inject(UserService);
+  router = inject(Router);
 
-  registerForm = this.fb.nonNullable.group({
+  ngOnInit(): void {
+    this.registerForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.maxLength(25)]],
     apellidos: ['', [Validators.required, Validators.maxLength(25)]],
     email: ['', [Validators.required, Validators.email]],
@@ -38,7 +42,10 @@ export class RegisteruserComponent {
     fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/), this.minAgeValidator(4)]],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
-  }, { validators: passwordMatchValidator() });
+    }, { validators: passwordMatchValidator() });
+  }
+
+  
 
   onSubmit(): void {
     if (this.registerForm.valid) {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
@@ -14,7 +14,7 @@ import { MatIcon } from '@angular/material/icon';
   templateUrl: './registeradmin.component.html',
   styleUrl: './registeradmin.component.css'
 })
-export class RegisteradminComponent {
+export class RegisteradminComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false;
@@ -32,6 +32,7 @@ export class RegisteradminComponent {
 ];
 
   fb = inject(FormBuilder);
+  registerForm!: FormGroup;
   adminService = inject(AdminService);
   router = inject(Router);
   
@@ -39,8 +40,8 @@ export class RegisteradminComponent {
   errorMessage = '';
   successMessage = '';
 
-  registerForm: FormGroup = this.fb.group({
-
+  ngOnInit(): void {
+    this.registerForm = this.fb.group({
     nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
@@ -48,8 +49,10 @@ export class RegisteradminComponent {
     fotoPerfil: [this.defaultAvatar],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
-  }, { validators: passwordMatchValidator() });
+    }, { validators: passwordMatchValidator() });
+  }
 
+  
   onSubmit():void{
     if (this.registerForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;

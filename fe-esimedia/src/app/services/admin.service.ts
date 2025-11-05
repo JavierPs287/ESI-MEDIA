@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Admin, AdminRegisterResponse } from '../models/admin.model';
+import { Admin } from '../models/admin.model';
+import { Response } from '../models/response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class AdminService {
    * @param admin Datos del administrador a registrar
    * @returns Observable con la respuesta del servidor
    */
-  registerAdmin(admin: Admin): Observable<AdminRegisterResponse> {
+  registerAdmin(admin: Admin): Observable<Response> {
     // Preparar los datos en el formato que espera el backend
     const adminToSend = {
       nombre: admin.nombre,
@@ -29,7 +30,7 @@ export class AdminService {
     
     console.log('Enviando datos del administrador al backend:', adminToSend);
     
-    return new Observable<AdminRegisterResponse>(observer => {
+    return new Observable<Response>(observer => {
       this.http.post(`${this.baseUrl}/registerAdmin`, adminToSend, { responseType: 'text' }).subscribe({
         next: (response) => {
           console.log('Respuesta del servidor:', response);
@@ -46,12 +47,4 @@ export class AdminService {
     });
   }
 
-  /**
-   * Verifica si un email ya está registrado
-   * @param email Email a verificar
-   * @returns Observable<boolean>
-   */
-  checkEmail(email: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/check-email/${email}`);
-  }
 }

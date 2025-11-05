@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Creator, CreatorRegisterResponse } from '../models/creator.model';
+import { Creator } from '../models/creator.model';
+import { Response } from '../models/response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class CreatorService {
    * @param creator Datos del creador a registrar
    * @returns Observable con la respuesta del servidor
    */
-  registerCreator(creator: Creator): Observable<CreatorRegisterResponse> {
+  registerCreator(creator: Creator): Observable<Response> {
     // Preparar los datos en el formato que espera el backend
     const creatorToSend = {
       nombre: creator.nombre,
@@ -32,7 +33,7 @@ export class CreatorService {
     
     console.log('Enviando datos del creador al backend:', creatorToSend);
     
-    return new Observable<CreatorRegisterResponse>(observer => {
+    return new Observable<Response>(observer => {
       this.http.post(`${this.baseUrl}/registerCreador`, creatorToSend, { responseType: 'text' }).subscribe({
         next: (response) => {
           console.log('Respuesta del servidor:', response);
@@ -49,21 +50,4 @@ export class CreatorService {
     });
   }
 
-  /**
-   * Verifica si un email ya está registrado
-   * @param email Email a verificar
-   * @returns Observable<boolean>
-   */
-  checkEmail(email: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/check-email/${email}`);
-  }
-
-  /**
-   * Verifica si un alias ya está registrado
-   * @param alias Alias a verificar
-   * @returns Observable<boolean>
-   */
-  checkAlias(alias: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/check-alias/${alias}`);
-  }
 }

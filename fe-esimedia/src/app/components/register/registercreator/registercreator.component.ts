@@ -1,8 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { CreatorService } from '../../../services/creator.service';
-import { Creator, Campo, Tipo } from '../../../models/creator.model';
 import { Router } from '@angular/router';
 import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
@@ -15,7 +14,7 @@ import { MatIcon } from '@angular/material/icon';
   templateUrl: './registercreator.component.html',
   styleUrl: './registercreator.component.css'
 })
-export class RegistercreatorComponent {
+export class RegistercreatorComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false;
@@ -37,6 +36,7 @@ export class RegistercreatorComponent {
   ];
 
   fb = inject(FormBuilder);
+  registerForm!: FormGroup;
   creatorService = inject(CreatorService);
   router = inject(Router);
 
@@ -44,8 +44,8 @@ export class RegistercreatorComponent {
   errorMessage = '';
   successMessage = '';
 
-  registerForm: FormGroup = this.fb.group({
-
+  ngOnInit(): void {
+    this.registerForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     apellidos: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
@@ -57,6 +57,7 @@ export class RegistercreatorComponent {
     contrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   }, { validators: passwordMatchValidator() });
+  }
 
   onSubmit(): void {
     if (this.registerForm.valid) {

@@ -8,8 +8,3 @@ export interface User {
     vip: boolean;
     foto_perfil?: string | null;
 }
-
-export interface RegisterResponse {
-    message: string;
-    error?: string;
-}
