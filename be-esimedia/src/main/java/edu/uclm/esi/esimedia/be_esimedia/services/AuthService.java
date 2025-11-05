@@ -14,6 +14,9 @@ import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class AuthService {
@@ -134,6 +137,7 @@ public class AuthService {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
         
+        String secret = "${jwt.secret}";
         Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
         // Generar token de autenticación JWT
