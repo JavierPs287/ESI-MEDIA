@@ -49,7 +49,7 @@ export class RegistercreatorComponent implements OnInit {
     apellidos: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
     alias: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
-    fotoPerfil: ['', [Validators.required]],
+    fotoPerfil: [this.photoOptions[0].id, [Validators.required]],
     descripcion: ['', [Validators.maxLength(500)]],
     especialidad: ['', [Validators.required]],
     tipoContenido: ['', [Validators.required]],

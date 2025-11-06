@@ -43,7 +43,7 @@ export class RegisteradminComponent implements OnInit {
     apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
     departamento: ['',[Validators.required]],
-    fotoPerfil: [''],
+    fotoPerfil: [this.photoOptions[0].id],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });

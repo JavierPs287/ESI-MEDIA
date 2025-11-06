@@ -23,7 +23,6 @@ export class RegisteruserComponent implements  OnInit {
   visiblePassword: boolean = false;
   selectedPhoto: number | null = null;
   registrationResponse: Response | null = null;
-
   avatarOptions = PHOTO_OPTIONS;
 
   fb = inject(FormBuilder);
@@ -38,7 +37,7 @@ export class RegisteruserComponent implements  OnInit {
     email: ['', [Validators.required, Validators.email]],
     alias: ['', [Validators.minLength(3), Validators.maxLength(20)]],
     vip: [false],
-    foto_perfil: [null as string | null],
+    foto_perfil: [this.avatarOptions[0].id],
     fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/), this.minAgeValidator(4)]],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],

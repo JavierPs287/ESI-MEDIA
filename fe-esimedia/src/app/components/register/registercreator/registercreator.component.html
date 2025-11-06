@@ -58,7 +58,7 @@
 
       <div class="photo-options" *ngIf="showPhotoOptions">
         <div class="photo-grid">
-          <img *ngFor="let avatar of photoOptions" 
+          <img *ngFor="let avatar of photoOptions.slice(1)" 
                [src]="avatar.url" 
                [alt]="avatar.id"
                class="photo-option"
