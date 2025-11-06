@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
-import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
-import { passwordStrengthValidator, passwordMatchValidator, getAvatarNumber } from '../register-functions';
+import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
+import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { AdminService } from '../../../services/admin.service';
 import { Admin } from '../../../models/admin.model';
 import { Router } from '@angular/router';
@@ -18,8 +18,7 @@ export class RegisteradminComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false;
-  selectedPhoto: string | null = null;
-  defaultAvatar = DEFAULT_AVATAR;
+  selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
   departamentos: string[] = [
   'Recursos Humanos',
@@ -44,7 +43,7 @@ export class RegisteradminComponent implements OnInit {
     apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
     departamento: ['',[Validators.required]],
-    fotoPerfil: [this.defaultAvatar],
+    fotoPerfil: [''],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
@@ -61,7 +60,7 @@ export class RegisteradminComponent implements OnInit {
         apellidos: formValue.apellido,
         email: formValue.email,
         departamento: formValue.departamento,
-        fotoPerfil: getAvatarNumber(formValue.fotoPerfil),
+        fotoPerfil: formValue.fotoPerfil,
         contrasena: formValue.contrasena,
       };
 
@@ -69,7 +68,7 @@ export class RegisteradminComponent implements OnInit {
         next: (response) => {
             alert('Registro del administrador exitoso.');
             this.registerForm.reset({
-              fotoPerfil: this.defaultAvatar});
+              fotoPerfil: null});
             this.selectedPhoto = null;
           },
         error: (error) => {
@@ -107,7 +106,7 @@ getControl(controlName: string): AbstractControl | null {
     this.visiblePassword = !this.visiblePassword;
   }
 
-  selectPhoto(photoUrl: string): void {
+  selectPhoto(photoUrl: number): void {
     this.selectedPhoto = photoUrl;
     this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
     this.showPhotoOptions = false;

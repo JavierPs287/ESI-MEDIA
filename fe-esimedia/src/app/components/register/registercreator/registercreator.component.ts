@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { CreatorService } from '../../../services/creator.service';
 import { Router } from '@angular/router';
-import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
-import { passwordStrengthValidator, passwordMatchValidator, getAvatarNumber } from '../register-functions';
+import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
+import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { MatIcon } from '@angular/material/icon';
 import { Creator } from '../../../models/creator.model';
 import { Response } from '../../../models/response.model';
@@ -20,8 +20,7 @@ export class RegistercreatorComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false;
-  selectedPhoto: string | null = null;
-  defaultAvatar = DEFAULT_AVATAR;
+  selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
 
   especialidades: string[] = [
@@ -69,7 +68,7 @@ export class RegistercreatorComponent implements OnInit {
         apellidos: formValue.apellidos,
         email: formValue.email,
         alias: formValue.alias,
-        fotoPerfil: getAvatarNumber(formValue.fotoPerfil),
+        fotoPerfil: formValue.fotoPerfil,
         descripcion: formValue.descripcion,
         especialidad: formValue.especialidad,
         tipoContenido: formValue.tipoContenido,
@@ -119,10 +118,9 @@ export class RegistercreatorComponent implements OnInit {
     this.visiblePassword = !this.visiblePassword;
   }
 
-  selectPhoto(photoUrl: string): void {
-    this.selectedPhoto = photoUrl;
-    this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
-    this.registerForm.get('fotoPerfil')?.markAsTouched();
+  selectPhoto(imageID: number): void {
+    this.selectedPhoto = imageID;
+    this.registerForm.get('fotoPerfil')?.setValue(imageID);
     this.showPhotoOptions = false;
   }
 

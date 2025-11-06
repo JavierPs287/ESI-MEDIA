@@ -5,7 +5,7 @@ import { UserService } from '../../../services/user.service';
 import { User } from '../../../models/user.model';
 import { Response } from '../../../models/response.model';
 import { NavbarComponent } from "../../navbar/navbar.component";
-import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
+import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -21,11 +21,10 @@ export class RegisteruserComponent implements  OnInit {
   isVip = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false;
-  selectedPhoto: string | null = null;
+  selectedPhoto: number | null = null;
   registrationResponse: Response | null = null;
 
   avatarOptions = PHOTO_OPTIONS;
-  defaultAvatar = DEFAULT_AVATAR;
 
   fb = inject(FormBuilder);
   registerForm!: FormGroup;
@@ -116,9 +115,9 @@ getControl(controlName: string): AbstractControl | null {
     this.showPhotoOptions = !this.showPhotoOptions;
   }
 
-  selectPhoto(imagePath: string): void {
-    this.selectedPhoto = imagePath;
-    this.registerForm.get('foto_perfil')?.setValue(imagePath);
+  selectPhoto(imageID: number): void {
+    this.selectedPhoto = imageID;
+    this.registerForm.get('foto_perfil')?.setValue(imageID);
     this.showPhotoOptions = false;
   }
 }

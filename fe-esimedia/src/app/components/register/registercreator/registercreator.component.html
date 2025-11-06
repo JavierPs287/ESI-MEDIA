@@ -60,11 +60,11 @@
         <div class="photo-grid">
           <img *ngFor="let avatar of photoOptions" 
                [src]="avatar.url" 
-               [alt]="avatar.name"
+               [alt]="avatar.id"
                class="photo-option"
-               [class.selected]="selectedPhoto === avatar.url"
-               (click)="selectPhoto(avatar.url)"
-               (keydown.enter)="selectPhoto(avatar.url)">
+               [class.selected]="selectedPhoto === avatar.id"
+               (click)="selectPhoto(avatar.id)"
+               (keydown.enter)="selectPhoto(avatar.id)">
         </div>
       <a class="link" href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
       </div>
