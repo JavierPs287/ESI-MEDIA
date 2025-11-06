@@ -49,14 +49,15 @@ export class RegisteruserComponent implements  OnInit {
   onSubmit(): void {
     if (this.registerForm.valid) {
       const formValue = this.registerForm.getRawValue();
+      const fecha_nacimiento = new Date(formValue.fecha_nacimiento);
       const userData: User = {
         nombre: formValue.nombre,
         apellidos: formValue.apellidos,
         email: formValue.email,
         alias: formValue.alias,
-        vip: formValue.vip,
-        foto_perfil: formValue.foto_perfil,
-        fecha_nacimiento: formValue.fecha_nacimiento,
+        esVIP: formValue.vip,
+        fotoPerfil: formValue.foto_perfil,
+        fechaNacimiento: fecha_nacimiento.toISOString(),
         contrasena: formValue.contrasena,
       };
       this.userService.register(userData).subscribe({

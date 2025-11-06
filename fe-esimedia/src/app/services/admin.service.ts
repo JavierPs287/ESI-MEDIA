@@ -28,7 +28,7 @@ export class AdminService {
         error: (error) => {
           console.error('Error en el registro del administrador:', error);
           const errorMessage = error?.error?.text || error?.error || error?.message || 'Error en el registro del administrador';
-          observer.next({ message: '', error: errorMessage });
+          observer.error({ message: '', error: errorMessage });
           observer.complete();
         }
       });

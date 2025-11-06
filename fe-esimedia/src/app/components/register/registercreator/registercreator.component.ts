@@ -43,7 +43,6 @@ export class RegistercreatorComponent implements OnInit {
   router = inject(Router);
 
   isSubmitting = false;
-  errorMessage = '';
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({

@@ -37,8 +37,6 @@ export class RegisteradminComponent implements OnInit {
   router = inject(Router);
   
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({

@@ -2,8 +2,11 @@ package edu.uclm.esi.esimedia.be_esimedia.dto;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 public class UsuarioDTO extends UserDTO {
     private String alias;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date fechaNacimiento;
     private boolean esVIP = false;
 

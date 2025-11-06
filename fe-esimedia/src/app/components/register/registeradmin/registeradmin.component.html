@@ -2,16 +2,6 @@
   <h1 class="form-title">Crea un Administrador</h1>
   <p class="form-subtitle">Gestiona al resto de usuarios</p>
 
-  <!-- Mensaje de éxito -->
-  <div class="success-message" *ngIf="successMessage">
-    <p>✅ {{ successMessage }}</p>
-  </div>
-
-  <!-- Mensaje de error -->
-  <div class="error-message-box" *ngIf="errorMessage">
-    <p>❌ {{ errorMessage }}</p>
-  </div>
-
   <form [formGroup]="registerForm" >
 
     <!-- Campo: Nombre -->

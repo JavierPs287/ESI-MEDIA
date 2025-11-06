@@ -25,9 +25,8 @@ export class UserService {
           observer.complete();
         },
         error: (error) => {
-          console.error('Error en el registro:', error);
-          const errorMessage = error?.error?.text || error?.error || error?.message || 'Error en el registro';
-          observer.next({ message: '', error: errorMessage });
+          const errorMessage = error?.error?.text || error?.error || error?.message || 'Credenciales invalidas';
+          observer.error({ message: '', error: errorMessage });
           observer.complete();
         }
       });

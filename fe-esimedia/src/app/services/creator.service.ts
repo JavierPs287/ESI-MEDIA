@@ -28,7 +28,7 @@ export class CreatorService {
         error: (error) => {
           console.error('Error en el registro del creador:', error);
           const errorMessage = error?.error?.text || error?.error || error?.message || 'Error en el registro del creador';
-          observer.next({ message: '', error: errorMessage });
+          observer.error({ message: '', error: errorMessage });
           observer.complete();
         }
       });
