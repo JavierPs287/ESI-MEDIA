@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
@@ -22,12 +24,17 @@ import io.jsonwebtoken.security.Keys;
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final AdminRepository adminRepository;
+    private final CreadorRepository creadorRepository;
     private final ValidateService validateService;
     private final UserService userService;
-    private final UserRepository userRepository;
-    public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, UserService userService, UserRepository userRepository) {
+    
+    public AuthService(UsuarioRepository usuarioRepository, AdminRepository adminRepository, 
+                      CreadorRepository creadorRepository, ValidateService validateService, 
+                      UserService userService) {
         this.usuarioRepository = usuarioRepository;
-        this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
+        this.creadorRepository = creadorRepository;
         this.validateService = validateService;
         this.userService = userService;
     }
@@ -117,7 +124,10 @@ public class AuthService {
     }
 
     private void validateEmailUnico(String email) {
-        if (userService.existsEmail(email)) {
+        // Verificar email duplicado en administradores, creadores y usuarios
+        if (adminRepository.existsByEmail(email) || 
+            creadorRepository.existsByEmail(email) || 
+            usuarioRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("El email ya está registrado");
         }
     }
