@@ -1,5 +1,5 @@
 export const PHOTO_OPTIONS = [
-  { id: 0, url: '/assets/avatars/default-avatar.png' },
+  { id: 0, url: '/assets/avatars/default.jpg' },
   { id: 1, url: '/assets/avatars/avatar1.PNG' },
   { id: 2, url: '/assets/avatars/avatar2.PNG' },
   { id: 3, url: '/assets/avatars/avatar3.PNG' },

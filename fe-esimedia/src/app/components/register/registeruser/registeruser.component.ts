@@ -55,7 +55,7 @@ export class RegisteruserComponent implements  OnInit {
         email: formValue.email,
         alias: formValue.alias,
         esVIP: formValue.vip,
-        fotoPerfil: formValue.foto_perfil,
+        foto: formValue.foto_perfil,
         fechaNacimiento: fecha_nacimiento.toISOString(),
         contrasena: formValue.contrasena,
       };

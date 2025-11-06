@@ -8,7 +8,7 @@ public class User {
     private String nombre;
     private String apellidos;
     private String contrasena;
-    private int foto = 0;
+    private int foto;
     private boolean bloqueado = false;
     private boolean activo = true;
     

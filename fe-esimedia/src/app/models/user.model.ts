@@ -6,5 +6,5 @@ export interface User {
     fechaNacimiento: string;
     contrasena: string;
     esVIP: boolean;
-    fotoPerfil?: number | null;
+    foto?: number | null;
 }
