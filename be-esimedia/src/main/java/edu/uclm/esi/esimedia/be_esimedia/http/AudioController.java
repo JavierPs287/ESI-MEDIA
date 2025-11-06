@@ -30,8 +30,8 @@ public class AudioController {
 
     @PostMapping("/uploadAudio")
     public ResponseEntity<Map<String, String>> uploadAudio(@ModelAttribute AudioDTO audioDTO) {
-        String audioId = audioService.uploadAudio(audioDTO);
+        audioService.uploadAudio(audioDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of(MESSAGE_KEY, "Audio subido exitosamente", "audioId", audioId));
+                .body(Map.of(MESSAGE_KEY, "Audio subido exitosamente"));
     }
 }

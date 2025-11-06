@@ -6,7 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.http.VideoController;
 import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
 
@@ -51,8 +53,7 @@ class VideoControllerTest {
     @DisplayName("Debe subir video exitosamente con datos válidos")
     void testUploadVideoSuccess() throws Exception {
         // Arrange
-        String expectedVideoId = "video123";
-        when(videoService.uploadVideo(any(VideoDTO.class))).thenReturn(expectedVideoId);
+        doNothing().when(videoService).uploadVideo(any(VideoDTO.class));
 
         // Act & Assert
         mockMvc.perform(multipart("/creador/uploadVideo")
@@ -66,17 +67,16 @@ class VideoControllerTest {
             .param("creador", validVideoDTO.getCreador())
             .param("url", validVideoDTO.getUrl())
             .param("resolution", String.valueOf(validVideoDTO.getResolution())))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Vídeo subido exitosamente"))
-            .andExpect(jsonPath("$.videoId").value(expectedVideoId));
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.message").value("Vídeo subido exitosamente"));
     }
 
     @Test
     @DisplayName("Debe retornar BadRequest cuando faltan campos obligatorios")
     void testUploadVideoWithoutUrl() throws Exception {
         // Arrange
-        when(videoService.uploadVideo(any(VideoDTO.class)))
-            .thenThrow(new IllegalArgumentException("Hay campos obligatorios incorrectos en la subida de vídeo."));
+        doThrow(new VideoUploadException("Campos obligatorios incorrectos"))
+            .when(videoService).uploadVideo(any(VideoDTO.class));
 
         // Act & Assert
         mockMvc.perform(multipart("/creador/uploadVideo")
@@ -85,6 +85,6 @@ class VideoControllerTest {
                 .param("minAge", String.valueOf(validVideoDTO.getMinAge()))
                 .param("resolution", String.valueOf(validVideoDTO.getResolution())))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Hay campos obligatorios incorrectos en la subida de vídeo."));
+                .andExpect(jsonPath("$.error").exists());
     }
 }

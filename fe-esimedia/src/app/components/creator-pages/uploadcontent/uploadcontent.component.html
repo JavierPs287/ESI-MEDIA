@@ -107,7 +107,7 @@
 
           <!-- Botones -->
           <div class="button-group">
-            <button mat-raised-button color="primary" type="submit" [disabled]="!contentForm.valid">
+            <button mat-raised-button color="primary" type="submit" (click)="handleSubmit()" [disabled]="!contentForm.valid">
               Subir
             </button>
             <button mat-raised-button type="button" (click)="handleReset()">Limpiar</button>
