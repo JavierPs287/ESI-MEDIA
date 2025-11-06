@@ -17,7 +17,7 @@ import { MatIcon } from '@angular/material/icon';
 export class RegisteradminComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false;
+  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
   selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
   departamentos: string[] = [
@@ -104,6 +104,9 @@ getControl(controlName: string): AbstractControl | null {
 
   togglePasswordVisibility(){
     this.visiblePassword = !this.visiblePassword;
+  }
+  toggleRepetePasswordVisibility(){
+    this.visibleRepetePassword = !this.visibleRepetePassword;
   }
 
   selectPhoto(photoUrl: number): void {

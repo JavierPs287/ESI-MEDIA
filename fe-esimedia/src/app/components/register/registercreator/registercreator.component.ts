@@ -8,6 +8,7 @@ import { passwordStrengthValidator, passwordMatchValidator } from '../register-f
 import { MatIcon } from '@angular/material/icon';
 import { Creator } from '../../../models/creator.model';
 import { Response } from '../../../models/response.model';
+import { finalize } from 'rxjs/internal/operators/finalize';
 
 
 @Component({
@@ -19,9 +20,10 @@ import { Response } from '../../../models/response.model';
 export class RegistercreatorComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false;
+  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
   selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
+  isSubmitting = false;
 
   especialidades: string[] = [
     'Música',
@@ -41,8 +43,6 @@ export class RegistercreatorComponent implements OnInit {
   creatorService = inject(CreatorService);
   router = inject(Router);
 
-  isSubmitting = false;
-
   ngOnInit(): void {
     this.registerForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -61,7 +61,6 @@ export class RegistercreatorComponent implements OnInit {
   onSubmit(): void {
     if (this.registerForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-
       const formValue = this.registerForm.value;
       const creator: Creator = {
         nombre: formValue.nombre,
@@ -75,7 +74,9 @@ export class RegistercreatorComponent implements OnInit {
         contrasena: formValue.contrasena
       };
 
-      this.creatorService.registerCreator(creator).subscribe({
+      this.creatorService.registerCreator(creator)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
         next: (response: Response) => {
           alert('Registro del creador exitoso.');
           this.registerForm.reset();
@@ -116,6 +117,9 @@ export class RegistercreatorComponent implements OnInit {
 
   togglePasswordVisibility() {
     this.visiblePassword = !this.visiblePassword;
+  }
+  toggleRepetePasswordVisibility() {
+    this.visibleRepetePassword = !this.visibleRepetePassword;
   }
 
   selectPhoto(imageID: number): void {

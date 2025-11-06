@@ -9,6 +9,7 @@ import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs/internal/operators/finalize';
 
 @Component({
   selector: 'app-registeruser',
@@ -20,10 +21,11 @@ import { Router } from '@angular/router';
 export class RegisteruserComponent implements  OnInit {
   isVip = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false;
+  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
   selectedPhoto: number | null = null;
   registrationResponse: Response | null = null;
   avatarOptions = PHOTO_OPTIONS;
+  isSubmitting = false;
 
   fb = inject(FormBuilder);
   registerForm!: FormGroup;
@@ -46,6 +48,7 @@ export class RegisteruserComponent implements  OnInit {
 
   onSubmit(): void {
     if (this.registerForm.valid) {
+      this.isSubmitting = true;
       const formValue = this.registerForm.getRawValue();
       const fecha_nacimiento = new Date(formValue.fecha_nacimiento);
       const userData: User = {
@@ -58,7 +61,9 @@ export class RegisteruserComponent implements  OnInit {
         fechaNacimiento: fecha_nacimiento.toISOString(),
         contrasena: formValue.contrasena,
       };
-      this.userService.register(userData).subscribe({
+      this.userService.register(userData)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
         next: (response) => {
           alert('Registro usuario exitoso.');
           this.router.navigate(['/login']);
@@ -66,7 +71,7 @@ export class RegisteruserComponent implements  OnInit {
         },
         error: (error) => {
           alert('Credenciales inválidas');
-        }
+        },
       });
     } else {
       for (const key of Object.keys(this.registerForm.controls)) {
@@ -95,6 +100,9 @@ export class RegisteruserComponent implements  OnInit {
 
   togglePasswordVisibility(): void {
     this.visiblePassword = !this.visiblePassword;
+  }
+  toggleRepetePasswordVisibility(): void {
+    this.visibleRepetePassword = !this.visibleRepetePassword;
   }
 
 //MANEJO ERRORES
