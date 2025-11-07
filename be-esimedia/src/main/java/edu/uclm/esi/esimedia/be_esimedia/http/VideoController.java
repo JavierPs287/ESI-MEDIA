@@ -33,4 +33,5 @@ public class VideoController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of(MESSAGE_KEY, "Vídeo subido exitosamente"));
     }
+
 }

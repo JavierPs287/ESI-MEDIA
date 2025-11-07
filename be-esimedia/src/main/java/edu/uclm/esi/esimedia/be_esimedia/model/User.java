@@ -1,30 +1,59 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
+
+@Document(collection = "USERS")
 public class User {
+
     @Id
+    private String id;
+
+    private String name;
+    private String lastName;
     private String email;
-    private String nombre;
-    private String apellidos;
-    private String contrasena;
-    private int foto = 0;
-    private boolean bloqueado = false;
-    private boolean activo = true;
+    private String password;
+    private int imageId = 0;
+    private boolean blocked = false;
+    private boolean active = true;
+
+    public User(UserDTO dto) {
+        initializeFromDTO(dto);
+    }
+
+    private void initializeFromDTO(UserDTO dto) {
+        this.setName(dto.getNombre());
+        this.setLastName(dto.getApellidos());
+        this.setEmail(dto.getEmail());
+        this.setPassword(dto.getContrasena());
+        this.setImageId(dto.getFoto());
+        this.setBlocked(dto.isBloqueado());
+        this.setActive(dto.isActivo());
+    }
     
     // Getters and Setters
-    public String getNombre() {
-        return nombre;
-    }
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public String getId() {
+        return id;
     }
 
-    public String getApellidos() {
-        return apellidos;
+    public void setId(String id) {
+        this.id = id;
     }
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
+
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -34,35 +63,35 @@ public class User {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public String getPassword() {
+        return password;
     }
 
-    public boolean isBloqueado() {
-        return bloqueado;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public void setBloqueado(boolean bloqueado) {
-        this.bloqueado = bloqueado;
+    public int getImageId() {
+        return imageId;
     }
 
-    public boolean isActivo() {
-        return activo;
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
     }
 
-    public void setActivo(boolean activo) {
-        this.activo = activo;
+    public boolean isBlocked() {
+        return blocked;
     }
 
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 
-    public int getFoto() {
-        return foto;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setFoto(int foto) {
-        this.foto = foto;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

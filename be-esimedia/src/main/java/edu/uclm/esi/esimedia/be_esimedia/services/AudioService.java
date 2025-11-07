@@ -14,12 +14,14 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
+import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 
 @Service
 public class AudioService {
@@ -31,11 +33,13 @@ public class AudioService {
     private final ValidateService validateService;
 
     private final AudioRepository audioRepository;
+    private final ContenidoRepository contenidoRepository;
 
     @Autowired
-    public AudioService(ValidateService validateService, AudioRepository audioRepository) {
+    public AudioService(ValidateService validateService, AudioRepository audioRepository, ContenidoRepository contenidoRepository) {
         this.validateService = validateService;
         this.audioRepository = audioRepository;
+        this.contenidoRepository = contenidoRepository;
     }
 
     public void uploadAudio(AudioDTO audioDTO) {
@@ -60,8 +64,9 @@ public class AudioService {
         MultipartFile file = audioDTO.getFile();
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
-        // Crear objeto Audio
-        Audio audio = new Audio(audioDTO);
+        // Crear objetos Contenido y Audio
+        Contenido contenido = new Contenido(audioDTO);
+        Audio audio = new Audio();
         audio.setSize(file.getSize() / 1024.0);
         audio.setFormat(fileExtension);
 
@@ -77,8 +82,10 @@ public class AudioService {
 
         // Alta en MongoDB
         try {
-            Audio savedAudio = audioRepository.save(audio);
-            logger.info("Audio guardado exitosamente con ID: {}", savedAudio.getId());
+            contenido = contenidoRepository.save(contenido);
+            audio.setId(contenido.getId());
+            audioRepository.save(audio);
+            logger.info("Audio guardado exitosamente con ID: {}", audio.getId());
         } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al guardar el audio en la base de datos: {}", e.getMessage(), e);
             throw new AudioUploadException();

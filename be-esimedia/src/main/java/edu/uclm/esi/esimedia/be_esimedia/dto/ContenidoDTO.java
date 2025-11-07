@@ -4,8 +4,10 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
+
 public abstract class ContenidoDTO {
-    
+
     private String title; // Campo obligatorio
     private String description;
     private String[] tags; // Mínimo 1 tag obligatorio
@@ -17,10 +19,28 @@ public abstract class ContenidoDTO {
     private Date visibilityChangeDate; // No es campo rellenable, se pone la fecha actual al crear el contenido
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date visibilityDeadline;
-    
+
     private int minAge; // Campo obligatorio
     private int imageId;
     private String creador; // No es campo rellenable, se pone el creador al crear el contenido
+    private double rating; // No es campo rellenable, se calcula a partir de las valoraciones de los usuarios
+    private int views; // No es campo rellenable, se incrementa al visualizar el contenido
+
+    protected final void initializeFromModel(Contenido contenido) {
+        this.setTitle(contenido.getTitle());
+        this.setDescription(contenido.getDescription());
+        this.setTags(contenido.getTags());
+        this.setDuration(contenido.getDuration());
+        this.setVip(contenido.isVip());
+        this.setVisible(contenido.isVisible());
+        this.setVisibilityChangeDate(contenido.getVisibilityChangeDate());
+        this.setVisibilityDeadline(contenido.getVisibilityDeadline());
+        this.setMinAge(contenido.getMinAge());
+        this.setImageId(contenido.getImageId());
+        this.setCreador(contenido.getCreador());
+        this.setRating(contenido.getRating());
+        this.setViews(contenido.getViews());
+    }
 
     // Getters and Setters
     public String getTitle() {
@@ -109,5 +129,21 @@ public abstract class ContenidoDTO {
 
     public void setCreador(String creador) {
         this.creador = creador;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
     }
 }

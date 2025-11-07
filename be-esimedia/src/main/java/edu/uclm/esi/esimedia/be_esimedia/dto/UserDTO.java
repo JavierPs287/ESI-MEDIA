@@ -6,6 +6,8 @@ public class UserDTO {
     private String email;
     private String contrasena;
     private int foto;
+    private boolean bloqueado;
+    private boolean activo;
 
     // Getters and Setters
     public String getNombre() {
@@ -41,5 +43,21 @@ public class UserDTO {
     }
     public void setFoto(int foto) {
         this.foto = foto;
+    }
+
+    public boolean isBloqueado() {
+        return bloqueado;
+    }
+
+    public void setBloqueado(boolean bloqueado) {
+        this.bloqueado = bloqueado;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
     }
 }
