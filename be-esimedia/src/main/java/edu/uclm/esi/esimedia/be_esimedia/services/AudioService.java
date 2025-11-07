@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -20,7 +19,9 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 
 @Service
 public class AudioService {
@@ -32,11 +33,13 @@ public class AudioService {
     private final ValidateService validateService;
 
     private final AudioRepository audioRepository;
+    private final ContenidoRepository contenidoRepository;
 
     @Autowired
-    public AudioService(ValidateService validateService, AudioRepository audioRepository) {
+    public AudioService(ValidateService validateService, AudioRepository audioRepository, ContenidoRepository contenidoRepository) {
         this.validateService = validateService;
         this.audioRepository = audioRepository;
+        this.contenidoRepository = contenidoRepository;
     }
 
     public void uploadAudio(AudioDTO audioDTO) {
@@ -61,8 +64,9 @@ public class AudioService {
         MultipartFile file = audioDTO.getFile();
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
-        // Crear objeto Audio
-        Audio audio = new Audio(audioDTO);
+        // Crear objetos Contenido y Audio
+        Contenido contenido = new Contenido(audioDTO);
+        Audio audio = new Audio();
         audio.setSize(file.getSize() / 1024.0);
         audio.setFormat(fileExtension);
 
@@ -78,19 +82,14 @@ public class AudioService {
 
         // Alta en MongoDB
         try {
-            Audio savedAudio = audioRepository.save(audio);
-            logger.info("Audio guardado exitosamente con ID: {}", savedAudio.getId());
+            contenido = contenidoRepository.save(contenido);
+            audio.setId(contenido.getId());
+            audioRepository.save(audio);
+            logger.info("Audio guardado exitosamente con ID: {}", audio.getId());
         } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al guardar el audio en la base de datos: {}", e.getMessage(), e);
             throw new AudioUploadException();
         }
-    }
-
-    public List<AudioDTO> getAllAudios() {
-        List<Audio> audios = audioRepository.findAll();
-        return audios.stream()
-                .map(AudioDTO::new)
-                .toList();
     }
 
     // Método generado

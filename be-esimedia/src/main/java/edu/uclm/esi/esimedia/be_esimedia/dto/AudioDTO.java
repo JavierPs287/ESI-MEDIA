@@ -2,7 +2,7 @@ package edu.uclm.esi.esimedia.be_esimedia.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 
 public class AudioDTO extends ContenidoDTO {
     
@@ -10,8 +10,8 @@ public class AudioDTO extends ContenidoDTO {
  
     public AudioDTO() { /* Constructor vacío (para @ModelAttribute) */ }
 
-    public AudioDTO(Audio audio) {
-        super.initializeFromModel(audio);
+    public AudioDTO(Contenido contenido) {
+        super.initializeFromModel(contenido);
     }
 
     // Getters and Setters

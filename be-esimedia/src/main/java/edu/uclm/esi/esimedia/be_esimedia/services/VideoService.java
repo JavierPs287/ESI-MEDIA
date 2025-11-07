@@ -1,18 +1,17 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import java.util.Date;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
-import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
+import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.VideoRepository;
 
 @Service
@@ -23,11 +22,13 @@ public class VideoService {
     private final ValidateService validateService;
 
     private final VideoRepository videoRepository;
+    private final ContenidoRepository contenidoRepository;
 
     @Autowired
-    public VideoService(ValidateService validateService, VideoRepository videoRepository) {
+    public VideoService(ValidateService validateService, VideoRepository videoRepository, ContenidoRepository contenidoRepository) {
         this.validateService = validateService;
         this.videoRepository = videoRepository;
+        this.contenidoRepository = contenidoRepository;
     }
 
     public void uploadVideo(VideoDTO videoDTO) {
@@ -48,25 +49,21 @@ public class VideoService {
         // Validación
         validateUploadVideo(videoDTO);
 
-        // Crear objeto Video
+        // Crear objetos Contenido y Video
+        Contenido contenido = new Contenido(videoDTO);
         Video video = new Video(videoDTO);
 
         // Alta en MongoDB
         try {
-            Video savedVideo = videoRepository.save(video);
-            logger.info("Vídeo guardado exitosamente con ID: {}", savedVideo.getId());
+            contenido = contenidoRepository.save(contenido);
+            video.setId(contenido.getId());
+            videoRepository.save(video);
+            logger.info("Vídeo guardado exitosamente con ID: {}", video.getId());
         } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
             logger.error("Error al guardar el vídeo en la base de datos: {}", e.getMessage(), e);
             throw new VideoUploadException();
         }
         
-    }
-
-    public List<VideoDTO> getAllVideos() {
-        List<Video> videos = videoRepository.findAll();
-        return videos.stream()
-                .map(VideoDTO::new)
-                .toList();
     }
 
     private void validateUploadVideo(VideoDTO videoDTO) {

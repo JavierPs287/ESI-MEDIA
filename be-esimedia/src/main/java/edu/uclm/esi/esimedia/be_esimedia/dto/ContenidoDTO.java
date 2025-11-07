@@ -23,8 +23,8 @@ public abstract class ContenidoDTO {
     private int minAge; // Campo obligatorio
     private int imageId;
     private String creador; // No es campo rellenable, se pone el creador al crear el contenido
-    private double rating; // No es campo rellenable, se calcula a partir de las valoraciones de los
-                           // usuarios
+    private double rating; // No es campo rellenable, se calcula a partir de las valoraciones de los usuarios
+    private int views; // No es campo rellenable, se incrementa al visualizar el contenido
 
     protected final void initializeFromModel(Contenido contenido) {
         this.setTitle(contenido.getTitle());
@@ -39,6 +39,7 @@ public abstract class ContenidoDTO {
         this.setImageId(contenido.getImageId());
         this.setCreador(contenido.getCreador());
         this.setRating(contenido.getRating());
+        this.setViews(contenido.getViews());
     }
 
     // Getters and Setters
@@ -136,5 +137,13 @@ public abstract class ContenidoDTO {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
     }
 }

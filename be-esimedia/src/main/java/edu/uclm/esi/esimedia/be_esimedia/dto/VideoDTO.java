@@ -1,6 +1,7 @@
 
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 
 public class VideoDTO extends ContenidoDTO {
@@ -10,8 +11,8 @@ public class VideoDTO extends ContenidoDTO {
 
     public VideoDTO() { /* Constructor vacío (para @ModelAttribute) */ }
 
-    public VideoDTO(Video video) {
-        super.initializeFromModel(video);
+    public VideoDTO(Contenido contenido, Video video) {
+        super.initializeFromModel(contenido);
         this.url = video.getUrl();
         this.resolution = video.getResolution();
     }

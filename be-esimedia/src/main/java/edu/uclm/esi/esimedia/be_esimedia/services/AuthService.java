@@ -2,9 +2,6 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,50 +20,46 @@ public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final ValidateService validateService;
-    private final UserService userService;
     private final UserRepository userRepository;
-    public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, UserService userService, UserRepository userRepository) {
-        this.usuarioRepository = usuarioRepository;
-        this.userRepository = userRepository;
-        this.validateService = validateService;
-        this.userService = userService;
-    }
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public Usuario register(UsuarioDTO usuarioDTO) {
-        // Convertir DTO a entidad
-        Usuario usuario = new Usuario();
-        usuario.setNombre(usuarioDTO.getNombre());
-        usuario.setApellidos(usuarioDTO.getApellidos());
-        usuario.setEmail(usuarioDTO.getEmail());
-        usuario.setAlias(usuarioDTO.getAlias());
-        usuario.setFechaNacimiento(usuarioDTO.getFechaNacimiento());
-        usuario.setContrasena(usuarioDTO.getContrasena());
-        usuario.setEsVIP(usuarioDTO.getEsVIP());
-        usuario.setFoto(usuarioDTO.getFoto());
-        return registerUsuarioInternal(usuario);
+    public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, UserRepository userRepository) {
+        this.usuarioRepository = usuarioRepository;
+        this.userRepository = userRepository;
+        this.validateService = validateService;
     }
 
-    private Usuario registerUsuarioInternal(Usuario usuario) {
-        validateNombre(usuario.getNombre());
-        validateApellidos(usuario.getApellidos());
-        validateEmail(usuario.getEmail());
-        validateContrasena(usuario.getContrasena());
+    // TODO Validar los DTOs antes de crear las entidades
+    public void register(UsuarioDTO usuarioDTO) {
+        // Convertir DTO a entidad
+        User user = new User(usuarioDTO);
+        Usuario usuario = new Usuario(usuarioDTO);
+
+        registerUsuarioInternal(user, usuario);
+    }
+
+    // TODO Llevar TODAS las validaciones a ValidateService (se puede mirar cómo se hace en AudioService o VideoService)
+    private void registerUsuarioInternal(User user, Usuario usuario) {
+        validateNombre(user.getName());
+        validateApellidos(user.getLastName());
+        validateEmail(user.getEmail());
+        validateContrasena(user.getPassword());
         validateAlias(usuario.getAlias());
-        validateFechaNacimiento(usuario.getFechaNacimiento());
-        validateEmailUnico(usuario.getEmail());
+        validateFechaNacimiento(usuario.getBirthDate());
+        validateEmailUnico(user.getEmail());
 
         // Establecer foto por defecto si no se proporciona
-        if (validateService.isRequiredFieldEmpty(String.valueOf(usuario.getFoto()), 1, 10)) {
-            usuario.setFoto(0);
+        if (validateService.isRequiredFieldEmpty(String.valueOf(user.getImageId()), 1, 10)) {
+            user.setImageId(0);
         }
 
         // Encriptar contraseña
-        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // Guardar usuario
-        return usuarioRepository.save(usuario);
+        // Guardar user y usuario
+        userRepository.save(user);
+        usuarioRepository.save(usuario);
     }
 
     private void validateNombre(String nombre) {
@@ -104,6 +97,7 @@ public class AuthService {
             if (alias.length() < 2 || alias.length() > 20) {
                 throw new IllegalArgumentException("El alias debe tener entre 2 y 20 caracteres");
             }
+            // TODO Quitar, se puede repetir alias en usuario
             if (usuarioRepository.existsByAlias(alias)) {
                 throw new IllegalArgumentException("El alias ya está registrado");
             }
@@ -117,7 +111,7 @@ public class AuthService {
     }
 
     private void validateEmailUnico(String email) {
-        if (userService.existsEmail(email)) {
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("El email ya está registrado");
         }
     }
@@ -127,19 +121,20 @@ public class AuthService {
             throw new IllegalArgumentException("El formato del email no es válido");
         }
 
-        User usuario = userService.findByEmail(email);
-        if (usuario == null || !passwordEncoder.matches(contrasena, usuario.getContrasena())) {
+        User usuario = userRepository.findByEmail(email);
+        if (usuario == null || !passwordEncoder.matches(contrasena, usuario.getPassword())) {
             throw new IllegalArgumentException("Credenciales inválidas");
         }
 
         // Comprobar si el usuario esta bloqueado
-        if (usuario.isBloqueado()) {
+        if (usuario.isBlocked()) {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
         
         String secret = "${jwt.secret}";
         Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 
+        // TODO Probar el método que no está deprecado (use signWith(Key, SignatureAlgorithm) instead)
         // Generar token de autenticación JWT
         return Jwts.builder()
                 .setSubject(usuario.getEmail())
