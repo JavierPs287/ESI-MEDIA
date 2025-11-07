@@ -6,10 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Creador extends User {
     private String alias;
     private String descripcion;
-    private Campo campo;
-    public enum Campo {PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA}
-    private Tipo tipo;
-    public enum Tipo {AUDIO, VIDEO}
+    private String campo;
+    private String tipo;
 
     // Getters and Setters
     public String getAlias() {
@@ -26,17 +24,17 @@ public class Creador extends User {
         this.descripcion = descripcion;
     }
 
-    public Tipo getTipo() {
+    public String getTipo() {
         return tipo;
     }
-    public void setTipo(Tipo tipo) {
+    public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 
-    public Campo getCampo() {
+    public String getCampo() {
         return campo;
     }
-    public void setCampo(Campo campo) {
+    public void setCampo(String campo) {
         this.campo = campo;
     }
 }

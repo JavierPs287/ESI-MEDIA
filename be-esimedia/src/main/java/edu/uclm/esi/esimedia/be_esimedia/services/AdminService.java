@@ -1,8 +1,9 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.NoSuchElementException;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
@@ -78,8 +79,8 @@ public class AdminService {
     }
 
     private Admin registerAdminInternal(Admin admin) {
-        if (!validateService.isEnumValid(admin.getDepartamento())) {
-            throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
+        if (!validateService.isRequiredFieldEmpty(admin.getDepartamento(), 1, 50)) {
+            throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido");
         }
         // Guardar administrador
         return adminRepository.save(admin);
@@ -117,10 +118,10 @@ public class AdminService {
             throw new IllegalArgumentException("La descripción no puede tener más de 500 caracteres");
         }
         
-        if (!validateService.isEnumValid(creador.getCampo())) {
-            throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
+        if (!validateService.isRequiredFieldEmpty(creador.getCampo(), 1, 30)) {
+            throw new IllegalArgumentException("El campo es obligatorio y debe tener una longitud entre 1 y 30 caracteres");
         }
-        if (!validateService.isEnumValid(creador.getTipo())) {
+        if (!validateService.isRequiredFieldEmpty(creador.getTipo(), 1, 10)) {
             throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
         }
         // Guardar creador

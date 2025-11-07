@@ -4,14 +4,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "ADMINISTRADORES")
 public class Admin extends User {
-    private Departamento departamento;
-    public enum Departamento {RRHH, IT, MARKETING, VENTAS}
+    private String departamento;
 
     // Getters and Setters
-    public Departamento getDepartamento() {
+    public String getDepartamento() {
         return departamento;
     }
-    public void setDepartamento(Departamento departamento) {
+    public void setDepartamento(String departamento) {
         this.departamento = departamento;
     }
 }

@@ -2,9 +2,6 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,7 +11,6 @@ import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
-import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
