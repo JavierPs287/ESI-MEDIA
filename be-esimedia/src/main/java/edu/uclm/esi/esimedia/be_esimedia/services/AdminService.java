@@ -10,44 +10,52 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
-import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
-import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 
 @Service
 public class AdminService {
+
+    private final UserRepository userRepository;
     private final AdminRepository adminRepository;
     private final CreadorRepository creadorRepository;
-    private final UsuarioRepository usuarioRepository;
     private final ValidateService validateService;
-    public AdminService(AdminRepository adminRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, ValidateService validateService) {
-        this.adminRepository = adminRepository;
-        this.creadorRepository = creadorRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.validateService = validateService;
-    }
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public Admin registerAdmin(AdminDTO adminDTO) {
-        // Convertir DTO a entidad
-        Admin admin = new Admin();
-        admin.setNombre(adminDTO.getNombre());
-        admin.setApellidos(adminDTO.getApellidos());
-        admin.setEmail(adminDTO.getEmail());
-        admin.setContrasena(adminDTO.getContrasena());
-        admin.setFoto(adminDTO.getFoto());
-        admin.setDepartamento(adminDTO.getDepartamento());
-        registerComun(admin);
-        return registerAdminInternal(admin);
+    public AdminService(UserRepository userRepository, AdminRepository adminRepository, CreadorRepository creadorRepository, ValidateService validateService) {
+        this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
+        this.creadorRepository = creadorRepository;
+        this.validateService = validateService;
     }
 
+    // TODO Validar los DTOs antes de crear las entidades
+    public void registerAdmin(AdminDTO adminDTO) {
+        // Convertir DTO a entidad
+        User user = new User(adminDTO);
+        Admin admin = new Admin(adminDTO);
+
+        registerComun(user);
+        registerAdminInternal(user, admin);
+    }
+
+    public void registerCreador(CreadorDTO creadorDTO) {
+        // Convertir DTO a entidad
+        User user = new User(creadorDTO);
+        Creador creador = new Creador(creadorDTO);
+
+        registerComun(user);
+        registerCreadorInternal(user, creador);
+    }
+
+    // TODO Llevar TODAS las validaciones a ValidateService (se puede mirar cómo se hace en AudioService o VideoService)
     private void registerComun(User user) {
-        if (validateService.isRequiredFieldEmpty(user.getNombre(), 2, 50)) {
+        if (validateService.isRequiredFieldEmpty(user.getName(), 2, 50)) {
             throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
         }
-        if (validateService.isRequiredFieldEmpty(user.getApellidos(), 2, 100)) {
+        if (validateService.isRequiredFieldEmpty(user.getLastName(), 2, 100)) {
             throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
         }
         if (validateService.isRequiredFieldEmpty(user.getEmail(), 5, 100)) {
@@ -56,53 +64,38 @@ public class AdminService {
         if (!validateService.isEmailValid(user.getEmail())) {
             throw new IllegalArgumentException("El formato del email no es válido");
         }
-        if (validateService.isRequiredFieldEmpty(user.getContrasena(),8, 128)) {
+        if (validateService.isRequiredFieldEmpty(user.getPassword(),8, 128)) {
             throw new IllegalArgumentException("La contraseña es obligatoria y debe tener entre 8 y 128 caracteres");
         }
-        if (!validateService.isPasswordSecure(user.getContrasena())) {
+        if (!validateService.isPasswordSecure(user.getPassword())) {
             throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
         }
 
-        // Verificar email duplicado en administradores, creadores y usuarios
-        if (adminRepository.existsByEmail(user.getEmail()) || 
-            creadorRepository.existsByEmail(user.getEmail()) || 
-            usuarioRepository.existsByEmail(user.getEmail())) {
+        // Verificar email duplicado en users
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("El email ya está registrado");
         }
 
+        // TODO Cambiar validación para que refleje que es un id de imagen
         // Establecer foto por defecto si no se proporciona
-        if (validateService.isRequiredFieldEmpty(String.valueOf(user.getFoto()), 1, 10)) {
-            user.setFoto(0);
+        if (validateService.isRequiredFieldEmpty(String.valueOf(user.getImageId()), 1, 10)) {
+            user.setImageId(0);
         }
         // Encriptar contraseña
-        user.setContrasena(passwordEncoder.encode(user.getContrasena()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
-    private Admin registerAdminInternal(Admin admin) {
-        if (!validateService.isRequiredFieldEmpty(admin.getDepartamento(), 1, 50)) {
-            throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido");
-        }
-        // Guardar administrador
-        return adminRepository.save(admin);
+    private void registerAdminInternal(User user, Admin admin) {
+        // TODO Validar de otra forma
+        // if (!validateService.isEnumValid(admin.getDepartamento())) {
+        //     throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
+        // }
+        // Guardar user y administrador
+        userRepository.save(user);
+        adminRepository.save(admin);
     }
 
-    public Creador registerCreador(CreadorDTO creadorDTO) {
-        // Convertir DTO a entidad
-        Creador creador = new Creador();
-        creador.setNombre(creadorDTO.getNombre());
-        creador.setApellidos(creadorDTO.getApellidos());
-        creador.setEmail(creadorDTO.getEmail());
-        creador.setAlias(creadorDTO.getAlias());
-        creador.setDescripcion(creadorDTO.getDescripcion());
-        creador.setCampo(creadorDTO.getCampo());
-        creador.setTipo(creadorDTO.getTipo());
-        creador.setFoto(creadorDTO.getFoto()); 
-        creador.setContrasena(creadorDTO.getContrasena());
-        registerComun(creador);
-        return registerCreadorInternal(creador);
-    }
-
-    private Creador registerCreadorInternal(Creador creador) {
+    private void registerCreadorInternal(User user, Creador creador) {
         // Validar alias (opcional, pero si se proporciona debe cumplir requisitos)
         if (creador.getAlias() != null && !creador.getAlias().isEmpty()) {
             if (creador.getAlias().length() < 2 || creador.getAlias().length() > 20) {
@@ -114,26 +107,28 @@ public class AdminService {
         }
         
         // Descripción validar longitud
-        if (creador.getDescripcion() != null && creador.getDescripcion().length() > 500) {
+        if (creador.getDescription() != null && creador.getDescription().length() > 500) {
             throw new IllegalArgumentException("La descripción no puede tener más de 500 caracteres");
         }
         
-        if (!validateService.isRequiredFieldEmpty(creador.getCampo(), 1, 30)) {
-            throw new IllegalArgumentException("El campo es obligatorio y debe tener una longitud entre 1 y 30 caracteres");
-        }
-        if (!validateService.isRequiredFieldEmpty(creador.getTipo(), 1, 10)) {
-            throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
-        }
-        // Guardar creador
-        return creadorRepository.save(creador);
+        // TODO Validar de otra forma
+        // if (!validateService.isEnumValid(creador.getCampo())) {
+        //     throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
+        // }
+        // if (!validateService.isEnumValid(creador.getTipo())) {
+        //     throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
+        // }
+        // Guardar user y creador
+        userRepository.save(user);
+        creadorRepository.save(creador);
     }
 
     public void setUserBlocked(String email, boolean blocked) {
-        Usuario user = usuarioRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new NoSuchElementException("Usuario no encontrado");
+            throw new NoSuchElementException("User no encontrado");
         }
-        user.setBloqueado(blocked);
-        usuarioRepository.save(user);
+        user.setBlocked(blocked);
+        userRepository.save(user);
     }
 }

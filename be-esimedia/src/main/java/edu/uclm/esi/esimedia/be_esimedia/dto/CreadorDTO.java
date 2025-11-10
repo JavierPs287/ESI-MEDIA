@@ -10,6 +10,7 @@ public class CreadorDTO extends UserDTO {
     public String getAlias() {
         return alias;
     }
+
     public void setAlias(String alias) {
         this.alias = alias;
     }
@@ -17,6 +18,7 @@ public class CreadorDTO extends UserDTO {
     public String getDescripcion() {
         return descripcion;
     }
+    
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
@@ -24,6 +26,7 @@ public class CreadorDTO extends UserDTO {
     public String getCampo() {
         return campo;
     }
+
     public void setCampo(String campo) {
         this.campo = campo;
     }
@@ -31,6 +34,7 @@ public class CreadorDTO extends UserDTO {
     public String getTipo() {
         return tipo;
     }
+
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }

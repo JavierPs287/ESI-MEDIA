@@ -7,6 +7,7 @@ public class AdminDTO extends UserDTO {
     public String getDepartamento() {
         return departamento;
     }
+    
     public void setDepartamento(String departamento) {
         this.departamento = departamento;
     }

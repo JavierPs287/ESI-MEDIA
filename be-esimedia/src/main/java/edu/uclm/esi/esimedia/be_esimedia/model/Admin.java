@@ -1,16 +1,40 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
+
 @Document(collection = "ADMINISTRADORES")
-public class Admin extends User {
-    private String departamento;
+public class Admin {
+
+    @Id
+    private String id;
+
+    private String department;
+
+    public Admin(AdminDTO dto) {
+        initializeFromDTO(dto);
+    }
+
+    private void initializeFromDTO(AdminDTO dto) {
+        this.setDepartment(dto.getDepartamento());
+    }
 
     // Getters and Setters
-    public String getDepartamento() {
-        return departamento;
+    public String getId() {
+        return id;
     }
-    public void setDepartamento(String departamento) {
-        this.departamento = departamento;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 }

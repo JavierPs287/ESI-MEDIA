@@ -1,11 +1,15 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 
 @Document(collection = "VIDEOS")
-public class Video extends Contenido {
+public class Video {
+
+    @Id
+    private String id;
 
     private String url; // Campo obligatorio
     private int resolution; // Campo obligatorio
@@ -13,12 +17,23 @@ public class Video extends Contenido {
     public Video(){}
 
     public Video(VideoDTO videoDTO) {
-        super.initializeFromDTO(videoDTO);
-        this.url = videoDTO.getUrl();
-        this.resolution = videoDTO.getResolution();
+        initializeFromDTO(videoDTO);
+    }
+
+    private void initializeFromDTO(VideoDTO dto) {
+        this.setUrl(dto.getUrl());
+        this.setResolution(dto.getResolution());
     }
 
     // Getters and Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    
     public String getUrl() {
         return url;
     }

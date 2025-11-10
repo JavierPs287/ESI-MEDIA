@@ -182,7 +182,6 @@ class VideoServiceTest {
         savedVideo.setId("video789");
         when(videoRepository.save(any(Video.class))).thenAnswer(invocation -> {
             Video videoArg = invocation.getArgument(0);
-            assertEquals(validVideoDTO.getTitle(), videoArg.getTitle());
             assertEquals(validVideoDTO.getUrl(), videoArg.getUrl());
             assertEquals(validVideoDTO.getResolution(), videoArg.getResolution());
             return savedVideo;
