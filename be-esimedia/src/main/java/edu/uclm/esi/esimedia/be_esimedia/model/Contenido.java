@@ -3,10 +3,12 @@ package edu.uclm.esi.esimedia.be_esimedia.model;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 
-public abstract class Contenido {
+@Document(collection = "CONTENIDOS")
+public class Contenido {
     
     @Id
     private String id;
@@ -23,9 +25,13 @@ public abstract class Contenido {
     private int imageId;
     private String creador;
     private double rating;
+    private int views;
 
-    // Método protegido para inicialización segura desde constructor
-    protected final void initializeFromDTO(ContenidoDTO dto) {
+    public Contenido(ContenidoDTO dto) {
+        this.initializeFromDTO(dto);
+    }
+
+    private void initializeFromDTO(ContenidoDTO dto) {
         this.setTitle(dto.getTitle());
         this.setDescription(dto.getDescription());
         this.setTags(dto.getTags());
@@ -37,7 +43,8 @@ public abstract class Contenido {
         this.setMinAge(dto.getMinAge());
         this.setImageId(dto.getImageId());
         this.setCreador(dto.getCreador());
-        this.setRating(0.0);
+        this.setRating(dto.getRating());
+        this.setViews(dto.getViews());
     }
 
     // Getters and Setters
@@ -143,5 +150,13 @@ public abstract class Contenido {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
     }
 }

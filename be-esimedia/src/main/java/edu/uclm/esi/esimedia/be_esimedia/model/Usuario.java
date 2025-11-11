@@ -1,32 +1,61 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
+
 import java.util.Date;
 
 @Document(collection = "USUARIOS")
-public class Usuario extends User {
+public class Usuario {
+
+    @Id
+    private String id;
+    
     private String alias;
-    private Date fechaNacimiento;
-    private boolean esVIP = false;
+    private Date birthDate;
+    private boolean vip = false;
+
+    public Usuario(UsuarioDTO dto) {
+        initializeFromDTO(dto);
+    }
+
+    private void initializeFromDTO(UsuarioDTO dto) {
+        this.setAlias(dto.getAlias());
+        this.setBirthDate(dto.getFechaNacimiento());
+        this.setVip(dto.isVip());
+    }
 
     // Getters and Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getAlias() {
         return alias;
     }
+
     public void setAlias(String alias) {
         this.alias = alias;
     }
 
-    public Date getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-    public void setFechaNacimiento(Date fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
+    public Date getBirthDate() {
+        return birthDate != null ? (Date) birthDate.clone() : null;
     }
 
-    public boolean getEsVIP() {
-        return esVIP;
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate != null ? (Date) birthDate.clone() : null;
     }
-    public void setEsVIP(boolean esVIP) {
-        this.esVIP = esVIP;
+
+    public boolean isVip() {
+        return vip;
+    }
+
+    public void setVip(boolean vip) {
+        this.vip = vip;
     }
 }

@@ -1,25 +1,27 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
-
 @Document(collection = "AUDIOS")
-public class Audio extends Contenido {
+public class Audio {
+
+    @Id
+    private String id;
     
     private double size; // En KB (máximo 1 MB)
     private String format;
     private String filePath; // No editable
 
-    public Audio() {}
-    
-    public Audio(AudioDTO audioDTO) {
-        super.initializeFromDTO(audioDTO);
-        this.size = 0.0;
-        this.format = "";
+    // Getters and Setters
+    public String getId() {
+        return id;
     }
 
-    // Getters and Setters
+    public void setId(String id) {
+        this.id = id;
+    }
+    
     public double getSize() {
         return size;
     }
