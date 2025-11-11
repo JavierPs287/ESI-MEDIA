@@ -3,11 +3,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { CreatorService } from './creator.service';
 import { Creator, Campo, Tipo } from '../models/creator.model';
+import { environment } from '../../environments/environment';
 
 describe('CreatorService', () => {
   let service: CreatorService;
   let httpMock: HttpTestingController;
-  const baseUrl = 'http://localhost:8081/admin';
+  const baseUrl = `${environment.apiUrl}/admin`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

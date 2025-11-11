@@ -3,11 +3,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { UserService } from './user.service';
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 describe('UserService', () => {
   let service: UserService;
   let httpMock: HttpTestingController;
-  const baseUrl = 'http://localhost:8081/user';
+  const baseUrl = `${environment.apiUrl}/user`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

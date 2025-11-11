@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Creator, CreatorRegisterResponse } from '../models/creator.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CreatorService {
-  private readonly baseUrl = 'http://localhost:8081/admin';
+  private readonly baseUrl = `${environment.apiUrl}/admin`;
 
   constructor(private readonly http: HttpClient) { }
 

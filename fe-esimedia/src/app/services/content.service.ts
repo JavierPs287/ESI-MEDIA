@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface AudioUploadResponse {
   message: string;
@@ -18,7 +19,7 @@ export interface VideoUploadResponse {
   providedIn: 'root'
 })
 export class ContentService {
-  private readonly baseUrl = 'http://localhost:8081/creador';
+  private readonly baseUrl = `${environment.apiUrl}/creador`;
 
   constructor(private readonly http: HttpClient) { }
 
