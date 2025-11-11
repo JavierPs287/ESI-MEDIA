@@ -14,6 +14,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 @Service
@@ -146,7 +147,7 @@ public class AuthService {
                 .setSubject(usuario.getEmail())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(key)
+                .signWith(key,SignatureAlgorithm.HS256)
                 .compact();
 
     }
