@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 
-public abstract class ContenidoDTO {
+public class ContenidoDTO {
 
     private String title; // Campo obligatorio
     private String description;
@@ -22,9 +22,15 @@ public abstract class ContenidoDTO {
 
     private int minAge; // Campo obligatorio
     private int imageId;
-    private String creador; // No es campo rellenable, se pone el creador al crear el contenido
+    private String creador; // No es campo rellenable, se pone el alias de creador al crear el contenido
     private double rating; // No es campo rellenable, se calcula a partir de las valoraciones de los usuarios
     private int views; // No es campo rellenable, se incrementa al visualizar el contenido
+
+    public ContenidoDTO() { /* Constructor vacío (para @ModelAttribute) */ }
+
+    public ContenidoDTO(Contenido contenido) {
+        this.initializeFromModel(contenido);
+    }
 
     protected final void initializeFromModel(Contenido contenido) {
         this.setTitle(contenido.getTitle());

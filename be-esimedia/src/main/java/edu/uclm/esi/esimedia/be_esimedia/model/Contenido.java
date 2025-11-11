@@ -15,6 +15,7 @@ public class Contenido {
 
     private String title; // No es único
     private String description;
+    private String type; // "AUDIO" o "VIDEO" (para facilitar consultas de BBDD)
     private String[] tags; // Mínimo 1 tag obligatorio
     private double duration; // Duración en segundos, se podría implementar de otra forma
     private boolean vip; 
@@ -26,6 +27,8 @@ public class Contenido {
     private String creador;
     private double rating;
     private int views;
+
+    public Contenido() { /* Constructor vacío requerido por Spring Data */ }
 
     public Contenido(ContenidoDTO dto) {
         this.initializeFromDTO(dto);
@@ -70,6 +73,14 @@ public class Contenido {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String[] getTags() {

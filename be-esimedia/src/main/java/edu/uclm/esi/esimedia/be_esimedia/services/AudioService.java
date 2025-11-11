@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
@@ -79,6 +80,9 @@ public class AudioService {
             logger.error("Error al guardar el archivo físico: {}", e.getMessage(), e);
             throw new AudioUploadException();
         }
+
+        // Asignar tipo de contenido
+        contenido.setType(AUDIO_TYPE);
 
         // Alta en MongoDB
         try {

@@ -291,7 +291,7 @@ class VideoValidateServiceTest {
     @DisplayName("Debe retornar true para edad mínima válida (4 años)")
     void testIsMinAgeValid_ValidMinAge() {
         // Act
-        boolean result = validateService.isMinAgeValid(4);
+        boolean result = validateService.isAgeValid(4);
 
         // Assert
         assertTrue(result);
@@ -301,7 +301,7 @@ class VideoValidateServiceTest {
     @DisplayName("Debe retornar true para edad mayor a la mínima")
     void testIsMinAgeValid_AgeAboveMinimum() {
         // Act
-        boolean result = validateService.isMinAgeValid(12);
+        boolean result = validateService.isAgeValid(12);
 
         // Assert
         assertTrue(result);
@@ -311,7 +311,7 @@ class VideoValidateServiceTest {
     @DisplayName("Debe retornar false para edad menor a la mínima")
     void testIsMinAgeValid_AgeBelowMinimum() {
         // Act
-        boolean result = validateService.isMinAgeValid(3);
+        boolean result = validateService.isAgeValid(3);
 
         // Assert
         assertFalse(result);
@@ -321,7 +321,7 @@ class VideoValidateServiceTest {
     @DisplayName("Debe retornar false para edad negativa")
     void testIsMinAgeValid_NegativeAge() {
         // Act
-        boolean result = validateService.isMinAgeValid(-1);
+        boolean result = validateService.isAgeValid(-1);
 
         // Assert
         assertFalse(result);
