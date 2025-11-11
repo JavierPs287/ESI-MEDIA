@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, RegisterResponse } from '../models/user.model';
+import { User } from '../models/user.model';
+import { Response } from '../models/response.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -17,44 +18,20 @@ export class UserService {
    * @param user Datos del usuario a registrar
    * @returns Observable con la respuesta del servidor
    */
-  register(user: User): Observable<RegisterResponse> {
-    // Convertir el formato del usuario para que coincida con el backend
-    const userToSend = {
-      nombre: user.nombre,
-      apellidos: user.apellidos,
-      email: user.email,
-      contrasena: user.contrasena,
-      alias: user.alias,
-      fechaNacimiento: new Date(user.fecha_nacimiento),
-      esVIP: user.vip,
-      foto_perfil: user.foto_perfil || null
-    };
-    
-    console.log('Enviando datos al backend:', userToSend);
-    
-    return new Observable<RegisterResponse>(observer => {
-      this.http.post(`${this.baseUrl}/register`, userToSend, { responseType: 'text' }).subscribe({
+  register(userData: User): Observable<Response> {
+    return new Observable<Response>(observer => {
+      this.http.post(`${this.baseUrl}/register`, userData, { responseType: 'text' }).subscribe({
         next: (response) => {
           observer.next({ message: response, error: undefined });
           observer.complete();
         },
         error: (error) => {
-          console.error('Error en el registro:', error);
-          const errorMessage = error?.error?.text || error?.error || error?.message || 'Error en el registro';
-          observer.next({ message: '', error: errorMessage });
+          const errorMessage = error?.error?.text || error?.error || error?.message || 'Credenciales invalidas';
+          observer.error({ message: '', error: errorMessage });
           observer.complete();
         }
       });
     });
-  }
-
-  /**
-   * Verifica si un email ya está registrado
-   * @param email Email a verificar
-   * @returns Observable<boolean>
-   */
-  checkEmail(email: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/check-email/${email}`);
   }
 
   /**

@@ -2,17 +2,7 @@
   <h1 class="form-title">Crea un Creador de Contenido</h1>
   <p class="form-subtitle">Sube tu contenido para que otros lo descubran.</p>
 
-  <!-- Mensaje de éxito -->
-  <div class="success-message" *ngIf="successMessage">
-    <p>✅ {{ successMessage }}</p>
-  </div>
-
-  <!-- Mensaje de error -->
-  <div class="error-message-box" *ngIf="errorMessage">
-    <p>❌ {{ errorMessage }}</p>
-  </div>
-
-  <form [formGroup]="registerForm" >
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
     <!-- Campo: Nombre -->
     <div class="form-field">
@@ -68,13 +58,13 @@
 
       <div class="photo-options" *ngIf="showPhotoOptions">
         <div class="photo-grid">
-          <img *ngFor="let avatar of photoOptions" 
+          <img *ngFor="let avatar of photoOptions.slice(1)" 
                [src]="avatar.url" 
-               [alt]="avatar.name"
+               [alt]="avatar.id"
                class="photo-option"
-               [class.selected]="selectedPhoto === avatar.url"
-               (click)="selectPhoto(avatar.url)"
-               (keydown.enter)="selectPhoto(avatar.url)">
+               [class.selected]="selectedPhoto === avatar.id"
+               (click)="selectPhoto(avatar.id)"
+               (keydown.enter)="selectPhoto(avatar.id)">
         </div>
       <a class="link" href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
       </div>
@@ -131,10 +121,9 @@
     <label for="contrasena">Contraseña *</label>
       <div class="password-field">
       <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
-      <button 
-        class="eyeicon" 
-        (click)="togglePasswordVisibility()">
-        <i [ngClass]="visiblePassword?'fa fa-eye':'fa fa-eye-slash'"></i>
+      <button type ="button" class="eyeicon" (click)="togglePasswordVisibility()">
+        <mat-icon *ngIf="visiblePassword">visibility</mat-icon>
+        <mat-icon *ngIf="!visiblePassword">visibility_off</mat-icon>
       </button>
     </div>
     <div class="error-container" *ngIf="getControl('contrasena')?.invalid && (getControl('contrasena')?.touched || getControl('contrasena')?.dirty)">
@@ -151,7 +140,13 @@
     <!-- Campo: Repetir Contraseña -->
     <div class="form-field">
       <label for="repetirContrasena">Repetir Contraseña *</label>
-      <input type="password" placeholder="Repetir contraseña" formControlName="repetirContrasena">
+      <div class="password-field">
+      <input [type]="!visibleRepetePassword?'password':'text'" placeholder="Repetir contraseña" formControlName="repetirContrasena">
+      <button type="button" class="eyeicon" (click)="toggleRepetePasswordVisibility()">
+        <mat-icon *ngIf="visibleRepetePassword">visibility</mat-icon>
+        <mat-icon *ngIf="!visibleRepetePassword">visibility_off</mat-icon>
+      </button>
+    </div>
       <div class="error-container" *ngIf="(getControl('repetirContrasena')?.invalid && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)) || (registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty))">
         <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('required')"> El campo es obligatorio. </p>
         <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
@@ -161,7 +156,7 @@
     </div>
 
     <!-- Botón de envío -->
-    <button (click)="onSubmit()" [disabled]="!registerForm.valid || isSubmitting" type="submit" class="create-btn">
+    <button type="submit" [disabled]="!registerForm.valid || isSubmitting" class="create-btn">
       {{ isSubmitting ? 'Registrando...' : 'Crear cuenta' }}
     </button>
 

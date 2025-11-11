@@ -3,13 +3,8 @@ export interface User {
     apellidos: string;
     email: string;
     alias: string;
-    fecha_nacimiento: string | Date;
+    fechaNacimiento: string;
     contrasena: string;
-    vip: boolean;
-    foto_perfil?: string | null;
-}
-
-export interface RegisterResponse {
-    message: string;
-    error?: string;
+    esVIP: boolean;
+    foto?: number | null;
 }

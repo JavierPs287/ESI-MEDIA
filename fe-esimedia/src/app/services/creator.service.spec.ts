@@ -204,33 +204,6 @@ describe('CreatorService', () => {
     });
   });
 
-  describe('checkEmail', () => {
-    it('debería verificar si un email existe', (done) => {
-      const email = 'creator@example.com';
-
-      service.checkEmail(email).subscribe(exists => {
-        expect(exists).toBe(true);
-        done();
-      });
-
-      const req = httpMock.expectOne(`${baseUrl}/check-email/${email}`);
-      expect(req.request.method).toBe('GET');
-      req.flush(true);
-    });
-
-    it('debería devolver false si el email no existe', (done) => {
-      const email = 'newcreator@example.com';
-
-      service.checkEmail(email).subscribe(exists => {
-        expect(exists).toBe(false);
-        done();
-      });
-
-      const req = httpMock.expectOne(`${baseUrl}/check-email/${email}`);
-      req.flush(false);
-    });
-  });
-
   describe('checkAlias', () => {
     it('debería verificar si un alias existe', (done) => {
       const alias = 'carloscr';

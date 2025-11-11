@@ -85,7 +85,7 @@ export class UploadAudioComponent implements OnInit {
 
     this.contentService.uploadAudio(formData).subscribe({
       next: (response) => {
-        alert(`Éxito: ${response.message}\nID del audio: ${response.audioId}`);
+        alert('Éxito al subir el audio');
         this.resetForm();
       },
       error: (error) => {
