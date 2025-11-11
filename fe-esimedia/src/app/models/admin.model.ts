@@ -3,6 +3,6 @@ export interface Admin {
     apellidos: string;
     email: string;
     departamento: string;
-    fotoPerfil: number;
+    foto: number;
     contrasena: string;
 }

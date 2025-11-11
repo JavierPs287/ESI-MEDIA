@@ -60,7 +60,7 @@ export class RegisteradminComponent implements OnInit {
         apellidos: formValue.apellido,
         email: formValue.email,
         departamento: formValue.departamento,
-        fotoPerfil: formValue.fotoPerfil,
+        foto: formValue.fotoPerfil,
         contrasena: formValue.contrasena,
       };
 

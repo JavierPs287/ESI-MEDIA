@@ -3,9 +3,9 @@ export interface Creator {
     apellidos: string;
     email: string;
     alias: string;
-    fotoPerfil: number;
+    foto: number;
     descripcion?: string;
-    especialidad: string;
-    tipoContenido: string;
+    campo: string;
+    tipo: string;
     contrasena: string;
 }

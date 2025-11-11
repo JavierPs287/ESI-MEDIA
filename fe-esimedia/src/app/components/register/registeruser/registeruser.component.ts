@@ -40,7 +40,7 @@ export class RegisteruserComponent implements  OnInit {
     alias: ['', [Validators.minLength(3), Validators.maxLength(20)]],
     vip: [false],
     foto_perfil: [this.avatarOptions[0].id],
-    fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{2}\/\d{2}\/\d{4}$/), this.minAgeValidator(4)]],
+    fecha_nacimiento: ['', [Validators.required, this.minAgeValidator(4)]],
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
