@@ -2,7 +2,9 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +14,13 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 @Service
 public class AuthService {
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     private final UsuarioRepository usuarioRepository;
     private final ValidateService validateService;
@@ -131,14 +135,18 @@ public class AuthService {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
         
-        String secret = "${jwt.secret}";
-        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
-        // TODO Probar el método que no está deprecado (use signWith(Key, SignatureAlgorithm) instead)
-        // Generar token de autenticación JWT
+        // Generar token de autenticación JWT con expiración de 24 horas
+        long expirationTime = 86400000; // 24 horas en milisegundos
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationTime);
+
         return Jwts.builder()
                 .setSubject(usuario.getEmail())
-                .signWith(SignatureAlgorithm.HS512, key)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(key)
                 .compact();
 
     }
