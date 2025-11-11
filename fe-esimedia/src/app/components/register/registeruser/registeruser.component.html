@@ -41,7 +41,7 @@
 
     <div class="form-field">
       <label for="fecha_nacimiento">Fecha de nacimiento *</label>
-      <input id="fecha_nacimiento" type="date" formControlName="fecha_nacimiento">
+      <input id="fecha_nacimiento" type="date" placeholder="DD/MM/AAAA" formControlName="fecha_nacimiento">
       <div class="error-container" *ngIf="getControl('fecha_nacimiento')?.invalid && (getControl('fecha_nacimiento')?.touched || getControl('fecha_nacimiento')?.dirty)">
         <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('required')"> El campo es obligatorio. </p>
         <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('pattern')"> Formato de fecha inválido. </p>

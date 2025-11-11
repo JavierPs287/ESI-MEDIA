@@ -33,7 +33,7 @@ export class ContentService {
           error: (error) => {
             console.error('Error al subir audio:', error);
             const errorMessage = error?.error || error?.message || 'Error al subir el audio';
-            observer.next({ message: '', error: errorMessage });
+            observer.error({ message: '', error: errorMessage });
             observer.complete();
           }
         });
