@@ -24,13 +24,13 @@ public class User {
     }
 
     private void initializeFromDTO(UserDTO dto) {
-        this.setName(dto.getNombre());
-        this.setLastName(dto.getApellidos());
+        this.setName(dto.getName());
+        this.setLastName(dto.getLastName());
         this.setEmail(dto.getEmail());
-        this.setPassword(dto.getContrasena());
-        this.setImageId(dto.getFoto());
-        this.setBlocked(dto.isBloqueado());
-        this.setActive(dto.isActivo());
+        this.setPassword(dto.getPassword());
+        this.setImageId(dto.getImageId());
+        this.setBlocked(dto.isBlocked());
+        this.setActive(dto.isActive());
     }
     
     // Getters and Setters
