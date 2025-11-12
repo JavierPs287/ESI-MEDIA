@@ -13,6 +13,12 @@ public final class Constants {
     // Seguridad
     public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     public static final Pattern URL_PATTERN = Pattern.compile("^https?://.*$");
+    public static final String ADMIN_ROLE = "ADMIN";
+    public static final String CREATOR_ROLE = "CREATOR";
+    public static final String USER_ROLE = "USER";
+
+    // Rutas
+    public static final String PUBLIC_DIR = "/app/public/";
 
     // Contenido
     public static final String AUDIO_TYPE = "AUDIO";
