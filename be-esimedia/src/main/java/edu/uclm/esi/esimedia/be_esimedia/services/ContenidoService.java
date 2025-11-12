@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoFilterDTO;
-import edu.uclm.esi.esimedia.be_esimedia.exceptions.ContenidoNotFoundException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 
@@ -46,12 +45,11 @@ public class ContenidoService {
 
         if (contenidos.isEmpty()) {
             logger.info("No se encontraron contenidos con los filtros proporcionados: {}", filters);
-            throw new ContenidoNotFoundException();
+        } else {
+            contenidos.forEach(contenido -> result.add(new ContenidoDTO(contenido)));
+            logger.info("Encontrados {} contenidos", result.size());
         }
-
-        contenidos.forEach(contenido -> result.add(new ContenidoDTO(contenido)));
-        logger.info("Encontrados {} contenidos", result.size());
-
+        
         return result;
     }
 
