@@ -3,6 +3,7 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -140,13 +141,13 @@ public class AuthService {
 
         // Generar token de autenticación JWT con expiración de 24 horas
         long expirationTime = 86400000; // 24 horas en milisegundos
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationTime);
+        Instant now = Instant.now();
+        Instant expiryDate = now.plusMillis(expirationTime);
 
         return Jwts.builder()
-                .setSubject(usuario.getEmail())
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .subject(usuario.getEmail())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiryDate))
                 .signWith(key)
                 .compact();
 
