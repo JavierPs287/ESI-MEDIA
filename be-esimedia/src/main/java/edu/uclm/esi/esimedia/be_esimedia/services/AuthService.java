@@ -151,6 +151,8 @@ public class AuthService {
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
         // Generar token de autenticación JWT con expiración de 24 horas
+        //TODO Reducir Tiempo de inactividad a 15 min (usuario) y 20 min (admin y creador)
+        //TODO Reducir timeout total a 8 horas
         long expirationTime = 86400000; // 24 horas en milisegundos
         Instant now = Instant.now();
         Instant expiryDate = now.plusMillis(expirationTime);
