@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class AudioService {
             throw new AudioUploadException();
         }
         
-        audioDTO.setVisibilityChangeDate(new Date());
+        audioDTO.setVisibilityChangeDate(Instant.now());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
         if (audioDTO.getCreador() == null || audioDTO.getCreador().isEmpty()) {

@@ -1,7 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,7 +32,7 @@ class VideoValidateServiceTest {
         validVideoDTO.setDuration(120.0);
         validVideoDTO.setVip(false);
         validVideoDTO.setVisible(true);
-        validVideoDTO.setVisibilityChangeDate(new Date());
+        validVideoDTO.setVisibilityChangeDate(Instant.now());
         validVideoDTO.setMinAge(4);
         validVideoDTO.setCreador("test_creator");
         validVideoDTO.setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
@@ -197,11 +196,9 @@ class VideoValidateServiceTest {
     @DisplayName("Debe retornar true cuando deadline es posterior a changeDate")
     void testIsVisibilityDeadlineValid_ValidDeadline() {
         // Arrange
-        Calendar cal = Calendar.getInstance();
-        Date changeDate = cal.getTime();
+        Instant changeDate = Instant.now();
         
-        cal.add(Calendar.DAY_OF_MONTH, 7);
-        Date deadline = cal.getTime();
+        Instant deadline = Instant.now().plusSeconds(1000000);
 
         // Act
         boolean result = validateService.isVisibilityDeadlineValid(changeDate, deadline);
@@ -214,11 +211,9 @@ class VideoValidateServiceTest {
     @DisplayName("Debe retornar false cuando deadline es anterior a changeDate")
     void testIsVisibilityDeadlineValid_DeadlineBeforeChangeDate() {
         // Arrange
-        Calendar cal = Calendar.getInstance();
-        Date changeDate = cal.getTime();
+        Instant changeDate = Instant.now();
         
-        cal.add(Calendar.DAY_OF_MONTH, -7);
-        Date deadline = cal.getTime();
+        Instant deadline = Instant.now().minusSeconds(1000000);
 
         // Act
         boolean result = validateService.isVisibilityDeadlineValid(changeDate, deadline);
@@ -231,7 +226,7 @@ class VideoValidateServiceTest {
     @DisplayName("Debe retornar false cuando deadline es igual a changeDate")
     void testIsVisibilityDeadlineValid_DeadlineEqualsChangeDate() {
         // Arrange
-        Date sameDate = new Date();
+        Instant sameDate = Instant.now();
 
         // Act
         boolean result = validateService.isVisibilityDeadlineValid(sameDate, sameDate);
@@ -244,7 +239,7 @@ class VideoValidateServiceTest {
     @DisplayName("Debe retornar false cuando changeDate es null")
     void testIsVisibilityDeadlineValid_NullChangeDate() {
         // Arrange
-        Date deadline = new Date();
+        Instant deadline = Instant.now();
 
         // Act
         boolean result = validateService.isVisibilityDeadlineValid(null, deadline);

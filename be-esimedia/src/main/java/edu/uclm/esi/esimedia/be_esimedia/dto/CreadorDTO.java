@@ -1,6 +1,7 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
 public class CreadorDTO extends UserDTO {
+    
     private String alias;
     private String descripcion;
     private String campo;

@@ -1,7 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -96,14 +95,14 @@ public class ValidateService {
         return true;
     }
 
-    public boolean isVisibilityDeadlineValid(Date changeDate, Date deadline) {
+    public boolean isVisibilityDeadlineValid(Instant changeDate, Instant deadline) {
         if (deadline == null) {
             return true;
         }
         if (changeDate == null) {
             return false;
         }
-        return deadline.after(changeDate);
+        return deadline.isAfter(changeDate);
     }
 
     public boolean isContenidoTypeValid(String type) {
@@ -138,15 +137,15 @@ public class ValidateService {
         return url != null && URL_PATTERN.matcher(url).matches();
     }
 
-    public boolean isBirthDateValid(Date fechaNacimiento) {
-        Calendar calendarioFechaNacimiento = Calendar.getInstance();
-        calendarioFechaNacimiento.setTime(fechaNacimiento);
-        Calendar fechaLimite = Calendar.getInstance();
-        fechaLimite.add(Calendar.YEAR, -4);
+    public boolean isBirthDateValid(Instant fechaNacimiento) {
         if (fechaNacimiento == null) {
             return false;
         }
-        return fechaNacimiento.before(new Date()) || calendarioFechaNacimiento.before(fechaLimite);
+        
+        Instant now = Instant.now();
+        Instant fechaLimite = now.minus(MIN_AGE, java.time.temporal.ChronoUnit.YEARS);
+        
+        return fechaNacimiento.isBefore(now) && fechaNacimiento.isBefore(fechaLimite);
     }
 
     public boolean isEnumValid(Enum<?> enumValue) {

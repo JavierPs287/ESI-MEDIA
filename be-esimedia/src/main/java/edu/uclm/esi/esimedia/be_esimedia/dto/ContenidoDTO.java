@@ -1,8 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
-import java.util.Date;
-
-import org.springframework.format.annotation.DateTimeFormat;
+import java.time.Instant;
 
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 
@@ -14,12 +12,8 @@ public class ContenidoDTO {
     private double duration; // Campo obligatorio // Segundos, se podría implementar de otra forma
     private boolean vip; // Campo obligatorio
     private boolean visible; // Campo obligatorio
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-    private Date visibilityChangeDate; // No es campo rellenable, se pone la fecha actual al crear el contenido
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-    private Date visibilityDeadline;
-
+    private Instant visibilityChangeDate; // No es campo rellenable, se pone la fecha actual al crear el contenido
+    private Instant visibilityDeadline;
     private int minAge; // Campo obligatorio
     private int imageId;
     private String creador; // No es campo rellenable, se pone el alias de creador al crear el contenido
@@ -97,20 +91,20 @@ public class ContenidoDTO {
         this.visible = visible;
     }
 
-    public Date getVisibilityChangeDate() {
-        return visibilityChangeDate != null ? (Date) visibilityChangeDate.clone() : null;
+    public Instant getVisibilityChangeDate() {
+        return visibilityChangeDate;
     }
 
-    public void setVisibilityChangeDate(Date visibilityChangeDate) {
-        this.visibilityChangeDate = visibilityChangeDate != null ? (Date) visibilityChangeDate.clone() : null;
+    public void setVisibilityChangeDate(Instant visibilityChangeDate) {
+        this.visibilityChangeDate = visibilityChangeDate;
     }
 
-    public Date getVisibilityDeadline() {
-        return visibilityDeadline != null ? (Date) visibilityDeadline.clone() : null;
+    public Instant getVisibilityDeadline() {
+        return visibilityDeadline;
     }
 
-    public void setVisibilityDeadline(Date visibilityDeadline) {
-        this.visibilityDeadline = visibilityDeadline != null ? (Date) visibilityDeadline.clone() : null;
+    public void setVisibilityDeadline(Instant visibilityDeadline) {
+        this.visibilityDeadline = visibilityDeadline;
     }
 
     public int getMinAge() {

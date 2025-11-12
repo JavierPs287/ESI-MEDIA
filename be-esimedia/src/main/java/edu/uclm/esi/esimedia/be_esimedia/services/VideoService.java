@@ -1,6 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class VideoService {
             throw new VideoUploadException();
         }
         
-        videoDTO.setVisibilityChangeDate(new Date());
+        videoDTO.setVisibilityChangeDate(Instant.now());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
         if (videoDTO.getCreador() == null || videoDTO.getCreador().isEmpty()) {
