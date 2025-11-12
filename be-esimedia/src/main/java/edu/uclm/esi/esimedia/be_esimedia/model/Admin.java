@@ -13,6 +13,9 @@ public class Admin {
 
     private String department;
 
+    public Admin() {
+    }
+
     public Admin(AdminDTO dto) {
         initializeFromDTO(dto);
     }

@@ -2,14 +2,20 @@ package edu.uclm.esi.esimedia.be_esimedia.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREATOR_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_ROLE;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
     
     private final CorsConfigurationSource corsConfigurationSource;
@@ -37,7 +43,7 @@ public class SecurityConfig {
                 
                 // Endpoint para obtener usuario actual (requiere token válido)
                 .requestMatchers("/user/me").authenticated()
-                // TODO Cambiar endpoints
+                
                 // Endpoints solo para ADMIN
                 .requestMatchers("/admin/**").hasRole(ADMIN_ROLE)
                 

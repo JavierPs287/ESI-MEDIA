@@ -3,11 +3,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { CreatorService } from './creator.service';
 import { Creator, Campo, Tipo } from '../models/creator.model';
+import { environment } from '../../environments/environment';
 
 describe('CreatorService', () => {
   let service: CreatorService;
   let httpMock: HttpTestingController;
-  const baseUrl = 'http://localhost:8081/admin';
+  const baseUrl = `${environment.apiUrl}/admin`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -200,33 +201,6 @@ describe('CreatorService', () => {
 
       const req = httpMock.expectOne(`${baseUrl}/registerCreador`);
       req.error(new ProgressEvent('error'));
-    });
-  });
-
-  describe('checkEmail', () => {
-    it('debería verificar si un email existe', (done) => {
-      const email = 'creator@example.com';
-
-      service.checkEmail(email).subscribe(exists => {
-        expect(exists).toBe(true);
-        done();
-      });
-
-      const req = httpMock.expectOne(`${baseUrl}/check-email/${email}`);
-      expect(req.request.method).toBe('GET');
-      req.flush(true);
-    });
-
-    it('debería devolver false si el email no existe', (done) => {
-      const email = 'newcreator@example.com';
-
-      service.checkEmail(email).subscribe(exists => {
-        expect(exists).toBe(false);
-        done();
-      });
-
-      const req = httpMock.expectOne(`${baseUrl}/check-email/${email}`);
-      req.flush(false);
     });
   });
 

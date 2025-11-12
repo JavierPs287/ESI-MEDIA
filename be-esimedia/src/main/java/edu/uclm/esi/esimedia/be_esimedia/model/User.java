@@ -19,6 +19,10 @@ public class User {
     private boolean blocked = false;
     private boolean active = true;
 
+    // Constructor vacío requerido por MongoDB
+    public User() {
+    }
+
     public User(UserDTO dto) {
         initializeFromDTO(dto);
     }

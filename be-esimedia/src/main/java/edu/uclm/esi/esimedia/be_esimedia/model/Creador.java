@@ -16,6 +16,9 @@ public class Creador {
     private String field;
     private String type;
 
+    public Creador() {
+    }
+
     public Creador(CreadorDTO dto) {
         initializeFromDTO(dto);
     }

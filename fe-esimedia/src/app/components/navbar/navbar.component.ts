@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -15,6 +16,7 @@ import { Observable } from 'rxjs';
 })
 export class NavbarComponent {
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   public readonly isAuthenticated$: Observable<boolean> = this.authService.isAuthenticated();
 
   constructor(private readonly router: Router) {}
@@ -25,7 +27,19 @@ export class NavbarComponent {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/']);
+    // Llamar al backend para eliminar la cookie
+    this.userService.logout().subscribe({
+      next: () => {
+        console.log('Logout exitoso, cookie eliminada');
+        this.authService.logout();
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        console.error('Error en logout:', err);
+        // Aunque falle, limpiar el estado local
+        this.authService.logout();
+        this.router.navigate(['/']);
+      }
+    });
   }
 }

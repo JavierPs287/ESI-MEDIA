@@ -17,6 +17,9 @@ public class Usuario {
     private Instant birthDate;
     private boolean vip = false;
 
+    public Usuario() {
+    }
+
     public Usuario(UsuarioDTO dto) {
         initializeFromDTO(dto);
     }
