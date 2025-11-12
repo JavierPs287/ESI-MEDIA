@@ -39,36 +39,41 @@ export class UserService {
    * @param email Email del usuario
    * @param contrasena Contraseña del usuario
    */
-  login(email: string, contrasena: string): Observable<{ message: string; token?: string; error?: string; httpStatus?: number; errorType?: string }> {
+  login(email: string, contrasena: string): Observable<{ message: string; role?: string; userId?: string; error?: string; httpStatus?: number; errorType?: string }> {
     const payload = { email, contrasena };
     console.log('Enviando petición de login:', payload);
     return new Observable(observer => {
-      this.http.post(`${this.baseUrl}/login`, payload, { responseType: 'text' }).subscribe({
+      // El interceptor añade automáticamente withCredentials: true
+      this.http.post(`${this.baseUrl}/login`, payload, { 
+        observe: 'response'
+      }).subscribe({
         next: (response) => {
-          let parsed: any = { message: String(response) };
-          try { parsed = JSON.parse(String(response)); } catch (e) { console.debug('No se pudo parsear respuesta JSON de login:', e); }
-          observer.next({ message: parsed.message || parsed || '', token: parsed.token, error: undefined, httpStatus: 200, errorType: undefined });
+          const body: any = response.body;
+          console.log('Login exitoso. Cookie recibida:', document.cookie);
+          observer.next({ 
+            message: body.message || 'Login exitoso', 
+            role: body.role,
+            userId: body.userId,
+            error: undefined, 
+            httpStatus: 200, 
+            errorType: undefined 
+          });
           observer.complete();
         },
         error: (err) => {
           console.error('Error en el login:', err);
           let errorMessage = 'Error en el login';
-          const raw = err?.error;
-          try {
-            if (typeof raw === 'string') {
-              const parsed = JSON.parse(raw);
-              errorMessage = parsed.error || parsed.message || raw;
-            } else if (raw && typeof raw === 'object') {
-              errorMessage = raw.error || raw.message || err?.message || errorMessage;
-            } else {
-              errorMessage = err?.message || errorMessage;
-            }
-          } catch (_parseErr) {
-            errorMessage = raw || err?.message || errorMessage;
+          const body = err?.error;
+          
+          if (body && typeof body === 'object' && body.error) {
+            errorMessage = body.error;
+          } else if (typeof body === 'string') {
+            errorMessage = body;
+          } else if (err?.message) {
+            errorMessage = err.message;
           }
 
           const status = err?.status ?? undefined;
-          // Map numeric HTTP status to a readable type
           let errorType: string | undefined = undefined;
           if (status === 401) errorType = 'UNAUTHORIZED';
           else if (status === 404) errorType = 'NOT_FOUND';
@@ -80,5 +85,13 @@ export class UserService {
         }
       });
     });
+  }
+
+  /**
+   * Cierra la sesión del usuario
+   */
+  logout(): Observable<{ message: string }> {
+    // El interceptor añade automáticamente withCredentials: true
+    return this.http.post<{ message: string }>(`${this.baseUrl}/logout`, {});
   }
 }

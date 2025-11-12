@@ -32,7 +32,6 @@ export class LoginuserComponent {
 
     const { email, contrasena } = this.loginForm.value;
     this.userService.login(email, contrasena).subscribe(result => {
-      // Normalize into the same shape used by register component
       this.loginResponse = {
         message: result.message || undefined,
         error: result.error || undefined,
@@ -44,11 +43,12 @@ export class LoginuserComponent {
         return; // template will show loginResponse.error
       }
 
-      if (result.token) {
-        localStorage.setItem('esi_token', result.token);
-        this.authService.setAuthenticated(true);
-      }
-      // success: navigate
+      // La cookie ya está establecida por el backend
+      // Solo actualizamos el estado de autenticación
+      console.log('Login exitoso. Rol:', result.role, 'UserID:', result.userId);
+      this.authService.setAuthenticated(true, result.role, result.userId);
+      
+      // Navegar según el rol
       this.router.navigate(['/']);
     });
   }

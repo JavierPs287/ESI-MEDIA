@@ -16,6 +16,9 @@ public class Usuario {
     private Date birthDate;
     private boolean vip = false;
 
+    public Usuario() {
+    }
+
     public Usuario(UsuarioDTO dto) {
         initializeFromDTO(dto);
     }

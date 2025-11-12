@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
@@ -24,13 +26,19 @@ public class AuthService {
     private String jwtSecret;
 
     private final UsuarioRepository usuarioRepository;
+    private final AdminRepository adminRepository;
+    private final CreadorRepository creadorRepository;
     private final ValidateService validateService;
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, UserRepository userRepository) {
+    public AuthService(UsuarioRepository usuarioRepository, AdminRepository adminRepository, 
+                       CreadorRepository creadorRepository, ValidateService validateService, 
+                       UserRepository userRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.adminRepository = adminRepository;
+        this.creadorRepository = creadorRepository;
         this.userRepository = userRepository;
         this.validateService = validateService;
     }
@@ -136,6 +144,9 @@ public class AuthService {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
         
+        // Determinar el rol del usuario
+        String role = determineUserRole(usuario.getId());
+        
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
         // Generar token de autenticación JWT con expiración de 24 horas
@@ -145,11 +156,36 @@ public class AuthService {
 
         return Jwts.builder()
                 .setSubject(usuario.getEmail())
+                .claim("role", role)
+                .claim("userId", usuario.getId())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key,SignatureAlgorithm.HS256)
                 .compact();
 
+    }
+    
+    /**
+     * Determina el rol del usuario basándose en su ID
+     * @param userId ID del usuario
+     * @return Rol del usuario: "ADMIN", "CREATOR" o "USER"
+     */
+    private String determineUserRole(String userId) {
+        // Verificar si es Admin (Admin y User comparten el mismo ID)
+        if (adminRepository.existsById(userId)) {
+            return "ADMIN";
+        }
+        
+        // Verificar si es Creador (Creador y User comparten el mismo ID)
+        if (creadorRepository.existsById(userId)) {
+            return "CREATOR";
+        }
+        
+        // Por defecto es Usuario
+        if (usuarioRepository.existsById(userId)) {
+            return "USER";
+        }
+        return null;
     }
 
 }
