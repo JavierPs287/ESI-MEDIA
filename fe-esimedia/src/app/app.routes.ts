@@ -45,7 +45,7 @@ export const routes: Routes = [
         path: 'menu/creator',
         component: MainMenuCreatorComponent,
         canActivate: [authGuard, roleGuard],
-        data: { roles: ['CREATOR', 'ADMIN'] },
+        data: { roles: ['CREATOR'] },
         children: [
             {
                 path: 'uploadContent/audio',
