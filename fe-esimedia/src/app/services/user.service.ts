@@ -94,4 +94,13 @@ export class UserService {
     // El interceptor añade automáticamente withCredentials: true
     return this.http.post<{ message: string }>(`${this.baseUrl}/logout`, {});
   }
+
+  /**
+   * Obtiene la información del usuario actual desde el token en la cookie
+   * @returns Observable con {email, role, userId} o error
+   */
+  getCurrentUser(): Observable<{ email: string; role: string; userId: string }> {
+    // El interceptor añade automáticamente withCredentials: true
+    return this.http.get<{ email: string; role: string; userId: string }>(`${this.baseUrl}/me`);
+  }
 }

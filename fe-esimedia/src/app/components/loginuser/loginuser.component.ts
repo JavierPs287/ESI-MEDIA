@@ -45,11 +45,18 @@ export class LoginuserComponent {
 
       // La cookie ya está establecida por el backend
       // Solo actualizamos el estado de autenticación
-      console.log('Login exitoso. Rol:', result.role, 'UserID:', result.userId);
+      console.log('[Login] Éxito. Rol:', result.role, 'UserID:', result.userId);
       this.authService.setAuthenticated(true, result.role, result.userId);
+      this.authService.markAsInitialized();
       
       // Navegar según el rol
-      this.router.navigate(['/']);
+      if (result.role === 'ADMIN') {
+        this.router.navigate(['/menu/admin']);
+      } else if (result.role === 'CREATOR') {
+        this.router.navigate(['/menu/creator']);
+      } else {
+        this.router.navigate(['/']);
+      }
     });
   }
 }

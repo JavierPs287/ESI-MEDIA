@@ -82,10 +82,56 @@ public class UserController {
         }
     }
 
+    /**
+     * Endpoint para obtener la información del usuario actual desde el token
+     * Requiere estar autenticado (cookie con token válido)
+     */
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, String>> getCurrentUser(jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            // Extraer token de la cookie
+            String token = extractTokenFromCookie(request);
+            
+            if (token == null || !jwtUtils.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Token inválido o no proporcionado"));
+            }
+            
+            // Extraer información del token
+            String email = jwtUtils.getEmailFromToken(token);
+            String role = jwtUtils.getRoleFromToken(token);
+            String userId = jwtUtils.getUserIdFromToken(token);
+            
+            Map<String, String> userInfo = new HashMap<>();
+            userInfo.put("email", email);
+            userInfo.put("role", role);
+            userInfo.put("userId", userId);
+            
+            return ResponseEntity.ok(userInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al obtener información del usuario"));
+        }
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.findAll();
         return ResponseEntity.ok(users);
+    }
+    
+    /**
+     * Método auxiliar para extraer el token de la cookie
+     */
+    private String extractTokenFromCookie(jakarta.servlet.http.HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("esi_token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     /**
