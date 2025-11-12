@@ -2,6 +2,7 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -45,12 +46,12 @@ public class AuthService {
 
     // TODO Llevar TODAS las validaciones a ValidateService (se puede mirar cómo se hace en AudioService o VideoService)
     private void registerUsuarioInternal(User user, Usuario usuario) {
-        validateNombre(user.getName());
-        validateApellidos(user.getLastName());
+        validateName(user.getName());
+        validateLastName(user.getLastName());
         validateEmail(user.getEmail());
-        validateContrasena(user.getPassword());
+        validatePassword(user.getPassword());
         validateAlias(usuario.getAlias());
-        validateFechaNacimiento(usuario.getBirthDate());
+        validateBirthDate(usuario.getBirthDate());
         validateEmailUnico(user.getEmail());
 
         // Establecer foto por defecto si no se proporciona
@@ -66,14 +67,14 @@ public class AuthService {
         usuarioRepository.save(usuario);
     }
 
-    private void validateNombre(String nombre) {
-        if (validateService.isRequiredFieldEmpty(nombre, 2, 50)) {
+    private void validateName(String name) {
+        if (validateService.isRequiredFieldEmpty(name, 2, 50)) {
             throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
         }
     }
 
-    private void validateApellidos(String apellidos) {
-        if (validateService.isRequiredFieldEmpty(apellidos, 2, 100)) {
+    private void validateLastName(String lastName) {
+        if (validateService.isRequiredFieldEmpty(lastName, 2, 100)) {
             throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
         }
     }
@@ -87,11 +88,11 @@ public class AuthService {
         }
     }
 
-    private void validateContrasena(String contrasena) {
-        if (validateService.isRequiredFieldEmpty(contrasena, 8, 128)) {
+    private void validatePassword(String password) {
+        if (validateService.isRequiredFieldEmpty(password, 8, 128)) {
             throw new IllegalArgumentException("La contraseña es obligatoria y debe tener entre 8 y 128 caracteres");
         }
-        if (!validateService.isPasswordSecure(contrasena)) {
+        if (!validateService.isPasswordSecure(password)) {
             throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
         }
     }
@@ -107,13 +108,14 @@ public class AuthService {
             }
         }
     }
-
-    private void validateFechaNacimiento(java.util.Date fechaNacimiento) {
-        if (!validateService.isBirthDateValid(fechaNacimiento)) {
+    // TODO Quitar validateBirthDate, usar isBirthDateValid de ValidateService
+    private void validateBirthDate(Instant birthDate) {
+        if (!validateService.isBirthDateValid(birthDate)) {
             throw new IllegalArgumentException("La fecha de nacimiento no es válida o el usuario debe tener al menos 4 años");
         }
     }
 
+    // TODO Quitar validateEmailUnico, usar userRepository.existsByEmail directamente
     private void validateEmailUnico(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("El email ya está registrado");
@@ -139,13 +141,13 @@ public class AuthService {
 
         // Generar token de autenticación JWT con expiración de 24 horas
         long expirationTime = 86400000; // 24 horas en milisegundos
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationTime);
+        Instant now = Instant.now();
+        Instant expiryDate = now.plusMillis(expirationTime);
 
         return Jwts.builder()
-                .setSubject(usuario.getEmail())
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .subject(usuario.getEmail())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiryDate))
                 .signWith(key)
                 .compact();
 

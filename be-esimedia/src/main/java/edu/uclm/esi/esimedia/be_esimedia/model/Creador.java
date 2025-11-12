@@ -22,9 +22,9 @@ public class Creador {
 
     private void initializeFromDTO(CreadorDTO dto) {
         this.setAlias(dto.getAlias());
-        this.setDescription(dto.getDescripcion());
-        this.setField(dto.getCampo());
-        this.setType(dto.getTipo());
+        this.setDescription(dto.getDescription());
+        this.setField(dto.getField());
+        this.setType(dto.getType());
     }
 
     // Getters and Setters
