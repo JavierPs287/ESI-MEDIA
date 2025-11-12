@@ -1,12 +1,13 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
@@ -38,7 +39,7 @@ public class VideoService {
             throw new VideoUploadException();
         }
         
-        videoDTO.setVisibilityChangeDate(new Date());
+        videoDTO.setVisibilityChangeDate(Instant.now());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
         if (videoDTO.getCreador() == null || videoDTO.getCreador().isEmpty()) {
@@ -52,6 +53,9 @@ public class VideoService {
         // Crear objetos Contenido y Video
         Contenido contenido = new Contenido(videoDTO);
         Video video = new Video(videoDTO);
+
+        // Asignar tipo de contenido
+        contenido.setType(VIDEO_TYPE);
 
         // Alta en MongoDB
         try {

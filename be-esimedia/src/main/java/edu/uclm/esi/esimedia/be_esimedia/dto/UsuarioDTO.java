@@ -1,18 +1,12 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
-import java.util.Date;
-
-import org.springframework.format.annotation.DateTimeFormat;
+import java.time.Instant;
 
 public class UsuarioDTO extends UserDTO {
     
     private String alias;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-    private Date fechaNacimiento;
-
+    private Instant birthDate;
     private boolean vip = false;
-
 
     // Getters and Setters
     public String getAlias() {
@@ -23,12 +17,12 @@ public class UsuarioDTO extends UserDTO {
         this.alias = alias;
     }
 
-    public Date getFechaNacimiento() {
-        return fechaNacimiento != null ? (Date) fechaNacimiento.clone() : null;
+    public Instant getBirthDate() {
+        return birthDate;
     }
 
-    public void setFechaNacimiento(Date fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento != null ? (Date) fechaNacimiento.clone() : null;
+    public void setBirthDate(Instant birthDate) {
+        this.birthDate = birthDate;
     }
 
     public boolean isVip() {

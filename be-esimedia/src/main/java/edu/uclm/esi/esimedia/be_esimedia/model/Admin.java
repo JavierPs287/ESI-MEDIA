@@ -21,7 +21,7 @@ public class Admin {
     }
 
     private void initializeFromDTO(AdminDTO dto) {
-        this.setDepartment(dto.getDepartamento());
+        this.setDepartment(dto.getDepartment());
     }
 
     // Getters and Setters
