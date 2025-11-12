@@ -50,7 +50,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUsuario(@RequestBody LoginRequest loginRequest){
         try {
-            String token = authService.login(loginRequest.getEmail(), loginRequest.getContrasena());
+            String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
             
             // Extraer información del token para enviarla en la respuesta
             String role = jwtUtils.getRoleFromToken(token);

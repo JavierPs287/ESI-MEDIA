@@ -1,10 +1,10 @@
 export interface User {
-    nombre: string;
-    apellidos: string;
+    name: string;
+    lastName: string;
     email: string;
     alias: string;
-    fechaNacimiento: string;
-    contrasena: string;
-    esVIP: boolean;
-    foto?: number | null;
+    birthDate: string;
+    password: string;
+    vip: boolean;
+    imageId?: number | null;
 }
