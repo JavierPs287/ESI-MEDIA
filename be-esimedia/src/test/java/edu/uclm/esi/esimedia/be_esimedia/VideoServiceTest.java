@@ -1,6 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia;
 
-import java.util.Date;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -48,7 +48,7 @@ class VideoServiceTest {
         validVideoDTO.setDuration(120.0);
         validVideoDTO.setVip(false);
         validVideoDTO.setVisible(true);
-        validVideoDTO.setVisibilityChangeDate(new Date());
+        validVideoDTO.setVisibilityChangeDate(Instant.now());
         validVideoDTO.setMinAge(4);
         validVideoDTO.setCreador("test_creator");
         validVideoDTO.setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
@@ -91,39 +91,6 @@ class VideoServiceTest {
     @DisplayName("Debe lanzar VideoUploadException cuando faltan campos obligatorios")
     void testUploadVideoWithInvalidRequiredFields() {
         // Arrange
-        when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(false);
-
-        // Act & Assert
-        VideoUploadException exception = assertThrows(
-            VideoUploadException.class,
-            () -> videoService.uploadVideo(validVideoDTO)
-        );
-
-        assertEquals("Campos obligatorios incorrectos", exception.getMessage());
-        verify(videoRepository, never()).save(any(Video.class));
-    }
-
-    @Test
-    @DisplayName("Debe lanzar VideoUploadException cuando la URL es inválida")
-    void testUploadVideoWithInvalidURL() {
-        // Arrange
-        when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(false);
-
-        // Act & Assert
-        VideoUploadException exception = assertThrows(
-            VideoUploadException.class,
-            () -> videoService.uploadVideo(validVideoDTO)
-        );
-
-        assertEquals("Campos obligatorios incorrectos", exception.getMessage());
-        verify(videoRepository, never()).save(any(Video.class));
-    }
-
-    @Test
-    @DisplayName("Debe lanzar VideoUploadException cuando la resolución es inválida")
-    void testUploadVideoWithInvalidResolution() {
-        // Arrange
-        validVideoDTO.setResolution(-1);
         when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(false);
 
         // Act & Assert

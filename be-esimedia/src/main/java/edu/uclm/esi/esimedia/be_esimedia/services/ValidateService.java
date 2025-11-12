@@ -1,11 +1,16 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.regex.Pattern;
+import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.EMAIL_PATTERN;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MAX_AGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MIN_AGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URL_PATTERN;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
@@ -13,13 +18,6 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 
 @Service
 public class ValidateService {
-
-    // TODO Pasar a archivo de configuración
-    private static final int MIN_AGE = 4;
-
-    // Compilar las expresiones regulares como constantes
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-    private static final Pattern URL_PATTERN = Pattern.compile("^https?://.*");
 
     public boolean isRequiredFieldEmpty(String field, int minLength, int maxLength) {
         return field == null || field.trim().isEmpty() || field.length() < minLength || field.length() > maxLength;
@@ -29,7 +27,7 @@ public class ValidateService {
         return email != null && EMAIL_PATTERN.matcher(email).matches();
     }
 
-    public boolean isPasswordSecure(String password) {
+    public boolean isPasswordSecure(String password) { // NOSONAR Falso positivo
         if (password == null || password.length() < 8) {
             return false;
         }
@@ -57,7 +55,7 @@ public class ValidateService {
                 areTagsValid(contenidoDTO.getTags()) &&
                 isDurationValid(contenidoDTO.getDuration()) &&
                 contenidoDTO.getVisibilityChangeDate() != null &&
-                isMinAgeValid(contenidoDTO.getMinAge());
+                isAgeValid(contenidoDTO.getMinAge());
     }
 
     public boolean areAudioRequiredFieldsValid(AudioDTO audioDTO) {
@@ -75,8 +73,8 @@ public class ValidateService {
         return duration > 0;
     }
 
-    public boolean isMinAgeValid(int minAge) {
-        return minAge >= MIN_AGE;
+    public boolean isAgeValid(int age) {
+        return age >= MIN_AGE && age <= MAX_AGE;
     }
 
     public boolean areTagsValid(String[] tags) {
@@ -88,19 +86,31 @@ public class ValidateService {
             if (tag == null || tag.trim().isEmpty()) {
                 return false;
             }
+            // Prevenir inyección
+            if (tag.contains("$") || tag.contains(".") || tag.contains("{") || tag.contains("}")) {
+                return false;
+            }
         }
 
         return true;
     }
 
-    public boolean isVisibilityDeadlineValid(Date changeDate, Date deadline) {
+    public boolean isVisibilityDeadlineValid(Instant changeDate, Instant deadline) {
         if (deadline == null) {
             return true;
         }
         if (changeDate == null) {
             return false;
         }
-        return deadline.after(changeDate);
+        return deadline.isAfter(changeDate);
+    }
+
+    public boolean isContenidoTypeValid(String type) {
+        if (type == null || type.isEmpty()) {
+            return false;
+        }
+
+        return !(!type.equals(AUDIO_TYPE) && !type.equals(VIDEO_TYPE));
     }
 
     public boolean isFilePresent(MultipartFile file) {
@@ -127,15 +137,15 @@ public class ValidateService {
         return url != null && URL_PATTERN.matcher(url).matches();
     }
 
-    public boolean isBirthDateValid(Date fechaNacimiento) {
-        Calendar calendarioFechaNacimiento = Calendar.getInstance();
-        calendarioFechaNacimiento.setTime(fechaNacimiento);
-        Calendar fechaLimite = Calendar.getInstance();
-        fechaLimite.add(Calendar.YEAR, -4);
+    public boolean isBirthDateValid(Instant fechaNacimiento) {
         if (fechaNacimiento == null) {
             return false;
         }
-        return fechaNacimiento.before(new Date()) || calendarioFechaNacimiento.before(fechaLimite);
+        
+        Instant now = Instant.now();
+        Instant fechaLimite = now.minus(MIN_AGE, java.time.temporal.ChronoUnit.YEARS);
+        
+        return fechaNacimiento.isBefore(now) && fechaNacimiento.isBefore(fechaLimite);
     }
 
     public boolean isEnumValid(Enum<?> enumValue) {

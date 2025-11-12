@@ -1,6 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +42,7 @@ class VideoControllerTest {
         validVideoDTO.setDuration(120.0);
         validVideoDTO.setVip(false);
         validVideoDTO.setVisible(true);
-        validVideoDTO.setVisibilityChangeDate(new Date());
+        validVideoDTO.setVisibilityChangeDate(Instant.now());
         validVideoDTO.setMinAge(4);
         validVideoDTO.setCreador("test_creator");
         validVideoDTO.setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
