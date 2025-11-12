@@ -143,9 +143,14 @@ public class ValidateService {
         }
         
         Instant now = Instant.now();
-        Instant fechaLimite = now.minus(MIN_AGE, java.time.temporal.ChronoUnit.YEARS);
+        // Convertir a LocalDate para calcular años correctamente
+        java.time.LocalDate birthDate = java.time.LocalDateTime.ofInstant(fechaNacimiento, java.time.ZoneId.systemDefault()).toLocalDate();
+        java.time.LocalDate today = java.time.LocalDateTime.ofInstant(now, java.time.ZoneId.systemDefault()).toLocalDate();
         
-        return fechaNacimiento.isBefore(now) && fechaNacimiento.isBefore(fechaLimite);
+        // Calcular edad en años
+        long age = java.time.temporal.ChronoUnit.YEARS.between(birthDate, today);
+        
+        return fechaNacimiento.isBefore(now) && age >= MIN_AGE;
     }
 
     public boolean isEnumValid(Enum<?> enumValue) {

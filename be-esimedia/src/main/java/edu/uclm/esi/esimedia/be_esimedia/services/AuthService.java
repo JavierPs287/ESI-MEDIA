@@ -130,13 +130,13 @@ public class AuthService {
         }
     }
 
-    public String login(String email, String contrasena) {
+    public String login(String email, String password) {
         if (!validateService.isEmailValid(email)) {
             throw new IllegalArgumentException("El formato del email no es válido");
         }
 
         User usuario = userRepository.findByEmail(email);
-        if (usuario == null || !passwordEncoder.matches(contrasena, usuario.getPassword())) {
+        if (usuario == null || !passwordEncoder.matches(password, usuario.getPassword())) {
             throw new IllegalArgumentException("Credenciales inválidas");
         }
 
