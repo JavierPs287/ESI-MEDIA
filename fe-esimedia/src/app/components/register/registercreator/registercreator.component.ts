@@ -63,15 +63,15 @@ export class RegistercreatorComponent implements OnInit {
       this.isSubmitting = true;
       const formValue = this.registerForm.getRawValue();
       const creator: Creator = {
-        nombre: formValue.nombre,
-        apellidos: formValue.apellidos,
+        name: formValue.nombre,
+        lastName: formValue.apellidos,
         email: formValue.email,
         alias: formValue.alias,
-        foto: formValue.fotoPerfil,
-        descripcion: formValue.descripcion,
-        campo: formValue.especialidad,
-        tipo: formValue.tipoContenido,
-        contrasena: formValue.contrasena
+        imageId: formValue.fotoPerfil,
+        description: formValue.descripcion,
+        field: formValue.especialidad,
+        type: formValue.tipoContenido,
+        password: formValue.contrasena
       };
 
       this.creatorService.registerCreator(creator)

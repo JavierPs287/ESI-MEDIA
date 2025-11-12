@@ -56,12 +56,12 @@ export class RegisteradminComponent implements OnInit {
 
       const formValue = this.registerForm.value;
       const admin: Admin = {
-        nombre: formValue.nombre,
-        apellidos: formValue.apellido,
+        name: formValue.nombre,
+        lastName: formValue.apellido,
         email: formValue.email,
-        departamento: formValue.departamento,
-        foto: formValue.fotoPerfil,
-        contrasena: formValue.contrasena,
+        department: formValue.departamento,
+        imageId: formValue.fotoPerfil,
+        password: formValue.contrasena,
       };
 
       this.adminService.registerAdmin(admin).subscribe({

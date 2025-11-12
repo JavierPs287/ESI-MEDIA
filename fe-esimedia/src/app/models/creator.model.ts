@@ -1,11 +1,11 @@
 export interface Creator {
-    nombre: string;
-    apellidos: string;
+    name: string;
+    lastName: string;
     email: string;
     alias: string;
-    foto: number;
-    descripcion?: string;
-    campo: string;
-    tipo: string;
-    contrasena: string;
+    imageId: number;
+    description?: string;
+    field: string;
+    type: string;
+    password: string;
 }

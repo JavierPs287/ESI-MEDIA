@@ -52,14 +52,14 @@ export class RegisteruserComponent implements  OnInit {
       const formValue = this.registerForm.getRawValue();
       const fecha_nacimiento = new Date(formValue.fecha_nacimiento);
       const userData: User = {
-        nombre: formValue.nombre,
-        apellidos: formValue.apellidos,
+        name: formValue.nombre,
+        lastName: formValue.apellidos,
         email: formValue.email,
         alias: formValue.alias,
-        esVIP: formValue.vip,
-        foto: formValue.foto_perfil,
-        fechaNacimiento: fecha_nacimiento.toISOString(),
-        contrasena: formValue.contrasena,
+        vip: formValue.vip,
+        imageId: formValue.foto_perfil,
+        birthDate: fecha_nacimiento.toISOString(),
+        password: formValue.contrasena,
       };
       this.userService.register(userData)
       .pipe(finalize(() => this.isSubmitting = false))
