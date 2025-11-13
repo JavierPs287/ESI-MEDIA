@@ -1,0 +1,102 @@
+<div class="reproduce-container">
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-icon>refresh</mat-icon>
+    <p>Cargando contenido...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-container">
+    <mat-icon>error</mat-icon>
+    <p>{{ errorMessage }}</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon> Volver
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && content" class="content-container">
+    <div class="video-section">
+      <button mat-icon-button class="back-button" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      
+      <div class="video-player" [class.audio-player]="hasAudio">
+        <!-- Reproductor de video si es video -->
+        <iframe *ngIf="hasVideo && mediaUrl" 
+                [src]="mediaUrl" 
+                [title]="content.title"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+        </iframe>
+        
+        <!-- Reproductor de audio si es audio -->
+        <div *ngIf="hasAudio" class="audio-container">
+          <div class="audio-cover">
+            <img [src]="getImageUrl(content.imageId)" [alt]="content.title">
+            <div class="audio-overlay">
+              <mat-icon>music_note</mat-icon>
+            </div>
+          </div>
+          <audio *ngIf="audioUrl" 
+                 controls 
+                 [src]="audioUrl"
+                 class="audio-player-controls">
+            Tu navegador no soporta el elemento de audio.
+          </audio>
+        </div>
+        
+        <!-- Imagen de preview si no hay contenido multimedia -->
+        <div *ngIf="!hasVideo && !hasAudio" class="image-preview">
+          <img [src]="getImageUrl(content.imageId)" [alt]="content.title">
+          <div class="play-overlay">
+            <mat-icon>play_circle_filled</mat-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-info">
+      <div class="header">
+        <h1>{{ content.title }}</h1>
+      </div>
+
+      <div class="metadata">
+        <span class="creator">
+          <mat-icon>person</mat-icon>
+          {{ content.creador }}
+        </span>
+        <span class="duration" *ngIf="content.duration">
+          <mat-icon>schedule</mat-icon>
+          {{ formatDuration(content.duration) }}
+        </span>
+        <span class="vip-badge" *ngIf="content.vip">
+          <mat-icon>stars</mat-icon> VIP
+        </span>
+        <span class="age-rating" *ngIf="content.minAge && content.minAge > 4">
+          +{{ content.minAge }}
+        </span>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <mat-icon>star</mat-icon>
+          <span>{{ content.rating ?? 0 }} / 5</span>
+        </div>
+        <div class="stat-item">
+          <mat-icon>play_arrow</mat-icon>
+          <span>{{ (content.views ?? 0) | number }} reproducciones</span>
+        </div>
+      </div>
+
+      <div class="tags" *ngIf="content.tags && content.tags.length > 0">
+        <mat-chip-set>
+          <mat-chip *ngFor="let tag of content.tags">{{ tag }}</mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <div class="description" *ngIf="content.description">
+        <h3>Descripción</h3>
+        <p>{{ content.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>

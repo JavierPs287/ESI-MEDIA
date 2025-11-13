@@ -11,6 +11,7 @@ import { UploadAudioComponent } from './components/creator-pages/uploadcontent/u
 import { UploadVideoComponent } from './components/creator-pages/uploadcontent/uploadvideo/uploadvideo.component';
 import { MainMenuUserComponent } from './components/menus/main-menu-user/main-menu-user.component';
 import { ShowContentComponent } from './components/show-content/show-content.component';
+import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
 
 export const routes: Routes = [
 
@@ -82,5 +83,9 @@ export const routes: Routes = [
                 component: ShowContentComponent
             }
         ]
+    },
+    {
+        path: 'reproduce/:title',
+        component: ReproduceContentComponent
     }
 ];

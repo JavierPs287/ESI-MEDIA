@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Content } from '../../models/content.model';
 import { ContentFilter } from '../../models/contentFilter.model';
 import { ContentService } from '../../services/content.service';
@@ -18,6 +19,7 @@ import { MatChipsModule } from '@angular/material/chips';
 export class ShowContentComponent implements OnInit {
 
   private readonly contentService = inject(ContentService);
+  private readonly router = inject(Router);
 
   contents: Content[] = [];
   isLoading = true;
@@ -48,6 +50,9 @@ export class ShowContentComponent implements OnInit {
     });
   }
 
+  onContentClick(contentTitle: string) {
+    this.router.navigate(['/reproduce', contentTitle]);
+  }
 
   formatDuration(seconds?: number): string {
   if (!seconds) return '0:00:00';
