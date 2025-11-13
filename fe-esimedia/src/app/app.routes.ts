@@ -9,6 +9,8 @@ import { MainMenuAdminComponent } from './components/menus/main-menu-admin/main-
 import { UserManagementComponent } from './components/admin-pages/user-management/user-management.component';
 import { UploadAudioComponent } from './components/creator-pages/uploadcontent/uploadaudio/uploadaudio.component';
 import { UploadVideoComponent } from './components/creator-pages/uploadcontent/uploadvideo/uploadvideo.component';
+import { ForgotpasswordComponent } from './components/forgotpassword/forgotpassword.component';
+import { ResetpasswordComponent } from './components/resetpassword/resetpassword.component';
 
 export const routes: Routes = [
 
@@ -65,5 +67,17 @@ export const routes: Routes = [
                 component: RegistercreatorComponent
             },
         ]
-    }
+    },
+    {
+        path: 'forgotpassword',
+        component: ForgotpasswordComponent
+    },
+    {
+        path: 'resetpassword',
+        component: ResetpasswordComponent
+    },
+    {
+        path: 'resetPassword',
+        component: ResetpasswordComponent
+    },
 ];
