@@ -110,8 +110,6 @@ getControl(controlName: string): AbstractControl | null {
   return this.registerForm.get(controlName);
 }
 
-
-
 //metodos toggles
   toggleVip(): void {
     this.isVip = !this.isVip;

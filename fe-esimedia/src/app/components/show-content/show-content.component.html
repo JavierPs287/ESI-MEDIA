@@ -1,0 +1,54 @@
+<div *ngIf="isLoading" class="loading-container">
+  <mat-icon>refresh</mat-icon>
+  <p>Cargando contenidos...</p>
+</div>
+
+<div *ngIf="errorMessage" class="error-container">
+  <mat-icon>error</mat-icon>
+  <p>{{ errorMessage }}</p>
+</div>
+
+<div class="content-grid" *ngIf="!isLoading && !errorMessage">
+  <mat-card *ngFor="let content of contents" class="content-card" [class.vip-content]="content.vip">
+    <div class="thumbnail-container">
+      <img mat-card-image [src]="getImageUrl(content.imageId)" [alt]="content.title">
+      <span class="duration" *ngIf="content.duration">{{ formatDuration(content.duration) }}</span>
+      <span class="vip-badge" *ngIf="content.vip">
+        <mat-icon>stars</mat-icon> VIP
+      </span>
+      <span class="age-badge" *ngIf="content.minAge && content.minAge > 0">
+        +{{ content.minAge }}
+      </span>
+    </div>
+    <mat-card-content>
+      <h3 class="content-title" [title]="content.title">{{ content.title }}</h3>
+      <p class="content-creator">{{ content.creador }}</p>
+      
+      <div class="content-stats">
+        <span class="rating" *ngIf="content.rating">
+          <mat-icon class="star-icon">star</mat-icon>
+          {{ content.rating }}
+        </span>
+        <span class="views" *ngIf="content.views">
+          <mat-icon class="view-icon">visibility</mat-icon>
+          {{ content.views | number }} vistas
+        </span>
+      </div>
+
+      <div class="content-tags" *ngIf="content.tags && content.tags.length > 0">
+        <mat-chip-set>
+          <mat-chip *ngFor="let tag of content.tags.slice(0, 3)">{{ tag }}</mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <p class="content-description" *ngIf="content.description">
+        {{ content.description }}
+      </p>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div *ngIf="!isLoading && !errorMessage && contents.length === 0" class="no-content">
+  <mat-icon>video_library</mat-icon>
+  <p>No hay contenidos disponibles</p>
+</div>

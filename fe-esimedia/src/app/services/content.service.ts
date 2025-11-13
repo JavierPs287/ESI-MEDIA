@@ -3,13 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Response } from '../models/response.model';
 import { environment } from '../../environments/environment';
+import { Content } from '../models/content.model';
+import { ContentFilter } from '../models/contentFilter.model';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContentService {
-  private readonly baseUrl = `${environment.apiUrl}/creador`;
+  private readonly creatorBaseUrl = `${environment.apiUrl}/creador`;
+  private readonly contentBaseUrl = `${environment.apiUrl}/contenido`;
 
   constructor(private readonly http: HttpClient) { }
 
@@ -20,7 +23,7 @@ export class ContentService {
    */
   uploadAudio(audioData: FormData): Observable<Response> {
     return new Observable<Response>(observer => {
-      this.http.post(`${this.baseUrl}/uploadAudio`, audioData, { responseType: 'text' })
+      this.http.post(`${this.creatorBaseUrl}/uploadAudio`, audioData, { responseType: 'text' })
         .subscribe({
           next: (response) => {
             console.log('Respuesta del servidor:', response);
@@ -49,7 +52,7 @@ export class ContentService {
    */
   uploadVideo(videoData: any): Observable<Response> {
     return new Observable<Response>(observer => {
-      this.http.post(`${this.baseUrl}/uploadVideo`, videoData, { responseType: 'text' })
+      this.http.post(`${this.creatorBaseUrl}/uploadVideo`, videoData, { responseType: 'text' })
         .subscribe({
           next: (response) => {
             console.log('Respuesta del servidor:', response);
@@ -70,4 +73,27 @@ export class ContentService {
         });
     });
   }
+
+  /**
+   * Obtiene la lista de contenidos con filtros opcionales
+   * @param filters Filtros opcionales para la búsqueda
+   * @returns Observable con la lista de contenidos
+   */
+  listContents(filters?: ContentFilter): Observable<Content[]> {
+    return new Observable<Content[]>(observer => {
+      this.http.post<Content[]>(`${this.contentBaseUrl}/listContenidos`, filters || {})
+        .subscribe({
+          next: (contents) => {
+            observer.next(contents);
+            observer.complete();
+          },
+          error: (error) => {
+            console.error('Error al obtener la lista de contenidos:', error);
+            observer.error(error);
+            observer.complete();
+          }
+        });
+    });
+  }
+
 }
