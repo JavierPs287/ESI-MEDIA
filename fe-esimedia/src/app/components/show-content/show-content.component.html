@@ -12,11 +12,11 @@
   <mat-card *ngFor="let content of contents" class="content-card" [class.vip-content]="content.vip">
     <div class="thumbnail-container">
       <img mat-card-image [src]="getImageUrl(content.imageId)" [alt]="content.title">
-      <span class="duration" *ngIf="content.duration">{{ formatDuration(content.duration) }}</span>
+      <div class="duration" *ngIf="content.duration">{{ formatDuration(content.duration) }}</div>
       <span class="vip-badge" *ngIf="content.vip">
         <mat-icon>stars</mat-icon> VIP
       </span>
-      <span class="age-badge" *ngIf="content.minAge && content.minAge > 0">
+      <span class="age-badge" *ngIf="content.minAge && content.minAge > 4">
         +{{ content.minAge }}
       </span>
     </div>
@@ -25,19 +25,19 @@
       <p class="content-creator">{{ content.creador }}</p>
       
       <div class="content-stats">
-        <span class="rating" *ngIf="content.rating">
+        <div class="rating">
           <mat-icon class="star-icon">star</mat-icon>
-          {{ content.rating }}
-        </span>
-        <span class="views" *ngIf="content.views">
-          <mat-icon class="view-icon">visibility</mat-icon>
-          {{ content.views | number }} vistas
-        </span>
+          {{ content.rating ?? 0 }}
+        </div>
+        <div class="views">
+          <mat-icon class="view-icon">play_arrow</mat-icon>
+          {{ (content.views ?? 0) | number }} plays
+        </div>
       </div>
 
       <div class="content-tags" *ngIf="content.tags && content.tags.length > 0">
         <mat-chip-set>
-          <mat-chip *ngFor="let tag of content.tags.slice(0, 3)">{{ tag }}</mat-chip>
+          <mat-chip *ngFor="let tag of content.tags">{{ tag }}</mat-chip>
         </mat-chip-set>
       </div>
 
