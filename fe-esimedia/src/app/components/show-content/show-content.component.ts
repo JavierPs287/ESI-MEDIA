@@ -38,12 +38,10 @@ export class ShowContentComponent implements OnInit {
     this.contentService.listContents(defaultFilters).subscribe({
       next: (contents) => {
         this.contents = contents;
-        console.log('Contenidos cargados:', this.contents);
         this.isLoading = false;
       },
 
       error: (error) => {
-        alert('Error al cargar contenidos');
         this.errorMessage = 'Error al cargar los contenidos. Por favor, intenta de nuevo.';
         this.isLoading = false;
       }

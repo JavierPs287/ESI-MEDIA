@@ -1,11 +1,9 @@
 <div *ngIf="isLoading" class="loading-container">
-  <mat-icon>refresh</mat-icon>
-  <p>Cargando contenidos...</p>
+  <p><mat-icon>refresh</mat-icon> Cargando contenidos...</p>
 </div>
 
 <div *ngIf="errorMessage" class="error-container">
-  <mat-icon>error</mat-icon>
-  <p>{{ errorMessage }}</p>
+  <p> <mat-icon>error</mat-icon> {{ errorMessage }} </p>
 </div>
 
 <div class="content-grid" *ngIf="!isLoading && !errorMessage">
@@ -49,6 +47,5 @@
 </div>
 
 <div *ngIf="!isLoading && !errorMessage && contents.length === 0" class="no-content">
-  <mat-icon>video_library</mat-icon>
-  <p>No hay contenidos disponibles</p>
+  <p> <mat-icon>video_library</mat-icon> No hay contenidos disponibles</p>
 </div>

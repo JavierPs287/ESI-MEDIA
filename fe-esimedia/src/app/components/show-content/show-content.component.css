@@ -1,3 +1,14 @@
+.loading-container {
+  color: var(--gris);
+  font-size: 18px;
+  text-align: center;
+}
+
+.error-container {
+  color: var(--rojo);
+  font-size: 18px;
+  text-align: center;
+}
 .content-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -157,3 +168,4 @@
 .no-content p {
   font-size: 18px;
 }
+

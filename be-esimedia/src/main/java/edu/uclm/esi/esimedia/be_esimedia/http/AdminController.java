@@ -30,7 +30,6 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    // Manda la contraseña mal y la foto en null
     @PostMapping("/registerAdmin")
     public ResponseEntity<String> registerAdmin(@RequestBody AdminDTO adminDTO){
         try {

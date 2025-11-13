@@ -40,6 +40,10 @@ export const routes: Routes = [
         component: MainMenuCreatorComponent,
         children: [
             {
+                path: '',
+                component: ShowContentComponent
+            },
+            {
                 path: 'uploadContent/audio',
                 component: UploadAudioComponent
             },

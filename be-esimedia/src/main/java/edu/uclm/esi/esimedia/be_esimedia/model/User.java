@@ -17,7 +17,7 @@ public class User {
     private String password;
     private int imageId = 0;
     private boolean blocked = false;
-    private boolean active = true;
+    private boolean active = true; 
 
     // Constructor vacío requerido por MongoDB
     public User() {
