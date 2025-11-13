@@ -22,8 +22,10 @@ public class EmailService {
         message.setTo(user.getEmail());
         message.setFrom("esimedia2025iso@gmail.com");
         message.setSubject("Cambio de contraseña");
-        message.setText("\t\t----RESTABLECER CONTRASEÑA----\n \n" +
-                        "Hola " + user.getName() + ",\n\n" +
+        message.setText("""
+                        \t\t----RESTABLECER CONTRASEÑA----
+                         
+                        Hola """ + user.getName() + ",\n\n" +
                         "Has solicitado un cambio de contraseña. Utiliza el siguiente enlace para restablecer tu contraseña:\n\n" +
                         resetUrl + "\n\n" +
                         "Si no has solicitado este cambio, ignora este correo.\n\n" +

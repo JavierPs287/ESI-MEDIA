@@ -2,6 +2,7 @@ package edu.uclm.esi.esimedia.be_esimedia.http;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,16 @@ public class PasswordResetController {
             return ResponseEntity.ok("Si el correo existe en nuestro sistema, recibirás instrucciones para restablecer tu contraseña.");
         } catch (Exception e) {
             return ResponseEntity.ok("Si el correo existe en nuestro sistema, recibirás instrucciones para restablecer tu contraseña.");
+        }
+    }
+
+    @GetMapping("/resetPassword/validate")
+    public ResponseEntity<String> validateToken(@RequestParam String token) {
+        try {
+            tokenService.validatePasswordResetToken(token);
+            return ResponseEntity.ok("Token válido");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Token inválido o expirado: " + e.getMessage());
         }
     }
 
