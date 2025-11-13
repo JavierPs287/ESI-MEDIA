@@ -27,7 +27,7 @@ import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 @Service
 public class AudioService {
 
-    private static final String[] ALLOWED_FORMATS = { "mp3", "wav", "ogg", "m4a" };
+    private static final String[] AUDIO_ALLOWED_FORMATS = { "mp3", "aac" }; // Arrays constantes no van bien en otra clase (Constants)
 
     private final Logger logger = LoggerFactory.getLogger(AudioService.class);
 
@@ -130,15 +130,11 @@ public class AudioService {
         MultipartFile file = audioDTO.getFile();
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
-        if (!validateService.isFileSizeValid(file.getSize(), AUDIO_MAX_FILE_SIZE)) {
-            logger.warn("Archivo excede el tamaño máximo permitido: {} bytes (máximo: {} MB)", 
-                file.getSize(), AUDIO_MAX_FILE_SIZE / (1024 * 1024));
-            throw new AudioUploadException("El tamaño del archivo excede el límite permitido");
-        }
-
-        if (!validateService.isFileFormatAllowed(fileExtension, ALLOWED_FORMATS)) {
-            logger.warn("Formato de archivo no válido: {}", fileExtension);
-            throw new AudioUploadException("Formato de archivo no válido");
+        // Validación completa: tamaño + extensión + MIME type + firma
+        if (!validateService.isAudioFileValid(file, fileExtension, AUDIO_ALLOWED_FORMATS, AUDIO_MAX_FILE_SIZE)) {
+            logger.warn("Archivo inválido: extensión '{}', MIME '{}', tamaño {} bytes", 
+                       fileExtension, file.getContentType(), file.getSize());
+            throw new AudioUploadException("Archivo inválido: formato no permitido o tamaño excedido");
         }
 
         if (!validateService.isVisibilityDeadlineValid(audioDTO.getVisibilityChangeDate(),

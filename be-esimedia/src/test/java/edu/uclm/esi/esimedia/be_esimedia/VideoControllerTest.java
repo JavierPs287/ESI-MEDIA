@@ -8,20 +8,34 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import edu.uclm.esi.esimedia.be_esimedia.config.SecurityConfig;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.http.VideoController;
+import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
 import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
 
-@WebMvcTest(VideoController.class)
+@WebMvcTest(
+    controllers = VideoController.class,
+    excludeFilters = @ComponentScan.Filter(
+        type = FilterType.ASSIGNABLE_TYPE, 
+        classes = {SecurityConfig.class, JwtAuthenticationFilter.class}
+    )
+)
+@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("VideoController Tests")
 class VideoControllerTest {
 
@@ -57,18 +71,20 @@ class VideoControllerTest {
 
         // Act & Assert
         mockMvc.perform(multipart("/creador/uploadVideo")
-            .param("title", validVideoDTO.getTitle())
-            .param("description", validVideoDTO.getDescription())
-            .param("tags", validVideoDTO.getTags())
-            .param("duration", String.valueOf(validVideoDTO.getDuration()))
-            .param("vip", String.valueOf(validVideoDTO.isVip()))
-            .param("visible", String.valueOf(validVideoDTO.isVisible()))
-            .param("minAge", String.valueOf(validVideoDTO.getMinAge()))
-            .param("creador", validVideoDTO.getCreador())
-            .param("url", validVideoDTO.getUrl())
-            .param("resolution", String.valueOf(validVideoDTO.getResolution())))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.message").value("Vídeo subido exitosamente"));
+                .param("title", validVideoDTO.getTitle())
+                .param("description", validVideoDTO.getDescription())
+                .param("tags", validVideoDTO.getTags()[0], validVideoDTO.getTags()[1])
+                .param("duration", String.valueOf(validVideoDTO.getDuration()))
+                .param("vip", String.valueOf(validVideoDTO.isVip()))
+                .param("visible", String.valueOf(validVideoDTO.isVisible()))
+                .param("minAge", String.valueOf(validVideoDTO.getMinAge()))
+                .param("creador", validVideoDTO.getCreador())
+                .param("url", validVideoDTO.getUrl())
+                .param("resolution", String.valueOf(validVideoDTO.getResolution())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Vídeo subido exitosamente"));
+
+        verify(videoService, times(1)).uploadVideo(any(VideoDTO.class));
     }
 
     @Test
