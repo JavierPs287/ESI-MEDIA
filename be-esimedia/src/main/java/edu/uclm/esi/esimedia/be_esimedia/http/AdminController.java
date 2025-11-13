@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 
 import java.util.Map;
@@ -75,4 +76,19 @@ public class AdminController {
         }
     }
 
+    // -Modify  "Usuario" information (name, surname, etc.) - Admin only
+    @PatchMapping("/users/{email}")
+    public ResponseEntity<Object> modifyUsuarioInfo(@PathVariable String email, @RequestBody UsuarioDTO usuarioDTO) {
+        try {
+            adminService.modifyUsuarioInfo(email, usuarioDTO);
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_KEY, "Usuario no encontrado"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "Error interno"));
+        }
+    }
+    
 }

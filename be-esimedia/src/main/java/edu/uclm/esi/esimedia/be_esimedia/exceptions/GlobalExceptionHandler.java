@@ -5,15 +5,23 @@ import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import edu.uclm.esi.esimedia.be_esimedia.repository.LogRepository;
+import edu.uclm.esi.esimedia.be_esimedia.services.LogComponent;
+
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ERROR_KEY;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @Autowired
+    private LogComponent logComponent;
+    // CAMBIAR LOGS POR LOGCOMPONENT TO BE DONE
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 

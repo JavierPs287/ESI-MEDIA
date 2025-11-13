@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
@@ -135,4 +136,17 @@ public class AdminService {
         user.setBloqueado(blocked);
         usuarioRepository.save(user);
     }
+
+    public void modifyUsuarioInfo(String email, UsuarioDTO usuarioDTO) {
+        Usuario usuario = usuarioRepository.findByEmail(email);
+        if (usuario == null) {
+            throw new NoSuchElementException("Usuario no encontrado");
+        }
+
+        // Comprobar si los campos no son nulos y validarlos
+        // TBI -> Preguntar
+
+        usuarioRepository.save(usuario);
+    }
+
 }
