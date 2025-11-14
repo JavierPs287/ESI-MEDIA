@@ -23,6 +23,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
 
 @Service
 public class AudioService {
@@ -81,8 +82,9 @@ public class AudioService {
             throw new AudioUploadException();
         }
 
-        // Asignar tipo de contenido
+        // Asignar tipo de contenido y urlId
         contenido.setType(AUDIO_TYPE);
+        contenido.setUrlId(UrlGenerator.generateUrlId());
 
         // Alta en MongoDB
         try {

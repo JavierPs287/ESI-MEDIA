@@ -23,6 +23,9 @@ public final class Constants {
     // Contenido
     public static final String AUDIO_TYPE = "AUDIO";
     public static final String VIDEO_TYPE = "VIDEO";
+    public static final String URLID_ALPHABET = 
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"; 
+    public static final int URLID_LENGTH = 11;
 
     // Audio
     public static final String AUDIO_UPLOAD_DIR = "src/main/resources/audios/";

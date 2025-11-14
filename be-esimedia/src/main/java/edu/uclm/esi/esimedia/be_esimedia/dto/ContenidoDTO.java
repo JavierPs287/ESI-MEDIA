@@ -19,6 +19,7 @@ public class ContenidoDTO {
     private String creador; // No es campo rellenable, se pone el alias de creador al crear el contenido
     private double rating; // No es campo rellenable, se calcula a partir de las valoraciones de los usuarios
     private int views; // No es campo rellenable, se incrementa al visualizar el contenido
+    private String urlId = ""; // ID para la URL pública
 
     public ContenidoDTO() { /* Constructor vacío (para @ModelAttribute) */ }
 
@@ -40,6 +41,7 @@ public class ContenidoDTO {
         this.setCreador(contenido.getCreador());
         this.setRating(contenido.getRating());
         this.setViews(contenido.getViews());
+        this.setUrlId(contenido.getUrlId());
     }
 
     // Getters and Setters
@@ -145,5 +147,13 @@ public class ContenidoDTO {
 
     public void setViews(int views) {
         this.views = views;
+    }
+
+    public String getUrlId() {
+        return urlId;
+    }
+
+    public void setUrlId(String urlId) {
+        this.urlId = urlId;
     }
 }
