@@ -1,27 +1,27 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
 public class UserDTO {
-    private String nombre;
-    private String apellidos;
+    private String name;
+    private String lastName;
     private String email;
-    private String contrasena;
-    private int foto;
-    private boolean bloqueado;
-    private boolean activo;
+    private String password;
+    private int imageId;
+    private boolean blocked;
+    private boolean active;
 
     // Getters and Setters
-    public String getNombre() {
-        return nombre;
+    public String getName() {
+        return name;
     }
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getApellidos() {
-        return apellidos;
+    public String getLastName() {
+        return lastName;
     }
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -31,33 +31,33 @@ public class UserDTO {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public String getPassword() {
+        return password;
     }
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
-    }
-
-    public int getFoto() {
-        return foto;
-    }
-    public void setFoto(int foto) {
-        this.foto = foto;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public boolean isBloqueado() {
-        return bloqueado;
+    public int getImageId() {
+        return imageId;
+    }
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
     }
 
-    public void setBloqueado(boolean bloqueado) {
-        this.bloqueado = bloqueado;
+    public boolean isBlocked() {
+        return blocked;
     }
 
-    public boolean isActivo() {
-        return activo;
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 
-    public void setActivo(boolean activo) {
-        this.activo = activo;
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

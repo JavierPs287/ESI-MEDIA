@@ -13,12 +13,15 @@ public class Admin {
 
     private String department;
 
+    public Admin() {
+    }
+
     public Admin(AdminDTO dto) {
         initializeFromDTO(dto);
     }
 
     private void initializeFromDTO(AdminDTO dto) {
-        this.setDepartment(dto.getDepartamento());
+        this.setDepartment(dto.getDepartment());
     }
 
     // Getters and Setters

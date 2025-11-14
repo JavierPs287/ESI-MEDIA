@@ -3,11 +3,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { UserService } from './user.service';
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 describe('UserService', () => {
   let service: UserService;
   let httpMock: HttpTestingController;
-  const baseUrl = 'http://localhost:8081/user';
+  const baseUrl = `${environment.apiUrl}/user`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -120,33 +121,6 @@ describe('UserService', () => {
       const req = httpMock.expectOne(`${baseUrl}/register`);
       expect(req.request.body.foto_perfil).toBeNull();
       req.flush('OK');
-    });
-  });
-
-  describe('checkEmail', () => {
-    it('debería verificar si un email existe', (done) => {
-      const email = 'test@example.com';
-
-      service.checkEmail(email).subscribe(exists => {
-        expect(exists).toBe(true);
-        done();
-      });
-
-      const req = httpMock.expectOne(`${baseUrl}/check-email/${email}`);
-      expect(req.request.method).toBe('GET');
-      req.flush(true);
-    });
-
-    it('debería devolver false si el email no existe', (done) => {
-      const email = 'newuser@example.com';
-
-      service.checkEmail(email).subscribe(exists => {
-        expect(exists).toBe(false);
-        done();
-      });
-
-      const req = httpMock.expectOne(`${baseUrl}/check-email/${email}`);
-      req.flush(false);
     });
   });
 

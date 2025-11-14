@@ -1,5 +1,5 @@
 import { FormControl, FormGroup } from '@angular/forms';
-import { passwordStrengthValidator, passwordMatchValidator } from './custom-validators';
+import { passwordStrengthValidator, passwordMatchValidator } from './register-functions';
 
 describe('Custom Validators', () => {
   

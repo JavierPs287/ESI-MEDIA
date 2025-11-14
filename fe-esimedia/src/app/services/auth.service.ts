@@ -4,25 +4,53 @@ import { BehaviorSubject, Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly authenticated$ = new BehaviorSubject<boolean>(this.hasToken());
+  private readonly userRole$ = new BehaviorSubject<string | null>(null);
+  private readonly userId$ = new BehaviorSubject<string | null>(null);
+  private readonly initialized$ = new BehaviorSubject<boolean>(false);
 
-  private hasToken(): boolean {
+  hasToken(): boolean {
+    // Verificar si existe la cookie esi_token
     try {
-      return !!localStorage.getItem('esi_token');
+      return document.cookie.split(';').some(cookie => cookie.trim().startsWith('esi_token='));
     } catch {
       return false;
     }
+  }
+
+  isInitialized(): Observable<boolean> {
+    return this.initialized$.asObservable();
+  }
+
+  markAsInitialized(): void {
+    this.initialized$.next(true);
   }
 
   isAuthenticated(): Observable<boolean> {
     return this.authenticated$.asObservable();
   }
 
-  setAuthenticated(value: boolean): void {
+  setAuthenticated(value: boolean, role?: string, userId?: string): void {
     this.authenticated$.next(value);
+    if (role) {
+      this.userRole$.next(role);
+    }
+    if (userId) {
+      this.userId$.next(userId);
+    }
+  }
+
+  getUserRole(): Observable<string | null> {
+    return this.userRole$.asObservable();
+  }
+
+  getUserId(): Observable<string | null> {
+    return this.userId$.asObservable();
   }
 
   logout(): void {
-    try { localStorage.removeItem('esi_token'); } catch {}
     this.setAuthenticated(false);
+    this.userRole$.next(null);
+    this.userId$.next(null);
   }
 }
+

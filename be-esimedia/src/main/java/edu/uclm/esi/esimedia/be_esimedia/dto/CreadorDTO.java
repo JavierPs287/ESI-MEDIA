@@ -1,10 +1,11 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
 public class CreadorDTO extends UserDTO {
+    
     private String alias;
-    private String descripcion;
-    private String campo;
-    private String tipo;
+    private String description;
+    private String field;
+    private String type;
 
     // Getters and Setters
     public String getAlias() {
@@ -15,27 +16,27 @@ public class CreadorDTO extends UserDTO {
         this.alias = alias;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public String getDescription() {
+        return description;
     }
     
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getCampo() {
-        return campo;
+    public String getField() {
+        return field;
     }
 
-    public void setCampo(String campo) {
-        this.campo = campo;
+    public void setField(String field) {
+        this.field = field;
     }
 
-    public String getTipo() {
-        return tipo;
+    public String getType() {
+        return type;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setType(String type) {
+        this.type = type;
     }
 }

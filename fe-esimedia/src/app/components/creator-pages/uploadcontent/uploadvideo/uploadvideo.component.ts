@@ -83,7 +83,7 @@ export class UploadVideoComponent implements OnInit {
 
     this.contentService.uploadVideo(formData).subscribe({
       next: (response) => {
-        alert(`Éxito: ${response.message}\nID del vídeo: ${response.videoId}`);
+        alert('Éxito al subir el video');
         this.resetForm();
       },
       error: (error) => {

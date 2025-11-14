@@ -1,18 +1,20 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.VideoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
 
 @Service
 public class VideoService {
@@ -38,7 +40,7 @@ public class VideoService {
             throw new VideoUploadException();
         }
         
-        videoDTO.setVisibilityChangeDate(new Date());
+        videoDTO.setVisibilityChangeDate(Instant.now());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
         if (videoDTO.getCreador() == null || videoDTO.getCreador().isEmpty()) {
@@ -52,6 +54,12 @@ public class VideoService {
         // Crear objetos Contenido y Video
         Contenido contenido = new Contenido(videoDTO);
         Video video = new Video(videoDTO);
+
+        // Asignar tipo de contenido y urlId
+        contenido.setType(VIDEO_TYPE);
+        do { 
+            contenido.setUrlId(UrlGenerator.generateUrlId());
+        } while (contenidoRepository.existsByUrlId(contenido.getUrlId())); // Asegurarse que es único
 
         // Alta en MongoDB
         try {

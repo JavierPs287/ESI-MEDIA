@@ -16,15 +16,18 @@ public class Creador {
     private String field;
     private String type;
 
+    public Creador() {
+    }
+
     public Creador(CreadorDTO dto) {
         initializeFromDTO(dto);
     }
 
     private void initializeFromDTO(CreadorDTO dto) {
         this.setAlias(dto.getAlias());
-        this.setDescription(dto.getDescripcion());
-        this.setField(dto.getCampo());
-        this.setType(dto.getTipo());
+        this.setDescription(dto.getDescription());
+        this.setField(dto.getField());
+        this.setType(dto.getType());
     }
 
     // Getters and Setters
