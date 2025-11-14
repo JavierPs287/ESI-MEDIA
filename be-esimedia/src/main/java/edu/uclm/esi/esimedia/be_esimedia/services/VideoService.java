@@ -57,7 +57,9 @@ public class VideoService {
 
         // Asignar tipo de contenido y urlId
         contenido.setType(VIDEO_TYPE);
-        contenido.setUrlId(UrlGenerator.generateUrlId());
+        do { 
+            contenido.setUrlId(UrlGenerator.generateUrlId());
+        } while (contenidoRepository.existsByUrlId(contenido.getUrlId())); // Asegurarse que es único
 
         // Alta en MongoDB
         try {

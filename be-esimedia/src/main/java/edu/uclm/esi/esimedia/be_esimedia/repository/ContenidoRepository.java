@@ -11,4 +11,6 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 public interface ContenidoRepository extends MongoRepository<Contenido, String> {
     @Override
     List<Contenido> findAll();
+
+    boolean existsByUrlId(String urlId);
 }
