@@ -186,7 +186,7 @@ public class ValidateService {
             return false;
         }
 
-        // 5. Escanear todo el archivo en busca de firmas peligrosas
+        // 5. Escanear el archivo en busca de firmas peligrosas
         if (containsExecutableSignature(file)) {
             logger.error("AMENAZA DETECTADA: Archivo contiene firma de ejecutable embebido");
             return false;
@@ -195,7 +195,7 @@ public class ValidateService {
         return true;
     }
 
-    // Escanea todo el archivo buscando firmas de ejecutables embebidos
+    // Escanea el archivo buscando firmas de ejecutables embebidos
     // Esto detecta polyglots y archivos concatenados
     private static boolean containsExecutableSignature(MultipartFile file) {
         try (InputStream is = file.getInputStream()) {
@@ -208,9 +208,10 @@ public class ValidateService {
                 for (byte[] signature : EXECUTABLE_SIGNATURES) {
                     for (int i = 0; i <= bytesRead - signature.length; i++) {
                         if (matchesSignatureAt(buffer, i, signature)) {
+                            String hexSignature = bytesToHex(signature);
                             logger.error("Firma ejecutable encontrada en offset {}: {}", 
                                        totalRead + i, 
-                                       bytesToHex(signature));
+                                       hexSignature);
                             return true;
                         }
                     }

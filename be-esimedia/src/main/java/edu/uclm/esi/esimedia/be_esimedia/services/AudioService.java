@@ -96,7 +96,6 @@ public class AudioService {
         }
     }
 
-    // Método generado
     private static String getFileExtension(String fileName) {
         if (fileName == null || fileName.lastIndexOf('.') == -1) {
             return "";
@@ -104,7 +103,8 @@ public class AudioService {
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
-    private static String saveFile(MultipartFile file, String fileName) throws IOException {
+    // Public para permitir mockearlo en pruebas unitarias
+    public String saveFile(MultipartFile file, String fileName) throws IOException {
         try {
             Path uploadPath = Path.of(AUDIO_UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {

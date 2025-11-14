@@ -9,14 +9,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
@@ -47,7 +51,10 @@ class AudioServiceTest {
     private MockMultipartFile validAudioFile;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
+        // Crear una instancia real del servicio con mocks inyectados
+        audioService = org.mockito.Mockito.spy(new AudioService(validateService, audioRepository, contenidoRepository));
+        
         validAudioDTO = new AudioDTO();
         validAudioDTO.setTitle("Test Audio");
         validAudioDTO.setDescription("Test Description");
@@ -66,6 +73,12 @@ class AudioServiceTest {
             "test audio content".getBytes()
         );
         validAudioDTO.setFile(validAudioFile);
+
+        // Mockear saveFile para que no guarde archivos realmente
+        // Usar lenient() para evitar UnnecessaryStubbingException en tests que no llegan a ejecutar saveFile
+        lenient().doReturn("src/main/resources/audios/mock-path.mp3")
+            .when(audioService)
+            .saveFile(any(MultipartFile.class), anyString());
     }
 
     @Test
@@ -73,8 +86,7 @@ class AudioServiceTest {
     void testUploadAudioSuccess() {
         // Arrange
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
         Contenido savedContenido = new Contenido();
@@ -90,8 +102,7 @@ class AudioServiceTest {
 
         // Assert
         verify(validateService, times(1)).areAudioRequiredFieldsValid(any(AudioDTO.class));
-        verify(validateService, times(1)).isFileSizeValid(any(Long.class), any(Long.class));
-        verify(validateService, times(1)).isFileFormatAllowed(any(String.class), any(String[].class));
+        verify(validateService, times(1)).isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong());
         verify(validateService, times(1)).isVisibilityDeadlineValid(any(), any());
         verify(contenidoRepository, times(1)).save(any(Contenido.class));
         verify(audioRepository, times(1)).save(any(Audio.class));
@@ -128,11 +139,11 @@ class AudioServiceTest {
     }
 
     @Test
-    @DisplayName("Debe lanzar AudioUploadException cuando el tamaño del archivo es inválido")
-    void testUploadAudioWithInvalidFileSize() {
+    @DisplayName("Debe lanzar AudioUploadException cuando el archivo es inválido")
+    void testUploadAudioWithInvalidFile() {
         // Arrange
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(false);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(false);
 
         // Act & Assert
         AudioUploadException exception = assertThrows(
@@ -140,7 +151,7 @@ class AudioServiceTest {
             () -> audioService.uploadAudio(validAudioDTO)
         );
 
-        assertEquals("El tamaño del archivo excede el límite permitido", exception.getMessage());
+        assertEquals("Archivo inválido: formato no permitido o tamaño excedido", exception.getMessage());
         verify(contenidoRepository, never()).save(any(Contenido.class));
         verify(audioRepository, never()).save(any(Audio.class));
     }
@@ -158,8 +169,7 @@ class AudioServiceTest {
         validAudioDTO.setFile(invalidFormatFile);
 
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(false);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(false);
 
         // Act & Assert
         AudioUploadException exception = assertThrows(
@@ -167,7 +177,7 @@ class AudioServiceTest {
             () -> audioService.uploadAudio(validAudioDTO)
         );
 
-        assertEquals("Formato de archivo no válido", exception.getMessage());
+        assertEquals("Archivo inválido: formato no permitido o tamaño excedido", exception.getMessage());
         verify(contenidoRepository, never()).save(any(Contenido.class));
         verify(audioRepository, never()).save(any(Audio.class));
     }
@@ -177,8 +187,7 @@ class AudioServiceTest {
     void testUploadAudioWithInvalidVisibilityDeadline() {
         // Arrange
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(false);
 
         // Act & Assert
@@ -197,8 +206,7 @@ class AudioServiceTest {
     void testUploadAudioCallsRepositoriesOnce() {
         // Arrange
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
         Contenido savedContenido = new Contenido();
@@ -222,8 +230,7 @@ class AudioServiceTest {
     void testUploadAudioCreatesCorrectObjects() {
         // Arrange
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
         Contenido savedContenido = new Contenido();
@@ -257,8 +264,7 @@ class AudioServiceTest {
         // Arrange
         validAudioDTO.setVisibilityChangeDate(null);
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
         Contenido savedContenido = new Contenido();
@@ -282,8 +288,7 @@ class AudioServiceTest {
         // Arrange
         validAudioDTO.setCreador(null);
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
         Contenido savedContenido = new Contenido();
@@ -310,8 +315,7 @@ class AudioServiceTest {
     void testUploadAudioThrowsExceptionOnDatabaseError() {
         // Arrange
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         when(contenidoRepository.save(any(Contenido.class)))
             .thenThrow(new IllegalArgumentException("Error de base de datos"));
@@ -339,8 +343,7 @@ class AudioServiceTest {
         validAudioDTO.setFile(largeFile);
 
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
         Contenido savedContenido = new Contenido();
@@ -361,15 +364,14 @@ class AudioServiceTest {
     }
 
     @Test
-    @DisplayName("Debe aceptar diferentes formatos de audio válidos")
-    void testUploadAudioAcceptsDifferentValidFormats() {
+    @DisplayName("Debe aceptar formatos de audio permitidos (mp3, aac)")
+    void testUploadAudioAcceptsAllowedFormats() {
         // Arrange
-        String[] validFormats = {"mp3", "wav", "ogg", "m4a"};
-        String[] mimeTypes = {"audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4"};
+        String[] allowedFormats = {"mp3", "aac"};
+        String[] mimeTypes = {"audio/mpeg", "audio/aac"};
 
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
 
         Contenido savedContenido = new Contenido();
@@ -377,10 +379,10 @@ class AudioServiceTest {
         when(contenidoRepository.save(any(Contenido.class))).thenReturn(savedContenido);
         when(audioRepository.save(any(Audio.class))).thenReturn(new Audio());
 
-        for (int i = 0; i < validFormats.length; i++) {
+        for (int i = 0; i < allowedFormats.length; i++) {
             MockMultipartFile audioFile = new MockMultipartFile(
                 "file",
-                "test-audio." + validFormats[i],
+                "test-audio." + allowedFormats[i],
                 mimeTypes[i],
                 "test content".getBytes()
             );
@@ -391,7 +393,7 @@ class AudioServiceTest {
         }
 
         // Assert
-        verify(audioRepository, times(validFormats.length)).save(any(Audio.class));
+        verify(audioRepository, times(allowedFormats.length)).save(any(Audio.class));
     }
 
     @Test
@@ -399,8 +401,7 @@ class AudioServiceTest {
     void testUploadAudioExtractsFileExtensionCorrectly() {
         // Arrange
         when(validateService.areAudioRequiredFieldsValid(any(AudioDTO.class))).thenReturn(true);
-        when(validateService.isFileSizeValid(any(Long.class), any(Long.class))).thenReturn(true);
-        when(validateService.isFileFormatAllowed(any(String.class), any(String[].class))).thenReturn(true);
+        when(validateService.isAudioFileValid(any(MultipartFile.class), anyString(), any(String[].class), anyLong())).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
         Contenido savedContenido = new Contenido();
