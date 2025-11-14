@@ -1,6 +1,7 @@
 package edu.uclm.esi.esimedia.be_esimedia.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -13,4 +14,6 @@ public interface ContenidoRepository extends MongoRepository<Contenido, String> 
     List<Contenido> findAll();
 
     boolean existsByUrlId(String urlId);
+
+    Optional<Contenido> findByUrlId(String urlId);
 }

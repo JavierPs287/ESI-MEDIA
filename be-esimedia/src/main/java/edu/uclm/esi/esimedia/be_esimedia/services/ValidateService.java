@@ -253,7 +253,7 @@ public class ValidateService {
     }
 
     // Valida el MIME type contra la lista blanca y la extensión
-    private static boolean isAudioMimeTypeValid(String contentType, String extension) {
+    public boolean isAudioMimeTypeValid(String contentType, String extension) {
         if (contentType == null || extension == null) {
             return false;
         }
