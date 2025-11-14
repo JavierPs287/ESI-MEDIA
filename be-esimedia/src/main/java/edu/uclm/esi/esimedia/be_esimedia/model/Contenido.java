@@ -27,6 +27,7 @@ public class Contenido {
     private String creador;
     private double rating;
     private int views;
+    private String urlId; // ID para la URL pública
 
     public Contenido() { /* Constructor vacío requerido por Spring Data */ }
 
@@ -48,6 +49,7 @@ public class Contenido {
         this.setCreador(dto.getCreador());
         this.setRating(dto.getRating());
         this.setViews(dto.getViews());
+        this.setUrlId(dto.getUrlId());
     }
 
     // Getters and Setters
@@ -169,5 +171,13 @@ public class Contenido {
 
     public void setViews(int views) {
         this.views = views;
+    }
+
+    public String getUrlId() {
+        return urlId;
+    }
+
+    public void setUrlId(String urlId) {
+        this.urlId = urlId;
     }
 }
