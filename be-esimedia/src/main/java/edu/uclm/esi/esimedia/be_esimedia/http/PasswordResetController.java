@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
 import edu.uclm.esi.esimedia.be_esimedia.model.ResetPasswordToken;
 import edu.uclm.esi.esimedia.be_esimedia.repository.TokenRepository;
 import edu.uclm.esi.esimedia.be_esimedia.services.EmailService;
@@ -31,12 +33,8 @@ public class PasswordResetController {
 
     @PostMapping("/forgotPassword")
     public ResponseEntity<String> forgotPassword(@RequestParam String email) {
-        try{
-            userService.startPasswordReset(email, tokenService, emailService, tokenRepository);
-            return ResponseEntity.ok("Si el correo existe en nuestro sistema, recibirás instrucciones para restablecer tu contraseña.");
-        } catch (Exception e) {
-            return ResponseEntity.ok("Si el correo existe en nuestro sistema, recibirás instrucciones para restablecer tu contraseña.");
-        }
+        userService.startPasswordReset(email, tokenService, emailService, tokenRepository);
+        return ResponseEntity.ok("Si el correo existe en nuestro sistema, recibirás instrucciones para restablecer tu contraseña.");
     }
 
     @GetMapping("/resetPassword/validate")
@@ -44,7 +42,7 @@ public class PasswordResetController {
         try {
             tokenService.validatePasswordResetToken(token);
             return ResponseEntity.ok("Token válido");
-        } catch (Exception e) {
+        } catch (InvalidTokenException e) {
             return ResponseEntity.badRequest().body("Token inválido o expirado: " + e.getMessage());
         }
     }
@@ -54,7 +52,7 @@ public class PasswordResetController {
         try {
             userService.resetPassword(request.getToken(), request.getNewPassword(), tokenService);
             return ResponseEntity.ok("Contraseña cambiada correctamente.");
-        } catch (Exception e) {
+        } catch (InvalidTokenException e) {
             return ResponseEntity.badRequest().body("Error al restablecer la contraseña: " + e.getMessage());
         }
     }

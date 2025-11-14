@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ForgotPasswordTokenDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidPasswordException;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
 import edu.uclm.esi.esimedia.be_esimedia.model.ForgotPasswordToken;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.repository.TokenRepository;
@@ -52,26 +54,28 @@ public class UserService {
         emailService.sendPasswordResetEmail(user, token);
     }
 
-    public void resetPassword(String token, String newPassword, TokenService tokenService) throws Exception {
+    public void resetPassword(String token, String newPassword, TokenService tokenService) throws InvalidTokenException {
         // Primero validamos el JWT
         tokenService.validatePasswordResetToken(token);
         
         // Luego buscamos el token en la base de datos
         ForgotPasswordToken resetToken = tokenRepository.findByToken(token);
         if (resetToken == null) {
-            throw new Exception("Token no encontrado en el sistema.");
+            throw new InvalidTokenException("Token no encontrado en el sistema.");
         }
         
         if (resetToken.isUsed()) {
-            throw new Exception("Este token ya ha sido utilizado.");
+            throw new InvalidTokenException("Este token ya ha sido utilizado.");
         }
         
         if (resetToken.getExpiry().isBefore(Instant.now())) {
-            throw new Exception("El token ha expirado.");
+            throw new InvalidTokenException("El token ha expirado.");
         }
 
         // Validamos la nueva contraseña
-        validateNewPassword(newPassword);
+        if (validateService.isRequiredFieldEmpty(newPassword, 1, 255) || !validateService.isPasswordSecure(newPassword)) {
+            throw new InvalidPasswordException("La contraseña no puede estar vacía");
+        }
 
         // Actualizamos la contraseña del usuario
         User user = resetToken.getUser();
@@ -80,16 +84,6 @@ public class UserService {
         userRepository.save(user);
         resetToken.setUsed(true);
         tokenRepository.save(resetToken);
-    }
-
-    public void validateNewPassword(String newPassword) throws Exception {
-        if (validateService.isRequiredFieldEmpty(newPassword, 1, 255)) {
-            throw new Exception("La contraseña no puede estar vacía");
-        }
-
-        if (!validateService.isPasswordSecure(newPassword)) {
-            throw new Exception("La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y caracteres especiales");
-        }
     }
     
 }

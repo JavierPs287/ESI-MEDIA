@@ -9,6 +9,10 @@ export class ResetPasswordService {
 
   constructor(private readonly http: HttpClient) { }
 
+  validateToken(token: string) {
+    return this.http.get(`${this.baseUrl}/validate?token=${token}`, { responseType: 'text' });
+  }
+
   setNewPassword(token: string, newPassword: string) {
     const body = {
       token: token,

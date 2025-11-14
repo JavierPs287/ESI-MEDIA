@@ -19,6 +19,7 @@ export class ForgotpasswordComponent {
     email: ['', [Validators.required, Validators.email]],
   });
   loginResponse: { message?: string; error?: string } | null = null;
+  isLoading = false;
 
   onSubmit(): void {
     console.log('Form submitted:', this.loginForm.value);
@@ -28,14 +29,18 @@ export class ForgotpasswordComponent {
     }
 
     const { email } = this.loginForm.value;
+    this.isLoading = true;
+    this.loginResponse = null;
     this.forgotPasswordService.sendPasswordResetEmail(email).subscribe({
       next: (response: string) => {
+        this.isLoading = false;
         this.loginResponse = {
           message: response,
           error: undefined
         };
       },
       error: (error) => {
+        this.isLoading = false;
         this.loginResponse = {
           message: undefined,
           error: error.error || 'Error al enviar el correo de recuperación'

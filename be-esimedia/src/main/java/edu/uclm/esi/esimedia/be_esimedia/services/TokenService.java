@@ -7,6 +7,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
+
 @Service
 public class TokenService {
     
@@ -29,15 +31,15 @@ public class TokenService {
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public void validatePasswordResetToken(String token) throws Exception {
+    public void validatePasswordResetToken(String token) throws InvalidTokenException {
         try {
             var jwt = jwtDecoder.decode(token);
             String purpose = jwt.getClaimAsString("purpose");
             if (!"passwordReset".equals(purpose)) {
-                throw new Exception("Token inválido para restablecimiento de contraseña.");
+                throw new InvalidTokenException("Token inválido para restablecimiento de contraseña.");
             }
-        } catch (Exception e) {
-            throw new Exception("Token inválido o expirado: " + e.getMessage());
+        } catch (InvalidTokenException e) {
+            throw new InvalidTokenException("Token inválido o expirado: " + e.getMessage());
         }
     }
 }

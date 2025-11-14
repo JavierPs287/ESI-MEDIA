@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ResetPasswordService } from '../../services/resetpassword.service';
 import { passwordStrengthValidator, passwordMatchValidator } from '../register/custom-validators';
 import { RegisterResponse } from '../../models/user.model';
@@ -17,10 +17,13 @@ export class ResetpasswordComponent implements OnInit {
   visiblePassword: boolean = false;
   registrationResponse: RegisterResponse | null = null;
   token: string | null = null;
+  isValidatingToken: boolean = true;
+  tokenValid: boolean = false;
 
   fb = inject(FormBuilder);
   resetPasswordService = inject(ResetPasswordService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   
   registerForm = this.fb.nonNullable.group({
     contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
@@ -31,11 +34,33 @@ export class ResetpasswordComponent implements OnInit {
     this.token = this.route.snapshot.queryParamMap.get('token');
     
     if (!this.token) {
-      this.registrationResponse = {
-        message: '',
-        error: 'Token no encontrado'
-      };
+      this.router.navigate(['/home']);
+      return;
     }
+
+    // Validar el token antes de mostrar el formulario
+    this.resetPasswordService.validateToken(this.token).subscribe({
+      next: (response) => {
+        this.isValidatingToken = false;
+        this.tokenValid = true;
+      },
+      error: (error) => {
+        this.isValidatingToken = false;
+        this.tokenValid = false;
+        
+        let errorMessage = 'Token inválido o expirado';
+        
+        this.registrationResponse = {
+          message: '',
+          error: errorMessage
+        };
+        
+        // Redirigir a home después de 5 segundos
+        setTimeout(() => {
+          this.router.navigate(['/home']);
+        }, 5000);
+      }
+    });
   }
 
   onSubmit(): void {
@@ -51,6 +76,11 @@ export class ResetpasswordComponent implements OnInit {
             error: ''
           };
           this.registerForm.reset();
+          
+          // Redirigir a home después de 2 segundos
+          setTimeout(() => {
+            this.router.navigate(['/home']);
+          }, 2000);
         },
         error: (error) => {
           console.error('Error completo:', error);
