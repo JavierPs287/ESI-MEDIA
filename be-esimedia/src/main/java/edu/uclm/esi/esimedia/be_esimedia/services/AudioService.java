@@ -23,11 +23,12 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
 
 @Service
 public class AudioService {
 
-    private static final String[] ALLOWED_FORMATS = { "mp3", "wav", "ogg", "m4a" };
+    private static final String[] AUDIO_ALLOWED_FORMATS = { "mp3", "aac" }; // Arrays constantes no van bien en otra clase (Constants)
 
     private final Logger logger = LoggerFactory.getLogger(AudioService.class);
 
@@ -81,8 +82,12 @@ public class AudioService {
             throw new AudioUploadException();
         }
 
-        // Asignar tipo de contenido
+        // Asignar tipo de contenido y urlId
         contenido.setType(AUDIO_TYPE);
+        do { 
+            contenido.setUrlId(UrlGenerator.generateUrlId());
+        } while (contenidoRepository.existsByUrlId(contenido.getUrlId())); // Asegurarse que es único
+        
 
         // Alta en MongoDB
         try {
@@ -96,7 +101,6 @@ public class AudioService {
         }
     }
 
-    // Método generado
     private static String getFileExtension(String fileName) {
         if (fileName == null || fileName.lastIndexOf('.') == -1) {
             return "";
@@ -104,7 +108,8 @@ public class AudioService {
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
-    private static String saveFile(MultipartFile file, String fileName) throws IOException {
+    // Public para permitir mockearlo en pruebas unitarias
+    public String saveFile(MultipartFile file, String fileName) throws IOException {
         try {
             Path uploadPath = Path.of(AUDIO_UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
@@ -130,15 +135,11 @@ public class AudioService {
         MultipartFile file = audioDTO.getFile();
         String fileExtension = getFileExtension(file.getOriginalFilename());
 
-        if (!validateService.isFileSizeValid(file.getSize(), AUDIO_MAX_FILE_SIZE)) {
-            logger.warn("Archivo excede el tamaño máximo permitido: {} bytes (máximo: {} MB)", 
-                file.getSize(), AUDIO_MAX_FILE_SIZE / (1024 * 1024));
-            throw new AudioUploadException("El tamaño del archivo excede el límite permitido");
-        }
-
-        if (!validateService.isFileFormatAllowed(fileExtension, ALLOWED_FORMATS)) {
-            logger.warn("Formato de archivo no válido: {}", fileExtension);
-            throw new AudioUploadException("Formato de archivo no válido");
+        // Validación completa: tamaño + extensión + MIME type + firma
+        if (!validateService.isAudioFileValid(file, fileExtension, AUDIO_ALLOWED_FORMATS, AUDIO_MAX_FILE_SIZE)) {
+            logger.warn("Archivo inválido: extensión '{}', MIME '{}', tamaño {} bytes", 
+                       fileExtension, file.getContentType(), file.getSize());
+            throw new AudioUploadException("Archivo inválido: formato no permitido o tamaño excedido");
         }
 
         if (!validateService.isVisibilityDeadlineValid(audioDTO.getVisibilityChangeDate(),

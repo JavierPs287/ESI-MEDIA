@@ -153,6 +153,7 @@ public class UserController {
                 .body(Map.of("message", "Logout exitoso"));
     }
 
+    // TODO llevar lógica a un servicio
     /**
      * Endpoint temporal para verificar el contenido del token JWT
      * @param token Token JWT a decodificar

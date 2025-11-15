@@ -12,6 +12,8 @@ import { UploadVideoComponent } from './components/creator-pages/uploadcontent/u
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
+import { ForgotpasswordComponent } from './components/forgotpassword/forgotpassword.component';
+import { ResetpasswordComponent } from './components/resetpassword/resetpassword.component';
 
 export const routes: Routes = [
 
@@ -77,5 +79,17 @@ export const routes: Routes = [
                 component: RegistercreatorComponent
             },
         ]
-    }
+    },
+    {
+        path: 'forgotpassword',
+        component: ForgotpasswordComponent
+    },
+    {
+        path: 'resetpassword',
+        component: ResetpasswordComponent
+    },
+    {
+        path: 'resetPassword',
+        component: ResetpasswordComponent
+    },
 ];

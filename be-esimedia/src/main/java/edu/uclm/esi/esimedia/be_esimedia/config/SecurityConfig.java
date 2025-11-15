@@ -1,15 +1,16 @@
 package edu.uclm.esi.esimedia.be_esimedia.config;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfigurationSource;
-
-import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -33,6 +34,7 @@ public class SecurityConfig {
             // Añadir filtro JWT antes del filtro de autenticación de Spring
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
+                // Comentar desde aquí para pruebas con Postman
                 // Endpoints públicos (sin autenticación)
                 .requestMatchers("/user/login", "/user/logout", "/user/verify-token", "/user/register").permitAll()
                 .requestMatchers("/", "/index.html", "/assets/**", "/public/**").permitAll()
@@ -41,19 +43,20 @@ public class SecurityConfig {
                 .requestMatchers("/user/me").authenticated()
                 
                 // Endpoints solo para ADMIN
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**").hasRole(ADMIN_ROLE)
                 
                 // Endpoints solo para CREATOR
-                .requestMatchers("/creator/**").hasAnyRole("CREATOR", "ADMIN")
+                .requestMatchers("/creator/**").hasAnyRole(CREATOR_ROLE, ADMIN_ROLE)
                 
                 // Endpoints para usuarios autenticados (cualquier rol)
-                .requestMatchers("/user/**").hasAnyRole("USER", "CREATOR", "ADMIN")
+                .requestMatchers("/user/**").hasAnyRole(USER_ROLE, CREATOR_ROLE, ADMIN_ROLE)
                 
                 // Endpoints de contenido: lectura para todos, escritura para creators
                 .requestMatchers("/audio/**", "/video/**").permitAll()
                 
                 // El resto requiere autenticación
                 .anyRequest().authenticated()
+                // .anyRequest().permitAll() // Para pruebas con Postman
             );
         
         return http.build();
@@ -62,5 +65,35 @@ public class SecurityConfig {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    
+    @Bean
+    public KeyPair keyPair() {
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048);
+            return keyPairGenerator.generateKeyPair();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error generating RSA key pair", e);
+        }
+    }
+    
+    @Bean
+    public JwtEncoder jwtEncoder(KeyPair keyPair) {
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        
+        RSAKey rsaKey = new RSAKey.Builder(publicKey)
+            .privateKey(privateKey)
+            .build();
+        
+        JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(rsaKey));
+        return new NimbusJwtEncoder(jwkSource);
+    }
+    
+    @Bean
+    public JwtDecoder jwtDecoder(KeyPair keyPair) {
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
 }

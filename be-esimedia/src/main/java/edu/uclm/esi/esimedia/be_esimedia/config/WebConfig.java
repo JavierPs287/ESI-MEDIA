@@ -10,14 +10,14 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 import java.io.File;
 import java.io.IOException;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.PUBLIC_DIR;
+
 /**
  * Configuración para servir la aplicación Angular desde Spring Boot.
  * Redirige todas las rutas no encontradas al index.html para manejar el enrutamiento de Angular.
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
-    private static final String PUBLIC_DIR = "/app/public/";
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

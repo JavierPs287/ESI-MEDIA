@@ -14,6 +14,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.VideoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
 
 @Service
 public class VideoService {
@@ -54,8 +55,11 @@ public class VideoService {
         Contenido contenido = new Contenido(videoDTO);
         Video video = new Video(videoDTO);
 
-        // Asignar tipo de contenido
+        // Asignar tipo de contenido y urlId
         contenido.setType(VIDEO_TYPE);
+        do { 
+            contenido.setUrlId(UrlGenerator.generateUrlId());
+        } while (contenidoRepository.existsByUrlId(contenido.getUrlId())); // Asegurarse que es único
 
         // Alta en MongoDB
         try {
