@@ -59,7 +59,7 @@ public class UserController {
             // Crear cookie HTTP-Only con el token
             ResponseCookie cookie = ResponseCookie.from("esi_token", token)
                     .httpOnly(true)  // No accesible desde JavaScript
-                    .secure(false)   // Cambiar a true en producción con HTTPS
+                    .secure(false)   //TODO Cambiar a true en producción con HTTPS
                     .path("/")
                     .maxAge(24L * 60 * 60) // 24 horas
                     .sameSite("Lax")
