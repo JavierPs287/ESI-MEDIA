@@ -35,7 +35,7 @@ public class VideoController {
                 .body(Map.of(MESSAGE_KEY, "Vídeo subido exitosamente"));
     }
 
-    @GetMapping("/usuario/{urlId}")
+    @GetMapping(value = "/usuario/{urlId}", params = "type=video")
     public ResponseEntity<String> getVideo(@PathVariable String urlId, HttpSession session) {
         return videoService.getVideo(urlId, session);
     }
