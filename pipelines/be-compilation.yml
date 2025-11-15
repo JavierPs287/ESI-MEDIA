@@ -25,9 +25,7 @@ stages:
             inputs:
               versionSpec: '21'
               jdkArchitectureOption: 'x64'
-              jdkSourceOption: 'LocalDirectory'
-              jdkFile: '/usr/lib/jvm/'
-              jdkDestinationDirectory: '$(Agent.ToolsDirectory)/jdk21'
+              jdkSourceOption: 'PreInstalled'
 
           - task: Cache@2
             displayName: 'Cache Maven Dependencies'
