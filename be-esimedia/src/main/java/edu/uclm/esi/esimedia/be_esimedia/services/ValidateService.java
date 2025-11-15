@@ -113,7 +113,7 @@ public class ValidateService {
     public boolean areVideoRequiredFieldsValid(VideoDTO videoDTO) {
         return areContentRequiredFieldsValid(videoDTO) &&
                 isURLValid(videoDTO.getUrl()) &&
-                videoDTO.getResolution() > 0;
+                isResolutionValid(videoDTO.getResolution(), videoDTO.isVip());
     }
 
     public boolean isDurationValid(double duration) {
@@ -352,6 +352,14 @@ public class ValidateService {
     public boolean isURLValid(String url) {
         return url != null && URL_PATTERN.matcher(url).matches();
     }
+    
+    public boolean isResolutionValid(int resolution, boolean vip) {
+        if (resolution > MAX_STANDARD_RESOLUTION && !vip) {
+            return false;
+        }
+
+        return resolution > 0;
+    }
 
     public boolean canUsuarioAccessContenido(Usuario usuario, Contenido contenido) {
         if (usuario == null || contenido == null) {
@@ -378,7 +386,7 @@ public class ValidateService {
             return false;
         }
 
-        return !(video.getResolution() > MAX_STANDARD_RESOLUTION && !usuario.isVip());
+        return isResolutionValid(video.getResolution(), usuario.isVip());
     }
 
     public boolean isBirthDateValid(Instant fechaNacimiento) {
