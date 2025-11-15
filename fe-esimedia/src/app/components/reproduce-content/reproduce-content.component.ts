@@ -5,14 +5,13 @@ import { Content } from '../../models/content.model';
 import { ContentService } from '../../services/content.service';
 import { getImageUrlByName } from '../../services/image.service';
 import { MatIcon } from '@angular/material/icon';
-import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-reproduce-content',
-  imports: [CommonModule, MatIcon, MatCard, MatCardContent, MatChipsModule, MatButtonModule],
+  imports: [CommonModule, MatIcon, MatChipsModule, MatButtonModule],
   templateUrl: './reproduce-content.component.html',
   styleUrls: ['./reproduce-content.component.css']
 })

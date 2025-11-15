@@ -8,6 +8,7 @@ public class ContenidoDTO {
 
     private String title; // Campo obligatorio
     private String description;
+    private String type; // "AUDIO" o "VIDEO" (para uso en frontend y facilitar obtención de tipo)
     private String[] tags; // Mínimo 1 tag obligatorio
     private double duration; // Campo obligatorio // Segundos, se podría implementar de otra forma
     private boolean vip; // Campo obligatorio
@@ -30,6 +31,7 @@ public class ContenidoDTO {
     protected final void initializeFromModel(Contenido contenido) {
         this.setTitle(contenido.getTitle());
         this.setDescription(contenido.getDescription());
+        this.setType(contenido.getType());
         this.setTags(contenido.getTags());
         this.setDuration(contenido.getDuration());
         this.setVip(contenido.isVip());
@@ -59,6 +61,14 @@ public class ContenidoDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String[] getTags() {

@@ -12,4 +12,5 @@ export interface Content {
   creador: string;
   rating?: number;
   views?: number;
+  urlId?: string;
 }
