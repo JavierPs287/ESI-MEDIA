@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.EMAIL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MAX_AGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MAX_STANDARD_RESOLUTION;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MIN_AGE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
@@ -22,6 +23,7 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 
 @Service
 public class ValidateService {
@@ -365,6 +367,18 @@ public class ValidateService {
         }
 
         return contenido.getMinAge() <= usuario.getAge();
+    }
+
+    public boolean canUsuarioAccessVideo(Usuario usuario, Contenido contenido, Video video) {
+        if (video == null) {
+            return false;
+        }
+
+        if (!canUsuarioAccessContenido(usuario, contenido)) {
+            return false;
+        }
+
+        return !(video.getResolution() > MAX_STANDARD_RESOLUTION && !usuario.isVip());
     }
 
     public boolean isBirthDateValid(Instant fechaNacimiento) {

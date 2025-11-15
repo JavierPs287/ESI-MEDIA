@@ -45,6 +45,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of(ERROR_KEY, e.getMessage()));
     }
+    
+    @ExceptionHandler(VideoGetException.class)
+    public ResponseEntity<Map<String, String>> handleVideoGet(VideoGetException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
 
     @ExceptionHandler(ContenidoNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleContenidoNotFound(ContenidoNotFoundException e) {
