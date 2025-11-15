@@ -24,6 +24,7 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 
 @Service
 public class ValidateService {
@@ -67,6 +68,14 @@ public class ValidateService {
 
     public boolean isRequiredFieldEmpty(String field, int minLength, int maxLength) {
         return field == null || field.trim().isEmpty() || field.length() < minLength || field.length() > maxLength;
+    }
+    
+    public boolean isFieldEmpty(String field) {
+        return field == null || field.trim().isEmpty();
+    }
+
+    public boolean hasValidLength(String field, int minLength, int maxLength) {
+        return field.length() < minLength || field.length() > maxLength;
     }
 
     public boolean isEmailValid(String email) {
@@ -400,4 +409,83 @@ public class ValidateService {
     public boolean isEnumValid(Enum<?> enumValue) {
         return enumValue != null;
     }
-}
+
+    /*
+     * ====== VALIDACIONES DE USUARIO, ADMIN Y CREADOR ======
+     */
+
+    public boolean areUserRequiredFieldsValid(String email, String password, String name) {
+        return isEmailValid(email) &&
+               isPasswordSecure(password) &&
+               !isRequiredFieldEmpty(name, 2, 50);
+    }
+
+    public boolean isAdminDepartmentValid(String department) {
+        if (department == null || department.isEmpty()) {
+            return false;
+        }
+
+        return department.equals("PELICULA") ||
+               department.equals("SERIE") ||
+               department.equals("LIBRO") ||
+               department.equals("VIDEOJUEGO") ||
+               department.equals("MUSICA");
+    }
+
+    public boolean isCreatorFieldValid(String field) {
+        if (field == null || field.isEmpty()) {
+            return false;
+        }
+
+        return field.equals("PELICULA") ||
+               field.equals("SERIE") ||
+               field.equals("LIBRO") ||
+               field.equals("VIDEOJUEGO") ||
+               field.equals("MUSICA");
+    }
+
+    public boolean isCreatorTypeValid(String type) {
+        if (type == null || type.isEmpty()) {
+            return false;
+        }
+
+        return type.equals(AUDIO_TYPE) ||
+               type.equals(VIDEO_TYPE);
+    }
+
+    public void validateUserForRegistration(User user, boolean emailExists) {
+        if (user == null) {
+            throw new IllegalArgumentException("User es nulo");
+        }
+
+        if (isRequiredFieldEmpty(user.getName(), 2, 50)) {
+            throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
+        }
+        if (isRequiredFieldEmpty(user.getLastName(), 2, 100)) {
+            throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
+        }
+        if (isRequiredFieldEmpty(user.getEmail(), 5, 100)) {
+            throw new IllegalArgumentException("El email es obligatorio y debe tener entre 5 y 100 caracteres");
+        }
+        if (!isEmailValid(user.getEmail())) {
+            throw new IllegalArgumentException("El formato del email no es válido");
+        }
+        if (isRequiredFieldEmpty(user.getPassword(),8, 128)) {
+            throw new IllegalArgumentException("La contraseña es obligatoria y debe tener entre 8 y 128 caracteres");
+        }
+        if (!isPasswordSecure(user.getPassword())) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
+        }
+
+        if (emailExists) {
+            throw new IllegalArgumentException("El email ya está registrado");
+        }
+
+        // Establecer foto por defecto si no se proporciona (se sigue la lógica previa)
+        if (isRequiredFieldEmpty(String.valueOf(user.getImageId()), 1, 10)) {
+            user.setImageId(0);
+        }
+    }
+
+
+} 
