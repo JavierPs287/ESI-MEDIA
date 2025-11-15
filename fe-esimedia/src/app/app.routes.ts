@@ -49,7 +49,7 @@ export const routes: Routes = [
     {
         path: 'menu/creator',
         component: MainMenuCreatorComponent,
-        canActivate: [authGuard, roleGuard],
+        //canActivate: [authGuard, roleGuard],
         data: { roles: ['CREATOR'] },
         children: [
             {
@@ -86,5 +86,18 @@ export const routes: Routes = [
                 component: RegistercreatorComponent
             },
         ]
-    }
+    },
+
+    {
+        path: 'menu/user',
+        component: MainMenuUserComponent,
+        //canActivate: [authGuard, roleGuard],
+        data: { roles: ['USER'] },
+        children: [
+            {
+                path: '',
+                component: ShowContentComponent
+            }
+        ]
+    },
 ];
