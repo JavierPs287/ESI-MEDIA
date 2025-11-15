@@ -90,8 +90,10 @@ public class AdminService {
         // if (!validateService.isEnumValid(admin.getDepartamento())) {
         //     throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
         // }
+        // TODO añadir try-catch para capturar errores de BD (y a lo mejor crear excepción personalizada como en la subida de contenido)
         // Guardar user y administrador
-        userRepository.save(user);
+        user = userRepository.save(user);
+        admin.setId(user.getId());
         adminRepository.save(admin);
     }
 
@@ -119,8 +121,10 @@ public class AdminService {
         // if (!validateService.isEnumValid(creador.getTipo())) {
         //     throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
         // }
+        // TODO añadir try-catch para capturar errores de BD (y a lo mejor crear excepción personalizada como en la subida de contenido)
         // Guardar user y creador
-        userRepository.save(user);
+        user = userRepository.save(user);
+        creador.setId(user.getId());
         creadorRepository.save(creador);
     }
 
