@@ -24,6 +24,8 @@ import org.springframework.web.server.ResponseStatusException;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
+
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
@@ -136,7 +138,7 @@ public class AudioService {
         }
         urlId = urlId.trim();
 
-        if (validateService.isUrlIdValid(urlId)) {
+        if (validateService.isRequiredFieldEmpty(urlId, URLID_LENGTH, URLID_LENGTH)) {
             logger.warn("URL ID de audio tiene formato inválido: {}", urlId);
             throw new AudioGetException();
         }

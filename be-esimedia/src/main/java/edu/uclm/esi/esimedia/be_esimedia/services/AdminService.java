@@ -96,6 +96,7 @@ public class AdminService {
     }
 
     private void registerCreadorInternal(User user, Creador creador) {
+        // TODO Validar con validateService.isRequiredFieldEmpty y cambiar mensaje de error (los caracteres pueden cambiar)
         // Validar alias (opcional, pero si se proporciona debe cumplir requisitos)
         if (creador.getAlias() != null && !creador.getAlias().isEmpty()) {
             if (creador.getAlias().length() < 2 || creador.getAlias().length() > 20) {
