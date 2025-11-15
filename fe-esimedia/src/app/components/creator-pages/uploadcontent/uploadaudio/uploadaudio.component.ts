@@ -47,11 +47,11 @@ export class UploadAudioComponent implements OnInit {
       duration: this.fb.group({
         hours: ['0', [Validators.min(0), Validators.max(23)]],
         minutes: ['0', [Validators.min(0), Validators.max(59)]],
-        seconds: ['', [Validators.required, Validators.min(0), Validators.max(59)]]
+        seconds: ['0', [Validators.required, Validators.min(0), Validators.max(59)]]
       }, { validators: this.formService.durationValidator() }),
       vip: [false, Validators.required],
       visible: [true, Validators.required],
-      ageRestriction: ['', Validators.required],
+      ageRestriction: ['4', Validators.required],
       availableUntil: [null],
       image: [DEFAULT_IMAGE]
     });
@@ -85,7 +85,7 @@ export class UploadAudioComponent implements OnInit {
 
     this.contentService.uploadAudio(formData).subscribe({
       next: (response) => {
-        alert(`Éxito: ${response.message}\nID del audio: ${response.audioId}`);
+        alert('Éxito al subir el audio');
         this.resetForm();
       },
       error: (error) => {

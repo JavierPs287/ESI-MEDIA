@@ -29,8 +29,9 @@ public class VideoController {
 
     @PostMapping("/uploadVideo")
     public ResponseEntity<Map<String, String>> uploadVideo(@ModelAttribute VideoDTO videoDTO) {
-        String videoId = videoService.uploadVideo(videoDTO);
+        videoService.uploadVideo(videoDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of(MESSAGE_KEY, "Vídeo subido exitosamente", "videoId", videoId));
+                .body(Map.of(MESSAGE_KEY, "Vídeo subido exitosamente"));
     }
+
 }

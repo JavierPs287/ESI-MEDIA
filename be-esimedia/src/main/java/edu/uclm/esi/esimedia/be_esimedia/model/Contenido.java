@@ -1,31 +1,41 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 
-public abstract class Contenido {
+@Document(collection = "CONTENIDOS")
+public class Contenido {
     
     @Id
     private String id;
 
     private String title; // No es único
     private String description;
+    private String type; // "AUDIO" o "VIDEO" (para facilitar consultas de BBDD)
     private String[] tags; // Mínimo 1 tag obligatorio
     private double duration; // Duración en segundos, se podría implementar de otra forma
     private boolean vip; 
     private boolean visible; 
-    private Date visibilityChangeDate; // No editable
-    private Date visibilityDeadline;
+    private Instant visibilityChangeDate; // No editable
+    private Instant visibilityDeadline;
     private int minAge;
     private int imageId;
     private String creador;
     private double rating;
+    private int views;
+    private String urlId; // ID para la URL pública
 
-    // Método protegido para inicialización segura desde constructor
-    protected final void initializeFromDTO(ContenidoDTO dto) {
+    public Contenido() { /* Constructor vacío requerido por Spring Data */ }
+
+    public Contenido(ContenidoDTO dto) {
+        this.initializeFromDTO(dto);
+    }
+
+    private void initializeFromDTO(ContenidoDTO dto) {
         this.setTitle(dto.getTitle());
         this.setDescription(dto.getDescription());
         this.setTags(dto.getTags());
@@ -37,7 +47,9 @@ public abstract class Contenido {
         this.setMinAge(dto.getMinAge());
         this.setImageId(dto.getImageId());
         this.setCreador(dto.getCreador());
-        this.setRating(0.0);
+        this.setRating(dto.getRating());
+        this.setViews(dto.getViews());
+        this.setUrlId(dto.getUrlId());
     }
 
     // Getters and Setters
@@ -63,6 +75,14 @@ public abstract class Contenido {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String[] getTags() {
@@ -97,20 +117,20 @@ public abstract class Contenido {
         this.visible = visible;
     }
 
-    public Date getVisibilityChangeDate() {
-        return visibilityChangeDate != null ? (Date) visibilityChangeDate.clone() : null;
+    public Instant getVisibilityChangeDate() {
+        return visibilityChangeDate;
     }
 
-    public void setVisibilityChangeDate(Date visibilityChangeDate) {
-        this.visibilityChangeDate = visibilityChangeDate != null ? (Date) visibilityChangeDate.clone() : null;
+    public void setVisibilityChangeDate(Instant visibilityChangeDate) {
+        this.visibilityChangeDate = visibilityChangeDate;
     }
 
-    public Date getVisibilityDeadline() {
-        return visibilityDeadline != null ? (Date) visibilityDeadline.clone() : null;
+    public Instant getVisibilityDeadline() {
+        return visibilityDeadline;
     }
 
-    public void setVisibilityDeadline(Date visibilityDeadline) {
-        this.visibilityDeadline = visibilityDeadline != null ? (Date) visibilityDeadline.clone() : null;
+    public void setVisibilityDeadline(Instant visibilityDeadline) {
+        this.visibilityDeadline = visibilityDeadline;
     }
 
     public int getMinAge() {
@@ -143,5 +163,21 @@ public abstract class Contenido {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
+    }
+
+    public String getUrlId() {
+        return urlId;
+    }
+
+    public void setUrlId(String urlId) {
+        this.urlId = urlId;
     }
 }

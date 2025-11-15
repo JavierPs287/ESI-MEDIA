@@ -1,32 +1,35 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class UsuarioDTO extends UserDTO {
+    
     private String alias;
-    private Date fechaNacimiento;
-    private boolean esVIP = false;
-
+    private Instant birthDate;
+    private boolean vip = false;
 
     // Getters and Setters
     public String getAlias() {
         return alias;
     }
+
     public void setAlias(String alias) {
         this.alias = alias;
     }
 
-    public Date getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-    public void setFechaNacimiento(Date fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
+    public Instant getBirthDate() {
+        return birthDate;
     }
 
-    public boolean getEsVIP() {
-        return esVIP;
+    public void setBirthDate(Instant birthDate) {
+        this.birthDate = birthDate;
     }
-    public void setEsVIP(boolean esVIP) {
-        this.esVIP = esVIP;
+
+    public boolean isVip() {
+        return vip;
+    }
+
+    public void setVip(boolean vip) {
+        this.vip = vip;
     }
 }

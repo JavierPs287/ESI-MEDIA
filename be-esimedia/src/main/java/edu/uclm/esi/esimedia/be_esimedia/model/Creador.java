@@ -1,42 +1,73 @@
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+
 @Document(collection = "CREADORES")
-public class Creador extends User {
+public class Creador {
+
+    @Id
+    private String id;
+
     private String alias;
-    private String descripcion;
-    private Campo campo;
-    public enum Campo {PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA}
-    private Tipo tipo;
-    public enum Tipo {AUDIO, VIDEO}
+    private String description;
+    private String field;
+    private String type;
+
+    public Creador() {
+    }
+
+    public Creador(CreadorDTO dto) {
+        initializeFromDTO(dto);
+    }
+
+    private void initializeFromDTO(CreadorDTO dto) {
+        this.setAlias(dto.getAlias());
+        this.setDescription(dto.getDescription());
+        this.setField(dto.getField());
+        this.setType(dto.getType());
+    }
 
     // Getters and Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getAlias() {
         return alias;
     }
+
     public void setAlias(String alias) {
         this.alias = alias;
     }
 
-    public String getDescripcion() {
-        return descripcion;
-    }
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public String getDescription() {
+        return description;
     }
 
-    public Tipo getTipo() {
-        return tipo;
-    }
-    public void setTipo(Tipo tipo) {
-        this.tipo = tipo;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Campo getCampo() {
-        return campo;
+    public String getField() {
+        return field;
     }
-    public void setCampo(Campo campo) {
-        this.campo = campo;
+    
+    public void setField(String field) {
+        this.field = field;
+    }
+    
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

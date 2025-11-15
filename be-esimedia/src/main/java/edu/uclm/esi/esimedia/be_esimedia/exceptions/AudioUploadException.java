@@ -8,9 +8,4 @@ public class AudioUploadException extends RuntimeException {
     public AudioUploadException(String message) {
         super(message);
     }
-
-    public AudioUploadException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
 }

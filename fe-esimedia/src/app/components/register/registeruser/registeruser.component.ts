@@ -1,81 +1,82 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, FormGroup } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
-import { User, RegisterResponse } from '../../../models/user.model';
+import { User } from '../../../models/user.model';
+import { Response } from '../../../models/response.model';
 import { NavbarComponent } from "../../navbar/navbar.component";
-import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
-import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
+import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
+import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
+import { MatIcon } from '@angular/material/icon';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs/internal/operators/finalize';
 
 @Component({
   selector: 'app-registeruser',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, NavbarComponent],
+  imports: [ReactiveFormsModule, CommonModule, NavbarComponent, MatIcon],
   templateUrl: './registeruser.component.html',
   styleUrls: ['./registeruser.component.css']
 })
-export class RegisteruserComponent {
+export class RegisteruserComponent implements  OnInit {
   isVip = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false;
-  selectedPhoto: string | null = null;
-  registrationResponse: RegisterResponse | null = null;
-
+  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
+  selectedPhoto: number | null = null;
+  registrationResponse: Response | null = null;
   avatarOptions = PHOTO_OPTIONS;
-  defaultAvatar = DEFAULT_AVATAR;
+  isSubmitting = false;
 
   fb = inject(FormBuilder);
-  private readonly userService = inject(UserService);
+  registerForm!: FormGroup;
+  userService = inject(UserService);
+  router = inject(Router);
 
-  registerForm = this.fb.nonNullable.group({
-    nombre: ['', [Validators.required, Validators.maxLength(25)]],
-    apellidos: ['', [Validators.required, Validators.maxLength(25)]],
+  ngOnInit(): void {
+    this.registerForm = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(50)]],
+    lastName: ['', [Validators.required, Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email]],
-    alias: ['', [Validators.minLength(3), Validators.maxLength(20)]],
+    alias: ['', [Validators.minLength(2), Validators.maxLength(20)]],
     vip: [false],
-    foto_perfil: [null as string | null],
-    fecha_nacimiento: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/), this.minAgeValidator(4)]],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
+    imageId: [this.avatarOptions[0].id],
+    birthDate: ['', [Validators.required, this.minAgeValidator(4)]],
+    password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
-  }, { validators: passwordMatchValidator() });
+    }, { validators: passwordMatchValidator() });
+  }
 
   onSubmit(): void {
     if (this.registerForm.valid) {
+      this.isSubmitting = true;
       const formValue = this.registerForm.getRawValue();
+      const birthDate = new Date(formValue.birthDate);
       const userData: User = {
-        nombre: formValue.nombre,
-        apellidos: formValue.apellidos,
+        name: formValue.name,
+        lastName: formValue.lastName,
         email: formValue.email,
         alias: formValue.alias,
-        fecha_nacimiento: formValue.fecha_nacimiento,
-        contrasena: formValue.contrasena,
         vip: formValue.vip,
-        foto_perfil: formValue.foto_perfil
+        imageId: formValue.imageId,
+        birthDate: birthDate.toISOString(),
+        password: formValue.password,
       };
-
-      console.log('Enviando datos de registro:', userData);
-
-      this.userService.register(userData).subscribe({
+      this.userService.register(userData)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
         next: (response) => {
-          console.log('Respuesta del servidor:', response);
-          this.registrationResponse = response;
-          if (!response.error) {
-            this.registerForm.reset();
-          }
+          alert('Registro usuario exitoso.');
+          this.router.navigate(['/login']);
+          this.registerForm.reset();
         },
         error: (error) => {
-          console.error('Error en el registro:', error);
-          this.registrationResponse = {
-            message: '',
-            error: error.message || 'Error en el registro'
-          };
-        }
+          alert('Credenciales inválidas');
+        },
       });
     } else {
-      this.registrationResponse = {
-        message: '',
-        error: 'Por favor, complete todos los campos requeridos correctamente'
-      };
+      for (const key of Object.keys(this.registerForm.controls)) {
+        this.registerForm.get(key)?.markAsTouched();
+      }
     }
   }
 
@@ -100,6 +101,9 @@ export class RegisteruserComponent {
   togglePasswordVisibility(): void {
     this.visiblePassword = !this.visiblePassword;
   }
+  toggleRepetePasswordVisibility(): void {
+    this.visibleRepetePassword = !this.visibleRepetePassword;
+  }
 
 //MANEJO ERRORES
 getControl(controlName: string): AbstractControl | null {
@@ -118,9 +122,9 @@ getControl(controlName: string): AbstractControl | null {
     this.showPhotoOptions = !this.showPhotoOptions;
   }
 
-  selectPhoto(imagePath: string): void {
-    this.selectedPhoto = imagePath;
-    this.registerForm.get('foto_perfil')?.setValue(imagePath);
+  selectPhoto(imageID: number): void {
+    this.selectedPhoto = imageID;
+    this.registerForm.get('imageId')?.setValue(imageID);
     this.showPhotoOptions = false;
   }
 }

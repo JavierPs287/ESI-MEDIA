@@ -99,6 +99,10 @@ mat-tab-group {
     align-items: flex-start;
   }
 }
+::ng-deep input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1 !important;
+  display: block !important;
+}
 
 [specific-content] {
   display: contents; /* Los hijos se comportan como si estuvieran directamente en .form-container */

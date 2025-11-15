@@ -1,24 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
-import { PHOTO_OPTIONS, DEFAULT_AVATAR } from '../../../constants/avatar-constants';
-import { passwordStrengthValidator, passwordMatchValidator } from './../custom-validators';
+import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
+import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { AdminService } from '../../../services/admin.service';
-import { Admin, Departamento } from '../../../models/admin.model';
+import { Admin } from '../../../models/admin.model';
 import { Router } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-registeradmin',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, MatIcon],
   templateUrl: './registeradmin.component.html',
   styleUrl: './registeradmin.component.css'
 })
-export class RegisteradminComponent {
+export class RegisteradminComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false;
-  selectedPhoto: string | null = null;
-  defaultAvatar = DEFAULT_AVATAR;
+  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
+  selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
   departamentos: string[] = [
   'Recursos Humanos',
@@ -31,87 +31,51 @@ export class RegisteradminComponent {
 ];
 
   fb = inject(FormBuilder);
+  registerForm!: FormGroup;
   adminService = inject(AdminService);
   router = inject(Router);
   
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
 
-  registerForm: FormGroup = this.fb.group({
-
-    nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+  ngOnInit(): void {
+    this.registerForm = this.fb.group({
+    name: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+    lastName: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
-    departamento: ['',[Validators.required]],
-    fotoPerfil: [this.defaultAvatar],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
+    department: ['',[Validators.required]],
+    imageId: [this.photoOptions[0].id],
+    password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
-  }, { validators: passwordMatchValidator() });
+    }, { validators: passwordMatchValidator() });
+  }
 
+  
   onSubmit():void{
     if (this.registerForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      this.errorMessage = '';
-      this.successMessage = '';
 
       const formValue = this.registerForm.value;
-      
-      // Mapear departamento al enum Departamento del backend
-      const departamentoMap: { [key: string]: Departamento } = {
-        'Recursos Humanos': Departamento.RRHH,
-        'Finanzas': Departamento.VENTAS,
-        'Tecnología': Departamento.IT,
-        'Marketing': Departamento.MARKETING,
-        'Ventas': Departamento.VENTAS,
-        'Operaciones': Departamento.IT,
-        'Legal': Departamento.RRHH
-      };
-
-      // Obtener el número de avatar de la URL
-      const fotoNum = this.getAvatarNumber(formValue.fotoPerfil);
-
       const admin: Admin = {
-        nombre: formValue.nombre,
-        apellidos: formValue.apellido,
+        name: formValue.name,
+        lastName: formValue.lastName,
         email: formValue.email,
-        contrasena: formValue.contrasena,
-        foto: fotoNum,
-        departamento: departamentoMap[formValue.departamento] || Departamento.IT
+        department: formValue.department,
+        imageId: formValue.imageId,
+        password: formValue.password,
       };
-
-      console.log('Registrando administrador:', admin);
 
       this.adminService.registerAdmin(admin).subscribe({
         next: (response) => {
-          if (response.error) {
-            this.errorMessage = response.error;
-            this.isSubmitting = false;
-          } else {
-            this.successMessage = response.message || 'Administrador registrado correctamente';
-            console.log('Registro exitoso:', response.message);
-            
-            // Resetear el formulario
+            alert('Registro del administrador exitoso.');
             this.registerForm.reset({
-              fotoPerfil: this.defaultAvatar
-            });
+              imageId: null});
             this.selectedPhoto = null;
-            
-            // Redirigir después de 2 segundos
-            setTimeout(() => {
-              this.router.navigate(['/login']);
-            }, 2000);
-          }
-        },
+          },
         error: (error) => {
-          console.error('Error en el registro:', error);
-          this.errorMessage = 'Error al registrar el administrador. Por favor, intente nuevamente.';
-          this.isSubmitting = false;
+          alert('Credenciales inválidas');
         },
         complete: () => {
-          if (this.errorMessage) {
             this.isSubmitting = false;
-          }
         }
       });
     } else {
@@ -120,20 +84,6 @@ export class RegisteradminComponent {
         this.registerForm.get(key)?.markAsTouched();
       }
     }
-  }
-
-  /**
-   * Extrae el número del avatar de la URL de la foto de perfil
-   */
-  private getAvatarNumber(photoUrl: string): number {
-    if (!photoUrl || photoUrl === this.defaultAvatar) {
-      return 0; // Avatar por defecto
-    }
-    
-    // Extraer el número del avatar (ejemplo: /assets/avatars/avatar1.PNG -> 1)
-    const regex = /avatar(\d+)/i;
-    const match = regex.exec(photoUrl);
-    return match ? Number.parseInt(match[1], 10) : 0;
   }
 
 //MANEJO ERRORES
@@ -155,10 +105,13 @@ getControl(controlName: string): AbstractControl | null {
   togglePasswordVisibility(){
     this.visiblePassword = !this.visiblePassword;
   }
+  toggleRepetePasswordVisibility(){
+    this.visibleRepetePassword = !this.visibleRepetePassword;
+  }
 
-  selectPhoto(photoUrl: string): void {
+  selectPhoto(photoUrl: number): void {
     this.selectedPhoto = photoUrl;
-    this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
+    this.registerForm.get('imageId')?.setValue(photoUrl);
     this.showPhotoOptions = false;
   }
 }

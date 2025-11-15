@@ -1,15 +1,10 @@
 export interface User {
-    nombre: string;
-    apellidos: string;
+    name: string;
+    lastName: string;
     email: string;
     alias: string;
-    fecha_nacimiento: string | Date;
-    contrasena: string;
+    birthDate: string;
+    password: string;
     vip: boolean;
-    foto_perfil?: string | null;
-}
-
-export interface RegisterResponse {
-    message: string;
-    error?: string;
+    imageId?: number | null;
 }

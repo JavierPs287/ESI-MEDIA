@@ -1,15 +1,14 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
-import edu.uclm.esi.esimedia.be_esimedia.model.Admin.Departamento;
-
 public class AdminDTO extends UserDTO {
-    private Departamento departamento;
+    private String department;
 
     // Getters and Setters
-    public Departamento getDepartamento() {
-        return departamento;
+    public String getDepartment() {
+        return department;
     }
-    public void setDepartamento(Departamento departamento) {
-        this.departamento = departamento;
+    
+    public void setDepartment(String department) {
+        this.department = department;
     }
 }

@@ -77,9 +77,7 @@
           <label for="available-until">Disponible hasta</label>
           <mat-form-field>
             <mat-label>Disponible hasta</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="availableUntil" />
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+            <input matInput type="date" id="available-until" formControlName="availableUntil" [min]="minDate" />
           </mat-form-field>
 
           <!-- VIP y Visible -->
@@ -107,7 +105,7 @@
 
           <!-- Botones -->
           <div class="button-group">
-            <button mat-raised-button color="primary" type="submit" [disabled]="!contentForm.valid">
+            <button mat-raised-button color="primary" type="submit" (click)="handleSubmit()" [disabled]="!contentForm.valid">
               Subir
             </button>
             <button mat-raised-button type="button" (click)="handleReset()">Limpiar</button>

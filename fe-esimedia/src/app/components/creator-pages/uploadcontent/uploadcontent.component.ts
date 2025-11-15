@@ -39,6 +39,7 @@ export class UploadContentComponent {
 
   availableImages = IMAGE_OPTIONS;
   showImageOptions = false;
+  minDate: string = new Date().toISOString().split('T')[0];
 
   toggleImageOptions(): void {
     this.showImageOptions = !this.showImageOptions;

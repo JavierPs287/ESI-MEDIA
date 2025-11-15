@@ -1,9 +1,8 @@
 package edu.uclm.esi.esimedia.be_esimedia;
 
-import java.util.Date;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +18,10 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
+import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.VideoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.services.ValidateService;
 import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
@@ -30,6 +32,9 @@ class VideoServiceTest {
 
     @Mock
     private VideoRepository videoRepository;
+
+    @Mock
+    private ContenidoRepository contenidoRepository;
 
     @Mock
     private ValidateService validateService;
@@ -48,7 +53,7 @@ class VideoServiceTest {
         validVideoDTO.setDuration(120.0);
         validVideoDTO.setVip(false);
         validVideoDTO.setVisible(true);
-        validVideoDTO.setVisibilityChangeDate(new Date());
+        validVideoDTO.setVisibilityChangeDate(Instant.now());
         validVideoDTO.setMinAge(4);
         validVideoDTO.setCreador("test_creator");
         validVideoDTO.setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
@@ -62,139 +67,194 @@ class VideoServiceTest {
         when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
+        Contenido savedContenido = new Contenido();
+        savedContenido.setId("contenido123");
+        when(contenidoRepository.save(any(Contenido.class))).thenReturn(savedContenido);
+        
         Video savedVideo = new Video();
-        savedVideo.setId("video123");
+        savedVideo.setId("contenido123");
         when(videoRepository.save(any(Video.class))).thenReturn(savedVideo);
 
         // Act
-        String result = videoService.uploadVideo(validVideoDTO);
+        videoService.uploadVideo(validVideoDTO);
 
         // Assert
-        assertNotNull(result);
-        assertEquals("video123", result);
         verify(validateService, times(1)).areVideoRequiredFieldsValid(any(VideoDTO.class));
         verify(validateService, times(1)).isVisibilityDeadlineValid(any(), any());
+        verify(contenidoRepository, times(1)).save(any(Contenido.class));
         verify(videoRepository, times(1)).save(any(Video.class));
     }
 
     @Test
-    @DisplayName("Debe lanzar IllegalArgumentException cuando VideoDTO es nulo")
+    @DisplayName("Debe lanzar VideoUploadException cuando VideoDTO es nulo")
     void testUploadVideoWithNullDTO() {
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        assertThrows(
+            VideoUploadException.class,
             () -> videoService.uploadVideo(null)
         );
-
-        assertEquals("Error en la validación: El objeto VideoDTO no puede ser nulo.", exception.getMessage());
+        
+        verify(contenidoRepository, never()).save(any(Contenido.class));
         verify(videoRepository, never()).save(any(Video.class));
     }
 
     @Test
-    @DisplayName("Debe lanzar IllegalArgumentException cuando faltan campos obligatorios")
+    @DisplayName("Debe lanzar VideoUploadException cuando faltan campos obligatorios")
     void testUploadVideoWithInvalidRequiredFields() {
         // Arrange
         when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(false);
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        VideoUploadException exception = assertThrows(
+            VideoUploadException.class,
             () -> videoService.uploadVideo(validVideoDTO)
         );
 
-        assertEquals("Error en la validación: Faltan campos obligatorios o no son válidos.", exception.getMessage());
+        assertEquals("Campos obligatorios incorrectos", exception.getMessage());
+        verify(contenidoRepository, never()).save(any(Contenido.class));
         verify(videoRepository, never()).save(any(Video.class));
     }
 
     @Test
-    @DisplayName("Debe lanzar IllegalArgumentException cuando la URL es inválida")
-    void testUploadVideoWithInvalidURL() {
-        // Arrange
-        when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(false);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> videoService.uploadVideo(validVideoDTO)
-        );
-
-        assertEquals("Error en la validación: Faltan campos obligatorios o no son válidos.", exception.getMessage());
-        verify(videoRepository, never()).save(any(Video.class));
-    }
-
-    @Test
-    @DisplayName("Debe lanzar IllegalArgumentException cuando la resolución es inválida")
-    void testUploadVideoWithInvalidResolution() {
-        // Arrange
-        validVideoDTO.setResolution(-1);
-        when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(false);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> videoService.uploadVideo(validVideoDTO)
-        );
-
-        assertEquals("Error en la validación: Faltan campos obligatorios o no son válidos.", exception.getMessage());
-        verify(videoRepository, never()).save(any(Video.class));
-    }
-
-    @Test
-    @DisplayName("Debe lanzar IllegalArgumentException cuando visibilityDeadline es inválida")
+    @DisplayName("Debe lanzar VideoUploadException cuando visibilityDeadline es inválida")
     void testUploadVideoWithInvalidVisibilityDeadline() {
         // Arrange
         when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(false);
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        VideoUploadException exception = assertThrows(
+            VideoUploadException.class,
             () -> videoService.uploadVideo(validVideoDTO)
         );
 
-        assertEquals("Error en la validación: La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.", exception.getMessage());
+        assertEquals("Fecha límite de visibilidad inválida", exception.getMessage());
+        verify(contenidoRepository, never()).save(any(Contenido.class));
         verify(videoRepository, never()).save(any(Video.class));
     }
 
     @Test
-    @DisplayName("Debe llamar al repositorio exactamente una vez cuando los datos son válidos")
-    void testUploadVideoCallsRepositoryOnce() {
+    @DisplayName("Debe llamar a ambos repositorios exactamente una vez cuando los datos son válidos")
+    void testUploadVideoCallsRepositoriesOnce() {
         // Arrange
         when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
+        Contenido savedContenido = new Contenido();
+        savedContenido.setId("contenido456");
+        when(contenidoRepository.save(any(Contenido.class))).thenReturn(savedContenido);
+        
         Video savedVideo = new Video();
-        savedVideo.setId("video456");
+        savedVideo.setId("contenido456");
         when(videoRepository.save(any(Video.class))).thenReturn(savedVideo);
 
         // Act
         videoService.uploadVideo(validVideoDTO);
 
         // Assert
+        verify(contenidoRepository, times(1)).save(any(Contenido.class));
         verify(videoRepository, times(1)).save(any(Video.class));
     }
 
     @Test
-    @DisplayName("Debe crear objeto Video con los datos correctos del DTO")
-    void testUploadVideoCreatesCorrectVideoObject() {
+    @DisplayName("Debe crear objetos Contenido y Video con los datos correctos del DTO")
+    void testUploadVideoCreatesCorrectObjects() {
         // Arrange
         when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(true);
         when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
         
-        Video savedVideo = new Video();
-        savedVideo.setId("video789");
+        Contenido savedContenido = new Contenido();
+        savedContenido.setId("contenido789");
+        when(contenidoRepository.save(any(Contenido.class))).thenAnswer(invocation -> {
+            Contenido contenidoArg = invocation.getArgument(0);
+            assertEquals(validVideoDTO.getTitle(), contenidoArg.getTitle());
+            assertEquals(validVideoDTO.getDescription(), contenidoArg.getDescription());
+            assertEquals("VIDEO", contenidoArg.getType());
+            return savedContenido;
+        });
+        
         when(videoRepository.save(any(Video.class))).thenAnswer(invocation -> {
             Video videoArg = invocation.getArgument(0);
-            assertEquals(validVideoDTO.getTitle(), videoArg.getTitle());
             assertEquals(validVideoDTO.getUrl(), videoArg.getUrl());
             assertEquals(validVideoDTO.getResolution(), videoArg.getResolution());
-            return savedVideo;
+            assertEquals("contenido789", videoArg.getId());
+            return videoArg;
         });
 
         // Act
         videoService.uploadVideo(validVideoDTO);
 
         // Assert
+        verify(contenidoRepository, times(1)).save(any(Contenido.class));
         verify(videoRepository, times(1)).save(any(Video.class));
+    }
+
+    @Test
+    @DisplayName("Debe establecer visibilityChangeDate automáticamente")
+    void testUploadVideoSetsVisibilityChangeDate() {
+        // Arrange
+        validVideoDTO.setVisibilityChangeDate(null);
+        when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(true);
+        when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
+        
+        Contenido savedContenido = new Contenido();
+        savedContenido.setId("contenido999");
+        when(contenidoRepository.save(any(Contenido.class))).thenReturn(savedContenido);
+        
+        Video savedVideo = new Video();
+        when(videoRepository.save(any(Video.class))).thenReturn(savedVideo);
+
+        // Act
+        videoService.uploadVideo(validVideoDTO);
+
+        // Assert
+        verify(contenidoRepository, times(1)).save(any(Contenido.class));
+        verify(videoRepository, times(1)).save(any(Video.class));
+    }
+
+    @Test
+    @DisplayName("Debe establecer creador temporal cuando no se proporciona")
+    void testUploadVideoSetsTemporaryCreator() {
+        // Arrange
+        validVideoDTO.setCreador(null);
+        when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(true);
+        when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
+        
+        Contenido savedContenido = new Contenido();
+        savedContenido.setId("contenido888");
+        when(contenidoRepository.save(any(Contenido.class))).thenAnswer(invocation -> {
+            Contenido contenidoArg = invocation.getArgument(0);
+            assertEquals("creador_temporal", contenidoArg.getCreador());
+            return savedContenido;
+        });
+        
+        Video savedVideo = new Video();
+        when(videoRepository.save(any(Video.class))).thenReturn(savedVideo);
+
+        // Act
+        videoService.uploadVideo(validVideoDTO);
+
+        // Assert
+        verify(contenidoRepository, times(1)).save(any(Contenido.class));
+        verify(videoRepository, times(1)).save(any(Video.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar VideoUploadException cuando falla el guardado en base de datos")
+    void testUploadVideoThrowsExceptionOnDatabaseError() {
+        // Arrange
+        when(validateService.areVideoRequiredFieldsValid(any(VideoDTO.class))).thenReturn(true);
+        when(validateService.isVisibilityDeadlineValid(any(), any())).thenReturn(true);
+        when(contenidoRepository.save(any(Contenido.class)))
+            .thenThrow(new IllegalArgumentException("Error de base de datos"));
+
+        // Act & Assert
+        assertThrows(
+            VideoUploadException.class,
+            () -> videoService.uploadVideo(validVideoDTO)
+        );
+
+        verify(contenidoRepository, times(1)).save(any(Contenido.class));
+        verify(videoRepository, never()).save(any(Video.class));
     }
 }

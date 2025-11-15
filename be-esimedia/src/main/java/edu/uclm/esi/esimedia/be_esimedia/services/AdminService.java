@@ -149,4 +149,8 @@ public class AdminService {
         usuarioRepository.save(usuario);
     }
 
+    public void updateUserInfo(Usuario usuario, UsuarioDTO usuarioDTO) {
+        
+    }
+
 }

@@ -1,0 +1,76 @@
+trigger:
+  branches:
+    include:
+      - develop
+  paths:
+    include:
+      - fe-esimedia/**
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  nodeVersion: '20.x'
+  npmCacheFolder: $(Pipeline.Workspace)/.npm
+
+stages:
+  - stage: Build
+    displayName: 'Build Frontend'
+    jobs:
+      - job: AngularBuild
+        displayName: 'Angular Compile and Test'
+        steps:
+          - task: NodeTool@0
+            displayName: 'Install Node.js'
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - task: Cache@2
+            displayName: 'Cache npm packages'
+            inputs:
+              key: 'npm | "$(Agent.OS)" | fe-esimedia/package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: $(npmCacheFolder)
+
+          - script: |
+              cd fe-esimedia
+              npm ci
+            displayName: 'npm ci (Clean Install)'
+
+          - script: |
+              cd fe-esimedia
+              npm run build -- --configuration=production
+            displayName: 'Build Angular Application'
+
+          - script: |
+              cd fe-esimedia
+              npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
+            displayName: 'Run Unit Tests'
+            continueOnError: false
+
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/fe-esimedia/test-results/TESTS-*.xml'
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              testRunTitle: 'Frontend Unit Tests'
+
+          - task: PublishCodeCoverageResults@2
+            displayName: 'Publish Code Coverage'
+            condition: succeededOrFailed()
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/fe-esimedia/coverage/fe-esimedia/cobertura-coverage.xml'
+              reportDirectory: '$(System.DefaultWorkingDirectory)/fe-esimedia/coverage/fe-esimedia'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            condition: succeeded()
+            inputs:
+              PathtoPublish: '$(System.DefaultWorkingDirectory)/fe-esimedia/dist/fe-esimedia'
+              ArtifactName: 'frontend-build'
+              publishLocation: 'Container'
