@@ -1,12 +1,21 @@
-trigger:
-  branches:
-    include:
-      - develop
-  paths:
-    include:
-      - be-esimedia/**
-      - fe-esimedia/**
-      - Dockerfile
+# No trigger automático - se ejecuta solo cuando BE y FE pasan
+trigger: none
+
+# Dependencias de otros pipelines
+resources:
+  pipelines:
+    - pipeline: backendBuild
+      source: 'Backend Compilation'  # Nombre exacto del pipeline de BE en Azure DevOps
+      trigger:
+        branches:
+          include:
+            - develop
+    - pipeline: frontendBuild
+      source: 'Frontend Compilation'  # Nombre exacto del pipeline de FE en Azure DevOps
+      trigger:
+        branches:
+          include:
+            - develop
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -66,6 +75,7 @@ stages:
               Dockerfile: '**/Dockerfile'
               tags: '$(imageName):test'
 
+          #TODO
           - script: |
               echo "Starting Docker container for testing..."
               docker run -d --name esimedia-test \

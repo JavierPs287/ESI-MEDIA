@@ -121,6 +121,7 @@ public class AudioService {
     }
 
     public ResponseEntity<Resource> getAudio(String urlId, HttpSession session) {
+        // TODO mover a método común si tenemos mucha duplicidad
         // Conseguir usuario de la sesión
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
@@ -129,7 +130,6 @@ public class AudioService {
 
         Usuario usuario = usuarioRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
-
 
         // Validar urlId
         if (urlId == null || urlId.isEmpty()) {
