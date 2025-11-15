@@ -28,7 +28,9 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.services.AudioService;
+import edu.uclm.esi.esimedia.be_esimedia.services.ContenidoService;
 import edu.uclm.esi.esimedia.be_esimedia.services.ValidateService;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +44,13 @@ class AudioServiceTest {
     private ContenidoRepository contenidoRepository;
 
     @Mock
+    private UsuarioRepository usuarioRepository;
+
+    @Mock
     private ValidateService validateService;
+
+    @Mock
+    private ContenidoService contenidoService;
 
     @InjectMocks
     private AudioService audioService;
@@ -53,7 +61,7 @@ class AudioServiceTest {
     @BeforeEach
     public void setUp() throws Exception {
         // Crear una instancia real del servicio con mocks inyectados
-        audioService = org.mockito.Mockito.spy(new AudioService(validateService, audioRepository, contenidoRepository));
+        audioService = org.mockito.Mockito.spy(new AudioService(validateService, contenidoService, audioRepository, contenidoRepository, usuarioRepository));
         
         validAudioDTO = new AudioDTO();
         validAudioDTO.setTitle("Test Audio");

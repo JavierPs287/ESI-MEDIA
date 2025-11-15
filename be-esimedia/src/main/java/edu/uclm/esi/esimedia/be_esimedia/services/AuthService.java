@@ -145,6 +145,7 @@ public class AuthService {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
         
+        // TODO Cambiar esto y usar el rol que está en User
         // Determinar el rol del usuario
         String role = determineUserRole(usuario.getId());
         
