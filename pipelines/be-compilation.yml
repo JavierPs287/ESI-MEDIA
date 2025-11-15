@@ -80,3 +80,11 @@ stages:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: '$(System.DefaultWorkingDirectory)/be-esimedia/target/site/jacoco/jacoco.xml'
               reportDirectory: '$(System.DefaultWorkingDirectory)/be-esimedia/target/site/jacoco'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Backend Success Indicator'
+            condition: succeeded()
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/be-esimedia/target'
+              artifact: 'backend-success'
+              publishLocation: 'pipeline'

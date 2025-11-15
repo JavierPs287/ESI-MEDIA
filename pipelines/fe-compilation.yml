@@ -74,3 +74,11 @@ stages:
               PathtoPublish: '$(System.DefaultWorkingDirectory)/fe-esimedia/dist/fe-esimedia'
               ArtifactName: 'frontend-build'
               publishLocation: 'Container'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Frontend Success Indicator'
+            condition: succeeded()
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/fe-esimedia/dist'
+              artifact: 'frontend-success'
+              publishLocation: 'pipeline'
