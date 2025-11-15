@@ -15,6 +15,7 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.EMAIL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MAX_AGE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MIN_AGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
@@ -350,7 +351,11 @@ public class ValidateService {
         return url != null && URL_PATTERN.matcher(url).matches();
     }
 
-    boolean canUsuarioAccessContenido(Usuario usuario, Contenido contenido) {
+    public boolean isUrlIdValid(String urlId) {
+        return urlId.length() != URLID_LENGTH;
+    }
+
+    public boolean canUsuarioAccessContenido(Usuario usuario, Contenido contenido) {
         if (usuario == null || contenido == null) {
             return false;
         }
