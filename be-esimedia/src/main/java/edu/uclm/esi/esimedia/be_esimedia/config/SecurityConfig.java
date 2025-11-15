@@ -11,6 +11,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+
+import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREATOR_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_ROLE;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +47,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
+            //TODO CAMBIAR EN PRODUCCION
             // Deshabilitamos CSRF en desarrollo (en producción usar configuración adecuada)
             .csrf(csrf -> csrf.disable())
             // Añadir filtro JWT antes del filtro de autenticación de Spring

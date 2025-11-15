@@ -2,8 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ResetPasswordService } from '../../services/resetpassword.service';
-import { passwordStrengthValidator, passwordMatchValidator } from '../register/custom-validators';
-import { RegisterResponse } from '../../models/user.model';
+import { passwordStrengthValidator, passwordMatchValidator } from '../register/register-functions';
+import { Response } from '../../models/response.model';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from "../navbar/navbar.component";
 
@@ -15,7 +15,7 @@ import { NavbarComponent } from "../navbar/navbar.component";
 })
 export class ResetpasswordComponent implements OnInit {
   visiblePassword: boolean = false;
-  registrationResponse: RegisterResponse | null = null;
+  registrationResponse: Response | null = null;
   token: string | null = null;
   isValidatingToken: boolean = true;
   tokenValid: boolean = false;
