@@ -5,7 +5,6 @@ import java.util.List;
 public class ContenidoFilterDTO {
     
     private List<String> tags;
-    private String creadorField;
     private Integer maxAge; 
     private String contenidoType; // "AUDIO" o "VIDEO"
     private Boolean vip;
@@ -18,14 +17,6 @@ public class ContenidoFilterDTO {
 
     public void setTags(List<String> tags) {
         this.tags = tags; // NOSONAR clone() no es necesario en DTOs (no se exponen referencias internas)
-    }
-
-    public String getCreadorField() {
-        return creadorField;
-    }
-
-    public void setCreadorField(String creadorField) {
-        this.creadorField = creadorField;
     }
 
     public Integer getMaxAge() {

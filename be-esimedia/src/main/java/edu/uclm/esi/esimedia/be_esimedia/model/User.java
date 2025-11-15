@@ -19,10 +19,11 @@ public class User {
     private boolean blocked = false;
     private boolean active = true; 
 
-    // Constructor vacío requerido por MongoDB
+    // Constructor vacío requerido por Spring Data MongoDB
     public User() {
     }
 
+    // Constructor con DTO para crear nuevas instancias
     public User(UserDTO dto) {
         initializeFromDTO(dto);
     }

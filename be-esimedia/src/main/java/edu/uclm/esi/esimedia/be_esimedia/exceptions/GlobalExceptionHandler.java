@@ -39,6 +39,13 @@ public class GlobalExceptionHandler {
             .body(Map.of(ERROR_KEY, e.getMessage()));
     }
 
+    @ExceptionHandler(AudioGetException.class)
+    public ResponseEntity<Map<String, String>> handleAudioGet(AudioGetException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
+
     @ExceptionHandler(ContenidoNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleContenidoNotFound(ContenidoNotFoundException e) {
         logger.warn(e.getMessage());

@@ -13,10 +13,19 @@ public final class Constants {
     // Seguridad
     public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     public static final Pattern URL_PATTERN = Pattern.compile("^https?://.*$");
+    public static final String ADMIN_ROLE = "ADMIN";
+    public static final String CREADOR_ROLE = "CREADOR";
+    public static final String USUARIO_ROLE = "USUARIO";
+
+    // Rutas
+    public static final String PUBLIC_DIR = "/app/public/";
 
     // Contenido
     public static final String AUDIO_TYPE = "AUDIO";
     public static final String VIDEO_TYPE = "VIDEO";
+    public static final String URLID_ALPHABET = 
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"; 
+    public static final int URLID_LENGTH = 11;
 
     // Audio
     public static final String AUDIO_UPLOAD_DIR = "src/main/resources/audios/";

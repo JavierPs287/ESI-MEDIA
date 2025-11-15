@@ -17,6 +17,9 @@ public class Usuario {
     private Instant birthDate;
     private boolean vip = false;
 
+    public Usuario() {
+    }
+
     public Usuario(UsuarioDTO dto) {
         initializeFromDTO(dto);
     }
@@ -25,6 +28,12 @@ public class Usuario {
         this.setAlias(dto.getAlias());
         this.setBirthDate(dto.getBirthDate());
         this.setVip(dto.isVip());
+    }
+
+    public int getAge() {
+        Instant now = Instant.now();
+        long ageInSeconds = now.getEpochSecond() - this.birthDate.getEpochSecond();
+        return (int) (ageInSeconds / (60 * 60 * 24 * 365));
     }
 
     // Getters and Setters

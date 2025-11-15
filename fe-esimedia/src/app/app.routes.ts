@@ -9,6 +9,11 @@ import { MainMenuAdminComponent } from './components/menus/main-menu-admin/main-
 import { UserManagementComponent } from './components/admin-pages/user-management/user-management.component';
 import { UploadAudioComponent } from './components/creator-pages/uploadcontent/uploadaudio/uploadaudio.component';
 import { UploadVideoComponent } from './components/creator-pages/uploadcontent/uploadvideo/uploadvideo.component';
+import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
+import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
+import { ForgotpasswordComponent } from './components/forgotpassword/forgotpassword.component';
+import { ResetpasswordComponent } from './components/resetpassword/resetpassword.component';
 import { MainMenuUserComponent } from './components/menus/main-menu-user/main-menu-user.component';
 import { ShowContentComponent } from './components/show-content/show-content.component';
 import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
@@ -27,6 +32,11 @@ export const routes: Routes = [
     },
 
     {
+        path: 'unauthorized',
+        component: UnauthorizedComponent
+    },
+
+    {
         path: 'register/user',
         component: RegisteruserComponent
     },
@@ -39,6 +49,8 @@ export const routes: Routes = [
     {
         path: 'menu/creator',
         component: MainMenuCreatorComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['CREATOR'] },
         children: [
             {
                 path: '',
@@ -58,6 +70,8 @@ export const routes: Routes = [
     {
         path: 'menu/admin',
         component: MainMenuAdminComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN'] },
         children: [
             {
                 path: 'userManagement',
@@ -72,20 +86,5 @@ export const routes: Routes = [
                 component: RegistercreatorComponent
             },
         ]
-    },
-
-    {
-        path: 'menu/user',
-        component: MainMenuUserComponent,
-        children: [
-            {
-                path: '',
-                component: ShowContentComponent
-            }
-        ]
-    },
-    {
-        path: 'reproduce/:title',
-        component: ReproduceContentComponent
     }
 ];

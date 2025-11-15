@@ -19,14 +19,19 @@
 
     <!-- Campo: Contraseña -->
     <div class="form-field">
-      <label for="contrasena">Contraseña *</label>
-      <input type="password" placeholder="Contraseña" formControlName="contrasena">
-      <div *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched">
-        <span class="error.message" *ngIf="loginForm.get('contrasena')?.hasError('required')">
+      <label for="password">Contraseña *</label>
+      <input type="password" placeholder="Contraseña" formControlName="password">
+      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        <span class="error.message" *ngIf="loginForm.get('password')?.hasError('required')">
           Contraseña es un campo obligatorio</span>
-        <span class="error.message" *ngIf="loginForm.get('contrasena')?.hasError('minlength') || loginForm.get('contrasena')?.hasError('maxlength')">
+        <span class="error.message" *ngIf="loginForm.get('password')?.hasError('minlength') || loginForm.get('password')?.hasError('maxlength')">
           Contraseña debe tener al menos 8 caracteres</span>
       </div>
+    </div>
+
+    <!-- Cambio de Contraseña -->
+    <div class="form-field">
+      <p class="info-link"><a class="link" routerLink="/forgotpassword">¿Has olvidado tu contraseña?</a></p>
     </div>
 
     <!-- Botón de envío -->

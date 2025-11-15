@@ -39,12 +39,12 @@ export class RegisteradminComponent implements OnInit {
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
-    nombre: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    apellido: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+    name: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+    lastName: ['',[Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['',[Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
-    departamento: ['',[Validators.required]],
-    fotoPerfil: [this.photoOptions[0].id],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
+    department: ['',[Validators.required]],
+    imageId: [this.photoOptions[0].id],
+    password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
   }
@@ -56,19 +56,19 @@ export class RegisteradminComponent implements OnInit {
 
       const formValue = this.registerForm.value;
       const admin: Admin = {
-        name: formValue.nombre,
-        lastName: formValue.apellido,
+        name: formValue.name,
+        lastName: formValue.lastName,
         email: formValue.email,
-        department: formValue.departamento,
-        imageId: formValue.fotoPerfil,
-        password: formValue.contrasena,
+        department: formValue.department,
+        imageId: formValue.imageId,
+        password: formValue.password,
       };
 
       this.adminService.registerAdmin(admin).subscribe({
         next: (response) => {
             alert('Registro del administrador exitoso.');
             this.registerForm.reset({
-              fotoPerfil: null});
+              imageId: null});
             this.selectedPhoto = null;
           },
         error: (error) => {
@@ -111,7 +111,7 @@ getControl(controlName: string): AbstractControl | null {
 
   selectPhoto(photoUrl: number): void {
     this.selectedPhoto = photoUrl;
-    this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
+    this.registerForm.get('imageId')?.setValue(photoUrl);
     this.showPhotoOptions = false;
   }
 }

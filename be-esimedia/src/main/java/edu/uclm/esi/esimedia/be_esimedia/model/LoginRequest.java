@@ -2,7 +2,7 @@ package edu.uclm.esi.esimedia.be_esimedia.model;
 
 public class LoginRequest {
     private String email;
-    private String contrasena;
+    private String password;
 
     public String getEmail() {
         return email;
@@ -12,11 +12,11 @@ public class LoginRequest {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public String getPassword() {
+        return password;
     }
 
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

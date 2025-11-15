@@ -45,15 +45,15 @@ export class RegistercreatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
-    nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    apellidos: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+    lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email, Validators.minLength(5), Validators.maxLength(100)]],
     alias: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
-    fotoPerfil: [this.photoOptions[0].id, [Validators.required]],
-    descripcion: ['', [Validators.maxLength(500)]],
-    especialidad: ['', [Validators.required]],
-    tipoContenido: ['', [Validators.required]],
-    contrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
+    imageId: [this.photoOptions[0].id, [Validators.required]],
+    description: ['', [Validators.maxLength(500)]],
+    field: ['', [Validators.required]],
+    type: ['', [Validators.required]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   }, { validators: passwordMatchValidator() });
   }
@@ -63,15 +63,15 @@ export class RegistercreatorComponent implements OnInit {
       this.isSubmitting = true;
       const formValue = this.registerForm.getRawValue();
       const creator: Creator = {
-        name: formValue.nombre,
-        lastName: formValue.apellidos,
+        name: formValue.name,
+        lastName: formValue.lastName,
         email: formValue.email,
         alias: formValue.alias,
-        imageId: formValue.fotoPerfil,
-        description: formValue.descripcion,
-        field: formValue.especialidad,
-        type: formValue.tipoContenido,
-        password: formValue.contrasena
+        imageId: formValue.imageId,
+        description: formValue.description,
+        field: formValue.field,
+        type: formValue.type,
+        password: formValue.password
       };
 
       this.creatorService.registerCreator(creator)
@@ -111,7 +111,7 @@ export class RegistercreatorComponent implements OnInit {
   togglePhotoOptions(): void {
     this.showPhotoOptions = !this.showPhotoOptions;
     if (this.showPhotoOptions) {
-      this.registerForm.get('fotoPerfil')?.markAsTouched();
+      this.registerForm.get('imageId')?.markAsTouched();
     }
   }
 
@@ -124,12 +124,12 @@ export class RegistercreatorComponent implements OnInit {
 
   selectPhoto(imageID: number): void {
     this.selectedPhoto = imageID;
-    this.registerForm.get('fotoPerfil')?.setValue(imageID);
+    this.registerForm.get('imageId')?.setValue(imageID);
     this.showPhotoOptions = false;
   }
 
   selectContentType(type: string) {
-    this.registerForm.get('tipoContenido')?.setValue(type);
+    this.registerForm.get('type')?.setValue(type);
   }
 
 }

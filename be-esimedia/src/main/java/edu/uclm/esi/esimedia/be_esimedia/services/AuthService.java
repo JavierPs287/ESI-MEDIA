@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
@@ -24,13 +26,19 @@ public class AuthService {
     private String jwtSecret;
 
     private final UsuarioRepository usuarioRepository;
+    private final AdminRepository adminRepository;
+    private final CreadorRepository creadorRepository;
     private final ValidateService validateService;
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, UserRepository userRepository) {
+    public AuthService(UsuarioRepository usuarioRepository, AdminRepository adminRepository, 
+                       CreadorRepository creadorRepository, ValidateService validateService, 
+                       UserRepository userRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.adminRepository = adminRepository;
+        this.creadorRepository = creadorRepository;
         this.userRepository = userRepository;
         this.validateService = validateService;
     }
@@ -122,13 +130,13 @@ public class AuthService {
         }
     }
 
-    public String login(String email, String contrasena) {
+    public String login(String email, String password) {
         if (!validateService.isEmailValid(email)) {
             throw new IllegalArgumentException("El formato del email no es válido");
         }
 
         User usuario = userRepository.findByEmail(email);
-        if (usuario == null || !passwordEncoder.matches(contrasena, usuario.getPassword())) {
+        if (usuario == null || !passwordEncoder.matches(password, usuario.getPassword())) {
             throw new IllegalArgumentException("Credenciales inválidas");
         }
 
@@ -137,20 +145,51 @@ public class AuthService {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
         
+        // TODO Cambiar esto y usar el rol que está en User
+        // Determinar el rol del usuario
+        String role = determineUserRole(usuario.getId());
+        
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
         // Generar token de autenticación JWT con expiración de 24 horas
+        //TODO Reducir Tiempo de inactividad a 15 min (usuario) y 20 min (admin y creador)
+        //TODO Reducir timeout total a 8 horas
         long expirationTime = 86400000; // 24 horas en milisegundos
         Instant now = Instant.now();
         Instant expiryDate = now.plusMillis(expirationTime);
 
         return Jwts.builder()
                 .subject(usuario.getEmail())
+                .claim("role", role)
+                .claim("userId", usuario.getId())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiryDate))
                 .signWith(key)
                 .compact();
 
+    }
+    
+    /**
+     * Determina el rol del usuario basándose en su ID
+     * @param userId ID del usuario
+     * @return Rol del usuario: "ADMIN", "CREATOR" o "USER"
+     */
+    private String determineUserRole(String userId) {
+        // Verificar si es Admin (Admin y User comparten el mismo ID)
+        if (adminRepository.existsById(userId)) {
+            return "ADMIN";
+        }
+        
+        // Verificar si es Creador (Creador y User comparten el mismo ID)
+        if (creadorRepository.existsById(userId)) {
+            return "CREATOR";
+        }
+        
+        // Por defecto es Usuario
+        if (usuarioRepository.existsById(userId)) {
+            return "USER";
+        }
+        return null;
     }
 
 }

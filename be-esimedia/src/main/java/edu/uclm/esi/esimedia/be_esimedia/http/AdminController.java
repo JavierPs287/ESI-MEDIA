@@ -1,4 +1,7 @@
 package edu.uclm.esi.esimedia.be_esimedia.http;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -8,14 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-// removed invalid import org.springframework.web.bind.annotationPatchMapping
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("admin")

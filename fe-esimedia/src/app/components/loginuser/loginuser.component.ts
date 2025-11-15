@@ -19,7 +19,7 @@ export class LoginuserComponent {
   private readonly authService = inject(AuthService);
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    contrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   });
   loginResponse: { message?: string; error?: string; errorType?: string; httpStatus?: number } | null = null;
 
@@ -30,9 +30,8 @@ export class LoginuserComponent {
       return;
     }
 
-    const { email, contrasena } = this.loginForm.value;
-    this.userService.login(email, contrasena).subscribe(result => {
-      // Normalize into the same shape used by register component
+    const { email, password } = this.loginForm.value;
+    this.userService.login(email, password).subscribe(result => {
       this.loginResponse = {
         message: result.message || undefined,
         error: result.error || undefined,
@@ -44,12 +43,20 @@ export class LoginuserComponent {
         return; // template will show loginResponse.error
       }
 
-      if (result.token) {
-        localStorage.setItem('esi_token', result.token);
-        this.authService.setAuthenticated(true);
+      // La cookie ya está establecida por el backend
+      // Solo actualizamos el estado de autenticación
+      console.log('[Login] Éxito. Rol:', result.role, 'UserID:', result.userId);
+      this.authService.setAuthenticated(true, result.role, result.userId);
+      this.authService.markAsInitialized();
+      
+      // Navegar según el rol
+      if (result.role === 'ADMIN') {
+        this.router.navigate(['/menu/admin']);
+      } else if (result.role === 'CREATOR') {
+        this.router.navigate(['/menu/creator']);
+      } else {
+        this.router.navigate(['/']);
       }
-      // success: navigate
-      this.router.navigate(['/']);
     });
   }
 }

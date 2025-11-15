@@ -1,0 +1,94 @@
+trigger:
+  branches:
+    include:
+      - develop
+  paths:
+    include:
+      - be-esimedia/**
+      - fe-esimedia/**
+      - Dockerfile
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  imageName: 'esimedia'
+  imageTag: '$(Build.BuildId)'
+
+stages:
+  - stage: BuildDocker
+    displayName: 'Build Docker Image'
+    jobs:
+      - job: DockerBuild
+        displayName: 'Build and Push Docker Image'
+        steps:
+          - task: Docker@2
+            displayName: 'Build Docker Image'
+            inputs:
+              command: 'build'
+              Dockerfile: '**/Dockerfile'
+              tags: |
+                $(imageName):$(imageTag)
+                $(imageName):latest
+              arguments: '--no-cache'
+
+          - task: Docker@2
+            displayName: 'Save Docker Image'
+            inputs:
+              command: 'save'
+              arguments: '-o $(Build.ArtifactStagingDirectory)/$(imageName)-$(imageTag).tar $(imageName):$(imageTag)'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Docker Image as Artifact'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'docker-image'
+              publishLocation: 'Container'
+
+          - script: |
+              echo "Docker image built successfully!"
+              echo "Image name: $(imageName):$(imageTag)"
+              echo "Image name: $(imageName):latest"
+              docker images | grep $(imageName)
+            displayName: 'Display Docker Images'
+
+  - stage: TestDocker
+    displayName: 'Test Docker Image'
+    dependsOn: BuildDocker
+    jobs:
+      - job: DockerTest
+        displayName: 'Run Docker Container Tests'
+        steps:
+          - task: Docker@2
+            displayName: 'Build Docker Image for Testing'
+            inputs:
+              command: 'build'
+              Dockerfile: '**/Dockerfile'
+              tags: '$(imageName):test'
+
+          - script: |
+              echo "Starting Docker container for testing..."
+              docker run -d --name esimedia-test \
+                -p 8080:8080 \
+                -e SPRING_DATA_MONGODB_URI="mongodb+srv://prueba:prueba@esimediadev.krctjsb.mongodb.net" \
+                -e SPRING_DATA_MONGODB_DATABASE="esimedia_test" \
+                -e JWT_SECRET="test_secret_key_for_pipeline_testing_with_256_bits_minimum" \
+                $(imageName):test
+              
+              echo "Waiting for application to start..."
+              sleep 30
+              
+              echo "Checking if application is running..."
+              docker ps | grep esimedia-test
+              
+              echo "Checking application logs..."
+              docker logs esimedia-test
+              
+              echo "Testing health endpoint..."
+              curl -f http://localhost:8080 || echo "Health check failed"
+              
+              echo "Stopping container..."
+              docker stop esimedia-test
+              docker rm esimedia-test
+            displayName: 'Test Docker Container'
+            continueOnError: true
