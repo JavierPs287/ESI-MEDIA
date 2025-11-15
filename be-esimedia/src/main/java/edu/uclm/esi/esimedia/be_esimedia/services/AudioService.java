@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
@@ -125,6 +126,19 @@ public class AudioService {
 
         Usuario usuario = usuarioRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
+
+
+        // Validar urlId
+        if (urlId == null || urlId.isEmpty()) {
+            logger.warn("URL ID de audio no proporcionado");
+            throw new AudioGetException();
+        }
+        urlId = urlId.trim();
+
+        if (urlId.length() != URLID_LENGTH) {
+            logger.warn("URL ID de audio con longitud incorrecta: {}", urlId);
+            throw new AudioGetException();
+        }
 
         // Conseguir contenido y audio
         Contenido contenido = contenidoRepository.findByUrlId(urlId)

@@ -17,10 +17,11 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MAX_AGE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MIN_AGE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
-
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
+import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 
 @Service
 public class ValidateService {
@@ -347,6 +348,22 @@ public class ValidateService {
 
     public boolean isURLValid(String url) {
         return url != null && URL_PATTERN.matcher(url).matches();
+    }
+
+    boolean canUsuarioAccessContenido(Usuario usuario, Contenido contenido) {
+        if (usuario == null || contenido == null) {
+            return false;
+        }
+
+        if (!contenido.isVisible()) {
+            return false;
+        }
+
+        if (contenido.isVip() && !usuario.isVip()) {
+            return false;
+        }
+
+        return contenido.getMinAge() <= usuario.getAge();
     }
 
     public boolean isBirthDateValid(Instant fechaNacimiento) {
