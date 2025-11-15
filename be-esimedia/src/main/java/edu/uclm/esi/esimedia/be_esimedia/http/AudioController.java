@@ -37,7 +37,7 @@ public class AudioController {
                 .body(Map.of(MESSAGE_KEY, "Audio subido exitosamente"));
     }
 
-    @GetMapping("/usuario/{urlId}")
+    @GetMapping("/usuario/audio/{urlId}")
     public ResponseEntity<Resource> getAudio(@PathVariable String urlId, HttpSession session) {
         return audioService.getAudio(urlId, session);
     }
