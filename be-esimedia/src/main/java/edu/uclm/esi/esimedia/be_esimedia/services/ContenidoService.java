@@ -49,8 +49,18 @@ public class ContenidoService {
             contenidos.forEach(contenido -> result.add(new ContenidoDTO(contenido)));
             logger.info("Encontrados {} contenidos", result.size());
         }
-        
+
         return result;
+    }
+
+    public void incrementViews(String contenidoId) {
+        Contenido contenido = contenidoRepository.findById(contenidoId)
+                .orElseThrow(() -> new IllegalArgumentException("Contenido no encontrado"));
+
+        contenido.setViews(contenido.getViews() + 1);
+        contenidoRepository.save(contenido);
+
+        logger.info("Views incrementadas para contenido ID: {}", contenidoId);
     }
 
     private List<Contenido> applyFilters(ContenidoFilterDTO filters) {
@@ -91,7 +101,8 @@ public class ContenidoService {
     }
 
     private void validateFilters(ContenidoFilterDTO filters) {
-        // Puede que los atributos se comprueben si están vacíos dos veces porque los filtros son opcionales
+        // Puede que los atributos se comprueben si están vacíos dos veces porque los
+        // filtros son opcionales
         // y se usa el método de ValidateService solo si el filtro está presente.
 
         // Validar tipo de contenido

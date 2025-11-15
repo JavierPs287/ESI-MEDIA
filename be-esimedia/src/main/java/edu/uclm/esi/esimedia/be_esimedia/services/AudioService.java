@@ -45,15 +45,17 @@ public class AudioService {
     private final Logger logger = LoggerFactory.getLogger(AudioService.class);
 
     private final ValidateService validateService;
+    private final ContenidoService contenidoService;
 
     private final AudioRepository audioRepository;
     private final ContenidoRepository contenidoRepository;
     private final UsuarioRepository usuarioRepository;
 
     @Autowired
-    public AudioService(ValidateService validateService, AudioRepository audioRepository,
-            ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository) {
+    public AudioService(ValidateService validateService, ContenidoService contenidoService, 
+            AudioRepository audioRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository) {
         this.validateService = validateService;
+        this.contenidoService = contenidoService;
         this.audioRepository = audioRepository;
         this.contenidoRepository = contenidoRepository;
         this.usuarioRepository = usuarioRepository;
@@ -172,6 +174,9 @@ public class AudioService {
 
         // Crear recurso para el archivo físico
         Resource resource = new FileSystemResource(file);
+
+        // Incrementar contador de reproducciones
+        contenidoService.incrementViews(contenido.getId());
 
         // Retornar respuesta con el recurso y encabezados adecuados
         return ResponseEntity.ok()
