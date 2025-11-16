@@ -1,6 +1,7 @@
 export interface Content {
   title: string;
   description?: string;
+  type: "AUDIO" | "VIDEO";
   tags?: string[];
   duration?: number;
   vip?: boolean;
@@ -12,5 +13,5 @@ export interface Content {
   creador: string;
   rating?: number;
   views?: number;
-  urlId?: string;
+  urlId: string;
 }

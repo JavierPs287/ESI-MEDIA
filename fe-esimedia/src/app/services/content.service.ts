@@ -95,4 +95,44 @@ export class ContentService {
         });
     });
   }
+
+  /**
+   * Obtiene el archivo de audio según su URL ID
+   * @param urlId ID único del contenido
+   * @returns Observable con el Blob del audio
+   */
+  getAudioByUrlId(urlId: string): Observable<Blob> {
+    return new Observable<Blob>(observer => {
+      fetch(`http://localhost:8081/usuario/audio/${urlId}`, {
+        method: 'GET',
+        credentials: 'include',  // ✅ Envía automáticamente la cookie JSESSIONID
+        headers: {
+          'Accept': 'audio/*'
+        }
+      })
+      .then(response => response.blob())
+      .then(blob => {
+        observer.next(blob);
+        observer.complete();
+      })
+      .catch(error => {
+        console.error('Error al obtener el audio:', error);
+        observer.error(error);
+        observer.complete();
+      });
+    });
+  }
+
+  /**
+   * Obtiene la URL del vídeo según su URL ID
+   * @param urlId ID único del contenido
+   * @returns Observable con la URL del vídeo
+   */
+  getVideoByUrlId(urlId: string): Observable<string> {
+    return this.http.get(`${environment.apiUrl}/usuario/video/${urlId}`, {
+      responseType: 'text',
+      withCredentials: true
+    });
+  }
+
 }

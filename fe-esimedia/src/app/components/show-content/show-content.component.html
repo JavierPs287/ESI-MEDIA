@@ -10,8 +10,8 @@
   <mat-card *ngFor="let content of contents" 
             class="content-card" 
             [class.vip-content]="content.vip"
-            (click)="onContentClick(content.title)"
-            (keypress)="onContentClick(content.title)"
+            (click)="onContentClick(content.urlId!)"
+            (keypress)="onContentClick(content.urlId!)"
             tabindex="0">
     <div class="thumbnail-container">
       <img mat-card-image [src]="getImageUrl(content.imageId)" [alt]="content.title">

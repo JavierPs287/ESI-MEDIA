@@ -50,8 +50,24 @@ export class ShowContentComponent implements OnInit {
     });
   }
 
-  onContentClick(contentTitle: string) {
-    this.router.navigate(['/reproduce', contentTitle]);
+  onContentClick(urlId: string) {
+    // Validar que urlId existe
+    if (!urlId) {
+      console.error('URL ID no proporcionado');
+      return;
+    }
+
+    const selectedContent = this.contents.find(c => c.urlId === urlId);
+    
+    // Validar que se encontró el contenido
+    if (!selectedContent) {
+      console.error('Contenido no encontrado para urlId:', urlId);
+      return;
+    }
+
+    this.router.navigate(['/menu/user/reproduce', urlId], {
+      state: { content: selectedContent }
+    });
   }
 
   formatDuration(seconds?: number): string {
