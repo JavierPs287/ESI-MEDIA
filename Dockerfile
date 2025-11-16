@@ -64,8 +64,8 @@ USER spring:spring
 # Expose port (Render uses PORT environment variable)
 EXPOSE 8081
 
-# Use environment variables for configuration
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
+# Variables de entorno por defecto
+ENV PORT=8081
 
-# Run the application - bind to all interfaces
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.address=0.0.0.0 -Djava.security.egd=file:/dev/./urandom -jar app.jar"]
+# Run the application - bind to all interfaces and use PORT variable
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8081} -Dserver.address=0.0.0.0 -jar app.jar"]
