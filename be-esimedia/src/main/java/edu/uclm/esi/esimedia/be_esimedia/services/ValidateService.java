@@ -68,6 +68,14 @@ public class ValidateService {
     public boolean isRequiredFieldEmpty(String field, int minLength, int maxLength) {
         return field == null || field.trim().isEmpty() || field.length() < minLength || field.length() > maxLength;
     }
+    
+    public boolean isFieldEmpty(String field) {
+        return field == null || field.trim().isEmpty();
+    }
+
+    public boolean hasValidLength(String field, int minLength, int maxLength) {
+        return field.length() < minLength || field.length() > maxLength;
+    }
 
     public boolean isEmailValid(String email) {
         return email != null && EMAIL_PATTERN.matcher(email).matches();
@@ -408,4 +416,42 @@ public class ValidateService {
     public boolean isEnumValid(Enum<?> enumValue) {
         return enumValue != null;
     }
-}
+
+    /*
+     * ====== VALIDACIONES DE USUARIO, ADMIN Y CREADOR ======
+     */
+
+    public boolean isAdminDepartmentValid(String department) {
+        if (department == null || department.isEmpty()) {
+            return false;
+        }
+
+        return "PELICULA".equals(department) ||
+               "SERIE".equals(department) ||
+               "LIBRO".equals(department) ||
+               "VIDEOJUEGO".equals(department) ||
+               "MUSICA".equals(department);
+    }
+
+    public boolean isCreatorFieldValid(String field) {
+        if (field == null || field.isEmpty()) {
+            return false;
+        }
+
+        return "PELICULA".equals(field) ||
+               "SERIE".equals(field) ||
+               "LIBRO".equals(field) ||
+               "VIDEOJUEGO".equals(field) ||
+               "MUSICA".equals(field);
+    }
+
+    public boolean isCreatorTypeValid(String type) {
+        if (type == null || type.isEmpty()) {
+            return false;
+        }
+
+        return AUDIO_TYPE.equals(type) ||
+               VIDEO_TYPE.equals(type);
+    }
+
+} 
