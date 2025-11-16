@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.BlockingException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
@@ -155,10 +156,17 @@ public class AdminService {
 
     public void setUserBlocked(String email, boolean blocked) {
         User user = userRepository.findByEmail(email);
+        
         if (user == null) {
             throw new NoSuchElementException("User no encontrado");
         }
-        user.setBlocked(blocked);
-        userRepository.save(user);
+
+        try {
+            user.setBlocked(blocked);
+            userRepository.save(user);
+        } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
+            logger.error("Error al actualizar el estado de bloqueo del usuario en la base de datos: {}", e.getMessage(), e);
+            throw new BlockingException();
+        }
     }
 }
