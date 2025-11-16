@@ -4,7 +4,6 @@ import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +17,6 @@ import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 
 @RestController
 @RequestMapping("admin")
-@CrossOrigin("*")
-
 public class AdminController {
     
     private static final String ERROR_KEY = "error";
@@ -31,24 +28,17 @@ public class AdminController {
 
     @PostMapping("/registerAdmin")
     public ResponseEntity<String> registerAdmin(@RequestBody AdminDTO adminDTO){
-        try {
-            adminService.registerAdmin(adminDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Administrador registrado correctamente");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+        adminService.registerAdmin(adminDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Administrador registrado correctamente");
     }
 
     @PostMapping("/registerCreador")
     public ResponseEntity<String> registerCreador(@RequestBody CreadorDTO creadorDTO){
-        try {
-            adminService.registerCreador(creadorDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Creador registrado correctamente");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+        adminService.registerCreador(creadorDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Creador registrado correctamente");
     }
 
+    // TODO Quitar toda lógica de Controller
     @PatchMapping("/users/{email}/blocked")
     public ResponseEntity<Object> setUserBlocked(@PathVariable("email") String emailPath, @RequestBody Map<String, Boolean> body) {
         // Decode path variable in case the email was URL-encoded

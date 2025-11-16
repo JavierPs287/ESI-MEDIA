@@ -1,12 +1,19 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREADOR_ROLE;
+
 import java.util.NoSuchElementException;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.BlockingException;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
@@ -17,123 +24,133 @@ import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 @Service
 public class AdminService {
 
+    private final Logger logger = LoggerFactory.getLogger(AdminService.class);
+
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
     private final CreadorRepository creadorRepository;
     private final ValidateService validateService;
+    private final AuthService authService;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    public AdminService(UserRepository userRepository, AdminRepository adminRepository, CreadorRepository creadorRepository, ValidateService validateService) {
+    public AdminService(UserRepository userRepository, AdminRepository adminRepository, 
+            CreadorRepository creadorRepository, ValidateService validateService, AuthService authService) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.creadorRepository = creadorRepository;
         this.validateService = validateService;
+        this.authService = authService;
     }
 
-    // TODO Validar los DTOs antes de crear las entidades
     public void registerAdmin(AdminDTO adminDTO) {
+        if (adminDTO == null) {
+            logger.error("El objeto AdminDTO es nulo");
+            throw new RegisterException();
+        }
+
         // Convertir DTO a entidad
         User user = new User(adminDTO);
         Admin admin = new Admin(adminDTO);
 
-        registerComun(user);
-        registerAdminInternal(user, admin);
+        // Validar datos
+        validateAdminCreation(user, admin);
+        
+        // Asignar rol de administrador
+        user.setRole(ADMIN_ROLE);
+
+        // Guardar user y administrador
+        try {
+            user = userRepository.save(user);
+            admin.setId(user.getId());
+            adminRepository.save(admin);
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al guardar el administrador en la base de datos: {}", e.getMessage(), e);
+            throw new RegisterException();
+        }
     }
 
     public void registerCreador(CreadorDTO creadorDTO) {
+        if (creadorDTO == null) {
+            logger.error("El objeto CreadorDTO es nulo");
+            throw new RegisterException();
+        }
+
         // Convertir DTO a entidad
         User user = new User(creadorDTO);
         Creador creador = new Creador(creadorDTO);
 
-        registerComun(user);
-        registerCreadorInternal(user, creador);
+        // Validar datos
+        validateCreadorCreation(user, creador);
+
+        // Asignar rol de creador
+        user.setRole(CREADOR_ROLE);
+
+        // Guardar user y creador
+        try {
+            user = userRepository.save(user);
+            creador.setId(user.getId());
+            creadorRepository.save(creador);
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al guardar el creador en la base de datos: {}", e.getMessage(), e);
+            throw new RegisterException();
+        }
     }
 
-    // TODO Llevar TODAS las validaciones a ValidateService (se puede mirar cómo se hace en AudioService o VideoService)
-    private void registerComun(User user) {
-        if (validateService.isRequiredFieldEmpty(user.getName(), 2, 50)) {
-            throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
-        }
-        if (validateService.isRequiredFieldEmpty(user.getLastName(), 2, 100)) {
-            throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
-        }
-        if (validateService.isRequiredFieldEmpty(user.getEmail(), 5, 100)) {
-            throw new IllegalArgumentException("El email es obligatorio y debe tener entre 5 y 100 caracteres");
-        }
-        if (!validateService.isEmailValid(user.getEmail())) {
-            throw new IllegalArgumentException("El formato del email no es válido");
-        }
-        if (validateService.isRequiredFieldEmpty(user.getPassword(),8, 128)) {
-            throw new IllegalArgumentException("La contraseña es obligatoria y debe tener entre 8 y 128 caracteres");
-        }
-        if (!validateService.isPasswordSecure(user.getPassword())) {
-            throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
-        }
+    private void validateAdminCreation(User user, Admin admin) {
+        authService.validateUserCreation(user);
 
-        // Verificar email duplicado en users
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("El email ya está registrado");
+        if (validateService.isFieldEmpty(admin.getDepartment())) {
+            throw new RegisterException("El departamento es obligatorio");
         }
-
-        // TODO Cambiar validación para que refleje que es un id de imagen
-        // Establecer foto por defecto si no se proporciona
-        if (validateService.isRequiredFieldEmpty(String.valueOf(user.getImageId()), 1, 10)) {
-            user.setImageId(0);
-        }
-        // Encriptar contraseña
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        admin.setDepartment(admin.getDepartment().trim());
     }
 
-    private void registerAdminInternal(User user, Admin admin) {
-        // TODO Validar de otra forma
-        // if (!validateService.isEnumValid(admin.getDepartamento())) {
-        //     throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
-        // }
-        // TODO añadir try-catch para capturar errores de BD (y a lo mejor crear excepción personalizada como en la subida de contenido)
-        // Guardar user y administrador
-        user = userRepository.save(user);
-        admin.setId(user.getId());
-        adminRepository.save(admin);
-    }
+    private void validateCreadorCreation(User user, Creador creador) {
+        authService.validateUserCreation(user);
 
-    private void registerCreadorInternal(User user, Creador creador) {
-        // TODO Validar con validateService.isRequiredFieldEmpty y cambiar mensaje de error (los caracteres pueden cambiar)
-        // Validar alias (opcional, pero si se proporciona debe cumplir requisitos)
-        if (creador.getAlias() != null && !creador.getAlias().isEmpty()) {
-            if (creador.getAlias().length() < 2 || creador.getAlias().length() > 20) {
-                throw new IllegalArgumentException("El alias debe tener entre 2 y 20 caracteres");
-            }
-            if (creadorRepository.existsByAlias(creador.getAlias())) {
-                throw new IllegalArgumentException("El alias ya está registrado");
-            }
+        // Validar alias
+        if (validateService.isRequiredFieldEmpty(creador.getAlias(), 2, 20)) {
+            throw new RegisterException("El alias es obligatorio y debe tener entre 2 y 20 caracteres");
+        }
+        creador.setAlias(creador.getAlias().trim());
+
+        // Verificar alias duplicado en creadores
+        if (creadorRepository.existsByAlias(creador.getAlias())) {
+            throw new RegisterException("El alias ya está registrado");
         }
         
         // Descripción validar longitud
-        if (creador.getDescription() != null && creador.getDescription().length() > 500) {
-            throw new IllegalArgumentException("La descripción no puede tener más de 500 caracteres");
+        if (validateService.isFieldEmpty(creador.getDescription())) {
+            creador.setDescription(creador.getDescription().trim());
+            if (!validateService.isDescriptionValid(creador.getDescription())) {
+                throw new RegisterException("La descripción no puede tener más de 500 caracteres");
+            }
         }
-        
-        // TODO Validar de otra forma
-        // if (!validateService.isEnumValid(creador.getCampo())) {
-        //     throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
-        // }
-        // if (!validateService.isEnumValid(creador.getTipo())) {
-        //     throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
-        // }
-        // TODO añadir try-catch para capturar errores de BD (y a lo mejor crear excepción personalizada como en la subida de contenido)
-        // Guardar user y creador
-        user = userRepository.save(user);
-        creador.setId(user.getId());
-        creadorRepository.save(creador);
+
+        // Validar especialidad y tipo
+        if (validateService.isFieldEmpty(creador.getField())) {
+            throw new RegisterException("La especialidad es obligatoria");
+        }
+        creador.setField(creador.getField().trim());
+
+        if (!validateService.isContenidoTypeValid(creador.getType())) {
+            throw new RegisterException("El tipo es obligatorio");
+        }
     }
 
     public void setUserBlocked(String email, boolean blocked) {
+
         User user = userRepository.findByEmail(email);
+        
         if (user == null) {
             throw new NoSuchElementException("User no encontrado");
         }
-        user.setBlocked(blocked);
-        userRepository.save(user);
+
+        try {
+            user.setBlocked(blocked);
+            userRepository.save(user);
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al actualizar el estado de bloqueo del usuario en la base de datos: {}", e.getMessage(), e);
+            throw new BlockingException();
+        }
     }
 }

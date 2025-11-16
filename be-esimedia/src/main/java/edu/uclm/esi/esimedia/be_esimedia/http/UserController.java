@@ -21,7 +21,6 @@ import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 
-
 @RestController
 @RequestMapping("user")
 public class UserController {
@@ -38,15 +37,11 @@ public class UserController {
     
     @PostMapping("/register")
     public ResponseEntity<String> registerUsuario(@RequestBody UsuarioDTO usuarioDTO){
-        try {
-            authService.register(usuarioDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
-            
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+        authService.register(usuarioDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
     }
 
+    // TODO Quitar toda lógica de Controller
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUsuario(@RequestBody LoginRequest loginRequest){
         try {
@@ -59,7 +54,7 @@ public class UserController {
             // Crear cookie HTTP-Only con el token
             ResponseCookie cookie = ResponseCookie.from("esi_token", token)
                     .httpOnly(true)  // No accesible desde JavaScript
-                    .secure(false)   // Cambiar a true en producción con HTTPS
+                    .secure(false)   //TODO Cambiar a true en producción con HTTPS
                     .path("/")
                     .maxAge(24L * 60 * 60) // 24 horas
                     .sameSite("Lax")

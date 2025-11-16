@@ -5,6 +5,8 @@ trigger:
   paths:
     include:
       - fe-esimedia/**
+      - Dockerfile
+      - pipelines/**
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -25,14 +27,6 @@ stages:
             inputs:
               versionSpec: $(nodeVersion)
 
-          - task: Cache@2
-            displayName: 'Cache npm packages'
-            inputs:
-              key: 'npm | "$(Agent.OS)" | fe-esimedia/package-lock.json'
-              restoreKeys: |
-                npm | "$(Agent.OS)"
-              path: $(npmCacheFolder)
-
           - script: |
               cd fe-esimedia
               npm ci
@@ -49,23 +43,23 @@ stages:
           #   displayName: 'Run Unit Tests'
           #   continueOnError: false
 
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'JUnit'
-              testResultsFiles: '**/fe-esimedia/test-results/TESTS-*.xml'
-              mergeTestResults: true
-              failTaskOnFailedTests: true
-              testRunTitle: 'Frontend Unit Tests'
+          #- task: PublishTestResults@2
+          #  displayName: 'Publish Test Results'
+          #  condition: succeededOrFailed()
+          #  inputs:
+          #    testResultsFormat: 'JUnit'
+          #    testResultsFiles: '**/fe-esimedia/test-results/TESTS-*.xml'
+          #    mergeTestResults: true
+          #    failTaskOnFailedTests: true
+          #    testRunTitle: 'Frontend Unit Tests'
 
-          - task: PublishCodeCoverageResults@2
-            displayName: 'Publish Code Coverage'
-            condition: succeededOrFailed()
-            inputs:
-              codeCoverageTool: 'Cobertura'
-              summaryFileLocation: '$(System.DefaultWorkingDirectory)/fe-esimedia/coverage/fe-esimedia/cobertura-coverage.xml'
-              reportDirectory: '$(System.DefaultWorkingDirectory)/fe-esimedia/coverage/fe-esimedia'
+          #- task: PublishCodeCoverageResults@2
+          #  displayName: 'Publish Code Coverage'
+          #  condition: succeededOrFailed()
+          #  inputs:
+          #    codeCoverageTool: 'Cobertura'
+          #    summaryFileLocation: '$(System.DefaultWorkingDirectory)/fe-esimedia/coverage/fe-esimedia/cobertura-coverage.xml'
+          #    reportDirectory: '$(System.DefaultWorkingDirectory)/fe-esimedia/coverage/fe-esimedia'
 
           - task: PublishBuildArtifacts@1
             displayName: 'Publish Build Artifacts'

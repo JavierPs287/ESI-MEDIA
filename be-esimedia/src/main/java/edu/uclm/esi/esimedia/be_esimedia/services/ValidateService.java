@@ -20,6 +20,7 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.RatingUsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
@@ -68,9 +69,21 @@ public class ValidateService {
     public boolean isRequiredFieldEmpty(String field, int minLength, int maxLength) {
         return field == null || field.trim().isEmpty() || field.length() < minLength || field.length() > maxLength;
     }
+    
+    public boolean isFieldEmpty(String field) {
+        return field == null || field.trim().isEmpty();
+    }
+
+    public boolean hasValidLength(String field, int minLength, int maxLength) {
+        return field.length() < minLength || field.length() > maxLength;
+    }
 
     public boolean isEmailValid(String email) {
         return email != null && EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    public boolean isImageIdValid(int imageId) {
+        return imageId >= 0;
     }
 
     public boolean isPasswordSecure(String password) { // NOSONAR Falso positivo
@@ -113,7 +126,7 @@ public class ValidateService {
     public boolean areVideoRequiredFieldsValid(VideoDTO videoDTO) {
         return areContentRequiredFieldsValid(videoDTO) &&
                 isURLValid(videoDTO.getUrl()) &&
-                videoDTO.getResolution() > 0;
+                isResolutionValid(videoDTO.getResolution(), videoDTO.isVip());
     }
 
     public boolean isDurationValid(double duration) {
@@ -157,7 +170,15 @@ public class ValidateService {
             return false;
         }
 
-        return !(!type.equals(AUDIO_TYPE) && !type.equals(VIDEO_TYPE));
+        return type.equals(AUDIO_TYPE) || type.equals(VIDEO_TYPE);
+    }
+
+    public boolean isDescriptionValid(String description) {
+        if (description == null || description.isEmpty()) {
+            return true; // Descripción es opcional
+        }
+        
+        return description.length() <= 500;
     }
 
     public boolean isFilePresent(MultipartFile file) {
@@ -352,6 +373,14 @@ public class ValidateService {
     public boolean isURLValid(String url) {
         return url != null && URL_PATTERN.matcher(url).matches();
     }
+    
+    public boolean isResolutionValid(int resolution, boolean vip) {
+        if (resolution > MAX_STANDARD_RESOLUTION && !vip) {
+            return false;
+        }
+
+        return resolution > 0;
+    }
 
     public boolean canUsuarioAccessContenido(Usuario usuario, Contenido contenido) {
         if (usuario == null || contenido == null) {
@@ -378,7 +407,26 @@ public class ValidateService {
             return false;
         }
 
-        return !(video.getResolution() > MAX_STANDARD_RESOLUTION && !usuario.isVip());
+        return isResolutionValid(video.getResolution(), usuario.isVip());
+    }
+
+    public boolean isRatingUsuarioDTOValid(RatingUsuarioDTO ratingUsuarioDTO) {
+        if (ratingUsuarioDTO == null) {
+            return false;
+        }
+
+        ratingUsuarioDTO.setContenidoId(ratingUsuarioDTO.getContenidoId().trim());
+        if (isRequiredFieldEmpty(ratingUsuarioDTO.getContenidoId(), 24, 24)) {
+            return false;
+        }
+
+        ratingUsuarioDTO.setUserId(ratingUsuarioDTO.getUserId().trim());
+        if (isRequiredFieldEmpty(ratingUsuarioDTO.getUserId(), 24, 24)) {
+            return false;
+        }
+
+        int rating = ratingUsuarioDTO.getRating();
+        return rating >= 1 && rating <= 5;
     }
 
     public boolean isBirthDateValid(Instant fechaNacimiento) {
@@ -386,18 +434,10 @@ public class ValidateService {
             return false;
         }
         
-        Instant now = Instant.now();
-        // Convertir a LocalDate para calcular años correctamente
-        java.time.LocalDate birthDate = java.time.LocalDateTime.ofInstant(fechaNacimiento, java.time.ZoneId.systemDefault()).toLocalDate();
-        java.time.LocalDate today = java.time.LocalDateTime.ofInstant(now, java.time.ZoneId.systemDefault()).toLocalDate();
-        
-        // Calcular edad en años
-        long age = java.time.temporal.ChronoUnit.YEARS.between(birthDate, today);
-        
-        return fechaNacimiento.isBefore(now) && age >= MIN_AGE;
+        return fechaNacimiento.isBefore(Instant.now());
     }
 
     public boolean isEnumValid(Enum<?> enumValue) {
         return enumValue != null;
     }
-}
+} 

@@ -17,7 +17,8 @@ public class User {
     private String password;
     private int imageId = 0;
     private boolean blocked = false;
-    private boolean active = true; 
+    private boolean active = true;
+    private String role;
 
     // Constructor vacío requerido por Spring Data MongoDB
     public User() {
@@ -98,5 +99,13 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
