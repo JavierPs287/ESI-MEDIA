@@ -39,6 +39,9 @@ COPY be-esimedia/src ./src
 # Copy frontend build to backend static resources
 COPY --from=frontend-build /app/frontend/dist/fe-esimedia/browser ./src/main/resources/static
 
+# Verificar que los archivos se copiaron
+RUN ls -la ./src/main/resources/static
+
 # Build backend (skip tests for faster builds)
 RUN mvn clean package -DskipTests -B
 
