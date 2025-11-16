@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.iml
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules and build
+fe-esimedia/node_modules
+fe-esimedia/dist
+fe-esimedia/.angular
+fe-esimedia/coverage
+
+# Maven
+be-esimedia/target
+be-esimedia/.mvn/wrapper/maven-wrapper.jar
+
+# Documentation
+README.md
+diagramas
+
+# Pipelines
+pipelines
+
+# Logs
+*.log

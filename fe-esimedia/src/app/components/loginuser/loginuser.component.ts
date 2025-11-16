@@ -19,7 +19,7 @@ export class LoginuserComponent {
   private readonly authService = inject(AuthService);
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    contrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   });
   loginResponse: { message?: string; error?: string; errorType?: string; httpStatus?: number } | null = null;
 
@@ -30,8 +30,8 @@ export class LoginuserComponent {
       return;
     }
 
-    const { email, contrasena } = this.loginForm.value;
-    this.userService.login(email, contrasena).subscribe(result => {
+    const { email, password } = this.loginForm.value;
+    this.userService.login(email, password).subscribe(result => {
       this.loginResponse = {
         message: result.message || undefined,
         error: result.error || undefined,

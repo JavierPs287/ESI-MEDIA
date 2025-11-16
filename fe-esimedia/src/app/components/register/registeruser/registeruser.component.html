@@ -7,20 +7,20 @@
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
     <div class="form-field">
-      <label for="nombre">Nombre *</label>
-      <input id="nombre" type="text" placeholder="Nombre" formControlName="nombre">
-      <div class="error-container" *ngIf="getControl('nombre')?.invalid && (getControl('nombre')?.touched || getControl('nombre')?.dirty)">
-        <p class="error-message" *ngIf="getControl('nombre')?.hasError('required')"> El campo es obligatorio. </p>
-        <p class="error-message" *ngIf="getControl('nombre')?.hasError('maxlength')"> Máximo 25 caracteres. </p>
+      <label for="name">Nombre *</label>
+      <input id="name" type="text" placeholder="Nombre" formControlName="name">
+      <div class="error-container" *ngIf="getControl('name')?.invalid && (getControl('name')?.touched || getControl('name')?.dirty)">
+        <p class="error-message" *ngIf="getControl('name')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('name')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
       </div>
     </div>
 
     <div class="form-field">
-      <label for="apellidos">Apellidos *</label>
-      <input id="apellidos" type="text" placeholder="Apellidos" formControlName="apellidos">
-      <div class="error-container" *ngIf="getControl('apellidos')?.invalid && (getControl('apellidos')?.touched || getControl('apellidos')?.dirty)">
-        <p class="error-message" *ngIf="getControl('apellidos')?.hasError('required')"> El campo es obligatorio. </p>
-        <p class="error-message" *ngIf="getControl('apellidos')?.hasError('maxlength')"> Máximo 25 caracteres. </p>
+      <label for="lastName">Apellidos *</label>
+      <input id="lastName" type="text" placeholder="Apellidos" formControlName="lastName">
+      <div class="error-container" *ngIf="getControl('lastName')?.invalid && (getControl('lastName')?.touched || getControl('lastName')?.dirty)">
+        <p class="error-message" *ngIf="getControl('lastName')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('lastName')?.hasError('maxlength')"> Máximo 100 caracteres. </p>
       </div>
     </div>
 
@@ -40,11 +40,11 @@
     </div>
 
     <div class="form-field">
-      <label for="fecha_nacimiento">Fecha de nacimiento *</label>
-      <input id="fecha_nacimiento" type="date" placeholder="DD/MM/AAAA" formControlName="fecha_nacimiento">
-      <div class="error-container" *ngIf="getControl('fecha_nacimiento')?.invalid && (getControl('fecha_nacimiento')?.touched || getControl('fecha_nacimiento')?.dirty)">
-        <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('required')"> El campo es obligatorio. </p>
-        <p class="error-message" *ngIf="getControl('fecha_nacimiento')?.hasError('minAge')"> Debes tener al menos 4 años para registrarte. </p>
+      <label for="birthDate">Fecha de nacimiento *</label>
+      <input id="birthDate" type="date" placeholder="DD/MM/AAAA" formControlName="birthDate">
+      <div class="error-container" *ngIf="getControl('birthDate')?.invalid && (getControl('birthDate')?.touched || getControl('birthDate')?.dirty)">
+        <p class="error-message" *ngIf="getControl('birthDate')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('birthDate')?.hasError('minAge')"> Debes tener al menos 4 años para registrarte. </p>
       </div>
     </div>
 
@@ -80,22 +80,22 @@
     </div>
 
   <div class="form-field">
-    <label for="contrasena">Contraseña *</label>
+    <label for="password">Contraseña *</label>
       <div class="password-field">
-      <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
+      <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="password">
       <button type="button" class="eyeicon" (click)="togglePasswordVisibility()">
         <mat-icon *ngIf="visiblePassword">visibility</mat-icon>
         <mat-icon *ngIf="!visiblePassword">visibility_off</mat-icon>
       </button>
     </div>
-    <div class="error-container" *ngIf="getControl('contrasena')?.invalid && (getControl('contrasena')?.touched || getControl('contrasena')?.dirty)">
-      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('required')"> El campo es obligatorio. </p>
-      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
-      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
-      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noLowercase')">❌ Debe contener al menos una letra minúscula</p>
-      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noUppercase')">❌ Debe contener al menos una letra mayúscula</p>
-      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noNumber')">❌ Debe contener al menos un número</p>
-      <p class ="error-message" *ngIf="getControl('contrasena')?.hasError('noSpecialChar')">❌ Debe contener al menos un carácter especial</p>
+    <div class="error-container" *ngIf="getControl('password')?.invalid && (getControl('password')?.touched || getControl('password')?.dirty)">
+      <p class ="error-message" *ngIf="getControl('password')?.hasError('required')"> El campo es obligatorio. </p>
+      <p class ="error-message" *ngIf="getControl('password')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
+      <p class ="error-message" *ngIf="getControl('password')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
+      <p class ="error-message" *ngIf="getControl('password')?.hasError('noLowercase')">❌ Debe contener al menos una letra minúscula</p>
+      <p class ="error-message" *ngIf="getControl('password')?.hasError('noUppercase')">❌ Debe contener al menos una letra mayúscula</p>
+      <p class ="error-message" *ngIf="getControl('password')?.hasError('noNumber')">❌ Debe contener al menos un número</p>
+      <p class ="error-message" *ngIf="getControl('password')?.hasError('noSpecialChar')">❌ Debe contener al menos un carácter especial</p>
       </div>
   </div>
 

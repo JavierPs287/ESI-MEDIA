@@ -36,6 +36,7 @@ class AudioValidateServiceTest {
         validAudioDTO.setVisible(true);
         validAudioDTO.setMinAge(13);
         validAudioDTO.setVisibilityChangeDate(Instant.now());
+        validAudioDTO.setCreador("test_creator");
         
         // MP3 magic number: ID3
         byte[] mp3Content = new byte[]{0x49, 0x44, 0x33, 0x00, 0x00};

@@ -14,13 +14,17 @@ import org.springframework.web.multipart.MultipartFile;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.EMAIL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MAX_AGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MAX_STANDARD_RESOLUTION;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MIN_AGE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
-
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.RatingUsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
+import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 
 @Service
 public class ValidateService {
@@ -65,6 +69,14 @@ public class ValidateService {
     public boolean isRequiredFieldEmpty(String field, int minLength, int maxLength) {
         return field == null || field.trim().isEmpty() || field.length() < minLength || field.length() > maxLength;
     }
+    
+    public boolean isFieldEmpty(String field) {
+        return field == null || field.trim().isEmpty();
+    }
+
+    public boolean hasValidLength(String field, int minLength, int maxLength) {
+        return field.length() < minLength || field.length() > maxLength;
+    }
 
     public boolean isEmailValid(String email) {
         return email != null && EMAIL_PATTERN.matcher(email).matches();
@@ -98,7 +110,8 @@ public class ValidateService {
                 areTagsValid(contenidoDTO.getTags()) &&
                 isDurationValid(contenidoDTO.getDuration()) &&
                 contenidoDTO.getVisibilityChangeDate() != null &&
-                isAgeValid(contenidoDTO.getMinAge());
+                isAgeValid(contenidoDTO.getMinAge()) &&
+                !isRequiredFieldEmpty(contenidoDTO.getCreador(), 2, 20);
     }
 
     public boolean areAudioRequiredFieldsValid(AudioDTO audioDTO) {
@@ -109,7 +122,7 @@ public class ValidateService {
     public boolean areVideoRequiredFieldsValid(VideoDTO videoDTO) {
         return areContentRequiredFieldsValid(videoDTO) &&
                 isURLValid(videoDTO.getUrl()) &&
-                videoDTO.getResolution() > 0;
+                isResolutionValid(videoDTO.getResolution(), videoDTO.isVip());
     }
 
     public boolean isDurationValid(double duration) {
@@ -253,7 +266,7 @@ public class ValidateService {
     }
 
     // Valida el MIME type contra la lista blanca y la extensión
-    private static boolean isAudioMimeTypeValid(String contentType, String extension) {
+    public boolean isAudioMimeTypeValid(String contentType, String extension) {
         if (contentType == null || extension == null) {
             return false;
         }
@@ -348,6 +361,61 @@ public class ValidateService {
     public boolean isURLValid(String url) {
         return url != null && URL_PATTERN.matcher(url).matches();
     }
+    
+    public boolean isResolutionValid(int resolution, boolean vip) {
+        if (resolution > MAX_STANDARD_RESOLUTION && !vip) {
+            return false;
+        }
+
+        return resolution > 0;
+    }
+
+    public boolean canUsuarioAccessContenido(Usuario usuario, Contenido contenido) {
+        if (usuario == null || contenido == null) {
+            return false;
+        }
+
+        if (!contenido.isVisible()) {
+            return false;
+        }
+
+        if (contenido.isVip() && !usuario.isVip()) {
+            return false;
+        }
+
+        return contenido.getMinAge() <= usuario.getAge();
+    }
+
+    public boolean canUsuarioAccessVideo(Usuario usuario, Contenido contenido, Video video) {
+        if (video == null) {
+            return false;
+        }
+
+        if (!canUsuarioAccessContenido(usuario, contenido)) {
+            return false;
+        }
+
+        return isResolutionValid(video.getResolution(), usuario.isVip());
+    }
+
+    public boolean isRatingUsuarioDTOValid(RatingUsuarioDTO ratingUsuarioDTO) {
+        if (ratingUsuarioDTO == null) {
+            return false;
+        }
+
+        ratingUsuarioDTO.setContenidoId(ratingUsuarioDTO.getContenidoId().trim());
+        if (isRequiredFieldEmpty(ratingUsuarioDTO.getContenidoId(), 24, 24)) {
+            return false;
+        }
+
+        ratingUsuarioDTO.setUserId(ratingUsuarioDTO.getUserId().trim());
+        if (isRequiredFieldEmpty(ratingUsuarioDTO.getUserId(), 24, 24)) {
+            return false;
+        }
+
+        int rating = ratingUsuarioDTO.getRating();
+        return rating >= 1 && rating <= 5;
+    }
 
     public boolean isBirthDateValid(Instant fechaNacimiento) {
         if (fechaNacimiento == null) {
@@ -355,12 +423,55 @@ public class ValidateService {
         }
         
         Instant now = Instant.now();
-        Instant fechaLimite = now.minus(MIN_AGE, java.time.temporal.ChronoUnit.YEARS);
+        // Convertir a LocalDate para calcular años correctamente
+        java.time.LocalDate birthDate = java.time.LocalDateTime.ofInstant(fechaNacimiento, java.time.ZoneId.systemDefault()).toLocalDate();
+        java.time.LocalDate today = java.time.LocalDateTime.ofInstant(now, java.time.ZoneId.systemDefault()).toLocalDate();
         
-        return fechaNacimiento.isBefore(now) && fechaNacimiento.isBefore(fechaLimite);
+        // Calcular edad en años
+        long age = java.time.temporal.ChronoUnit.YEARS.between(birthDate, today);
+        
+        return fechaNacimiento.isBefore(now) && age >= MIN_AGE;
     }
 
     public boolean isEnumValid(Enum<?> enumValue) {
         return enumValue != null;
     }
-}
+
+    /*
+     * ====== VALIDACIONES DE USUARIO, ADMIN Y CREADOR ======
+     */
+
+    public boolean isAdminDepartmentValid(String department) {
+        if (department == null || department.isEmpty()) {
+            return false;
+        }
+
+        return "PELICULA".equals(department) ||
+               "SERIE".equals(department) ||
+               "LIBRO".equals(department) ||
+               "VIDEOJUEGO".equals(department) ||
+               "MUSICA".equals(department);
+    }
+
+    public boolean isCreatorFieldValid(String field) {
+        if (field == null || field.isEmpty()) {
+            return false;
+        }
+
+        return "PELICULA".equals(field) ||
+               "SERIE".equals(field) ||
+               "LIBRO".equals(field) ||
+               "VIDEOJUEGO".equals(field) ||
+               "MUSICA".equals(field);
+    }
+
+    public boolean isCreatorTypeValid(String type) {
+        if (type == null || type.isEmpty()) {
+            return false;
+        }
+
+        return AUDIO_TYPE.equals(type) ||
+               VIDEO_TYPE.equals(type);
+    }
+
+} 

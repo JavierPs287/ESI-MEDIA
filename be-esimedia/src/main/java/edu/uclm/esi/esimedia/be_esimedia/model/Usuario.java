@@ -30,6 +30,12 @@ public class Usuario {
         this.setVip(dto.isVip());
     }
 
+    public int getAge() {
+        Instant now = Instant.now();
+        long ageInSeconds = now.getEpochSecond() - this.birthDate.getEpochSecond();
+        return (int) (ageInSeconds / (60 * 60 * 24 * 365));
+    }
+
     // Getters and Setters
     public String getId() {
         return id;

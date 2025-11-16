@@ -53,7 +53,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUsuario(@RequestBody LoginRequest loginRequest){
         try {
-            String token = authService.login(loginRequest.getEmail(), loginRequest.getContrasena());
+            String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
             
             // Extraer información del token para enviarla en la respuesta
             String role = jwtUtils.getRoleFromToken(token);
@@ -62,7 +62,7 @@ public class UserController {
             // Crear cookie HTTP-Only con el token
             ResponseCookie cookie = ResponseCookie.from("esi_token", token)
                     .httpOnly(true)  // No accesible desde JavaScript
-                    .secure(false)   // Cambiar a true en producción con HTTPS
+                    .secure(false)   //TODO Cambiar a true en producción con HTTPS
                     .path("/")
                     .maxAge(24L * 60 * 60) // 24 horas
                     .sameSite("Lax")

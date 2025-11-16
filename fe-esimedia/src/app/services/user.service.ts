@@ -37,10 +37,10 @@ export class UserService {
   /**
    * Realiza login de usuario
    * @param email Email del usuario
-   * @param contrasena Contraseña del usuario
+   * @param password Contraseña del usuario
    */
-  login(email: string, contrasena: string): Observable<{ message: string; role?: string; userId?: string; error?: string; httpStatus?: number; errorType?: string }> {
-    const payload = { email, contrasena };
+  login(email: string, password: string): Observable<{ message: string; role?: string; userId?: string; error?: string; httpStatus?: number; errorType?: string }> {
+    const payload = { email, password };
     console.log('Enviando petición de login:', payload);
     return new Observable(observer => {
       // El interceptor añade automáticamente withCredentials: true

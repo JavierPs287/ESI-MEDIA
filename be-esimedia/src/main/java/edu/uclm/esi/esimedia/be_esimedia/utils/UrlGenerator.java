@@ -5,9 +5,6 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH
 
 import java.security.SecureRandom;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class UrlGenerator {
     
     private static final SecureRandom RANDOM = new SecureRandom();

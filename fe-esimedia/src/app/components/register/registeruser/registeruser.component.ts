@@ -34,14 +34,14 @@ export class RegisteruserComponent implements  OnInit {
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
-    nombre: ['', [Validators.required, Validators.maxLength(25)]],
-    apellidos: ['', [Validators.required, Validators.maxLength(25)]],
+    name: ['', [Validators.required, Validators.maxLength(50)]],
+    lastName: ['', [Validators.required, Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email]],
-    alias: ['', [Validators.minLength(3), Validators.maxLength(20)]],
+    alias: ['', [Validators.minLength(2), Validators.maxLength(20)]],
     vip: [false],
-    foto_perfil: [this.avatarOptions[0].id],
-    fecha_nacimiento: ['', [Validators.required, this.minAgeValidator(4)]],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
+    imageId: [this.avatarOptions[0].id],
+    birthDate: ['', [Validators.required, this.minAgeValidator(4)]],
+    password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
     repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
   }
@@ -50,16 +50,16 @@ export class RegisteruserComponent implements  OnInit {
     if (this.registerForm.valid) {
       this.isSubmitting = true;
       const formValue = this.registerForm.getRawValue();
-      const fecha_nacimiento = new Date(formValue.fecha_nacimiento);
+      const birthDate = new Date(formValue.birthDate);
       const userData: User = {
-        nombre: formValue.nombre,
-        apellidos: formValue.apellidos,
+        name: formValue.name,
+        lastName: formValue.lastName,
         email: formValue.email,
         alias: formValue.alias,
-        esVIP: formValue.vip,
-        foto: formValue.foto_perfil,
-        fechaNacimiento: fecha_nacimiento.toISOString(),
-        contrasena: formValue.contrasena,
+        vip: formValue.vip,
+        imageId: formValue.imageId,
+        birthDate: birthDate.toISOString(),
+        password: formValue.password,
       };
       this.userService.register(userData)
       .pipe(finalize(() => this.isSubmitting = false))
@@ -124,7 +124,7 @@ getControl(controlName: string): AbstractControl | null {
 
   selectPhoto(imageID: number): void {
     this.selectedPhoto = imageID;
-    this.registerForm.get('foto_perfil')?.setValue(imageID);
+    this.registerForm.get('imageId')?.setValue(imageID);
     this.showPhotoOptions = false;
   }
 }

@@ -52,6 +52,7 @@ public class AuthService {
         registerUsuarioInternal(user, usuario);
     }
 
+    // TODO Combinar ambos metodos register?
     // TODO Llevar TODAS las validaciones a ValidateService (se puede mirar cómo se hace en AudioService o VideoService)
     private void registerUsuarioInternal(User user, Usuario usuario) {
         validateName(user.getName());
@@ -69,9 +70,10 @@ public class AuthService {
 
         // Encriptar contraseña
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+        // TODO añadir try-catch para capturar errores de BD (y a lo mejor crear excepción personalizada como en la subida de contenido)
         // Guardar user y usuario
-        userRepository.save(user);
+        user = userRepository.save(user);
+        usuario.setId(user.getId());
         usuarioRepository.save(usuario);
     }
 
@@ -130,13 +132,13 @@ public class AuthService {
         }
     }
 
-    public String login(String email, String contrasena) {
+    public String login(String email, String password) {
         if (!validateService.isEmailValid(email)) {
             throw new IllegalArgumentException("El formato del email no es válido");
         }
 
         User usuario = userRepository.findByEmail(email);
-        if (usuario == null || !passwordEncoder.matches(contrasena, usuario.getPassword())) {
+        if (usuario == null || !passwordEncoder.matches(password, usuario.getPassword())) {
             throw new IllegalArgumentException("Credenciales inválidas");
         }
 
@@ -145,6 +147,7 @@ public class AuthService {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
         
+        // TODO Cambiar esto y usar el rol que está en User
         // Determinar el rol del usuario
         String role = determineUserRole(usuario.getId());
         

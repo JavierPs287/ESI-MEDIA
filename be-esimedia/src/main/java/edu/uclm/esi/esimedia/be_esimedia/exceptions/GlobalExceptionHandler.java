@@ -39,10 +39,31 @@ public class GlobalExceptionHandler {
             .body(Map.of(ERROR_KEY, e.getMessage()));
     }
 
+    @ExceptionHandler(AudioGetException.class)
+    public ResponseEntity<Map<String, String>> handleAudioGet(AudioGetException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
+    
+    @ExceptionHandler(VideoGetException.class)
+    public ResponseEntity<Map<String, String>> handleVideoGet(VideoGetException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
+
     @ExceptionHandler(ContenidoNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleContenidoNotFound(ContenidoNotFoundException e) {
         logger.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
+
+    @ExceptionHandler(RatingInvalidException.class)
+    public ResponseEntity<Map<String, String>> handleRatingInvalid(RatingInvalidException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(Map.of(ERROR_KEY, e.getMessage()));
     }
 

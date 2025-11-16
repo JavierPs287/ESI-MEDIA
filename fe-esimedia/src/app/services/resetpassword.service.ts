@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ResetPasswordService {
-  private readonly baseUrl = 'http://localhost:8081/auth/resetPassword';
+  private readonly baseUrl = `${environment.apiUrl}/auth/resetPassword`;
 
   constructor(private readonly http: HttpClient) { }
 

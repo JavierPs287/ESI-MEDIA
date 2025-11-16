@@ -1,0 +1,66 @@
+# ================================
+# Stage 1: Build Frontend (Angular)
+# ================================
+FROM node:20-alpine AS frontend-build
+
+WORKDIR /app/frontend
+
+# Copy package files
+COPY fe-esimedia/package*.json ./
+
+# Install dependencies
+RUN npm ci --legacy-peer-deps
+
+# Copy frontend source
+COPY fe-esimedia/ ./
+
+# Build Angular app for production
+RUN npm run build -- --configuration=production
+
+# ================================
+# Stage 2: Build Backend (Maven)
+# ================================
+FROM maven:3.9-eclipse-temurin-21-alpine AS backend-build
+
+WORKDIR /app/backend
+
+# Copy pom.xml first for caching
+COPY be-esimedia/pom.xml ./
+COPY be-esimedia/mvnw ./
+COPY be-esimedia/mvnw.cmd ./
+COPY be-esimedia/.mvn ./.mvn
+
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -B
+
+# Copy backend source
+COPY be-esimedia/src ./src
+
+# Copy frontend build to backend static resources
+COPY --from=frontend-build /app/frontend/dist/fe-esimedia/browser ./src/main/resources/static
+
+# Build backend (skip tests for faster builds)
+RUN mvn clean package -DskipTests -B
+
+# ================================
+# Stage 3: Runtime
+# ================================
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
+# Copy built JAR from backend-build stage
+COPY --from=backend-build /app/backend/target/*.jar app.jar
+
+# Expose port (Render uses PORT environment variable)
+EXPOSE 8081
+
+# Use environment variables for configuration
+ENV JAVA_OPTS="-Xmx512m -Xms256m"
+
+# Run the application
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar app.jar"]

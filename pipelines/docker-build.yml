@@ -1,0 +1,51 @@
+trigger: none  # No se ejecuta automáticamente, solo manualmente o tras otros pipelines
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  pipelines:
+    - pipeline: frontend
+      source: 'FE Compilation'  # Nombre del pipeline de frontend en Azure DevOps
+      trigger:
+        branches:
+          include:
+            - develop
+    - pipeline: backend
+      source: 'BE Compilation'  # Nombre del pipeline de backend en Azure DevOps
+      trigger:
+        branches:
+          include:
+            - develop
+
+variables:
+  imageRepository: 'esimedia'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+stages:
+  - stage: BuildDocker
+    displayName: 'Build and Push Docker Image'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+    jobs:
+      - job: DockerBuild
+        displayName: 'Build Docker Image'
+        steps:
+          - checkout: self
+            displayName: 'Checkout Source Code'
+
+          - task: Docker@2
+            displayName: 'Build Docker Image'
+            inputs:
+              command: 'build'
+              Dockerfile: $(dockerfilePath)
+              repository: $(imageRepository)
+              tags: |
+                $(tag)
+                latest
+
+          - script: |
+              echo "Docker image builtsuccessfully!"
+              echo "Image: $(imageRepository):$(tag)"
+              echo "Image: $(imageRepository):latest"
+            displayName: 'Display Build Info'

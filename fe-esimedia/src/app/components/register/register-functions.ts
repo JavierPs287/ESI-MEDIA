@@ -30,7 +30,7 @@ export function passwordStrengthValidator(): ValidatorFn {
 export function passwordMatchValidator(): ValidatorFn {
   return (formGroup: AbstractControl): ValidationErrors | null => {
     if (formGroup instanceof FormGroup) {
-      const password = formGroup.get('contrasena')?.value;
+      const password = formGroup.get('password')?.value;
       const confirmPassword = formGroup.get('repetirContrasena')?.value;
       return password && confirmPassword && password === confirmPassword ? null : { passwordMismatch: true };
     }

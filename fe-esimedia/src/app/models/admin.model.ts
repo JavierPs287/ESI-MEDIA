@@ -1,8 +1,8 @@
 export interface Admin {
-    nombre: string;
-    apellidos: string;
+    name: string;
+    lastName: string;
     email: string;
-    departamento: string;
-    foto: number;
-    contrasena: string;
+    department: string;
+    imageId: number;
+    password: string;
 }

@@ -25,15 +25,15 @@ export class RegisteruserComponent {
   fb = inject(FormBuilder);
   registerForm: FormGroup = this.fb.group({
 
-    nombre: ['',[Validators.required, Validators.maxLength(25)]],
-    apellido: ['',[Validators.required, Validators.maxLength(25)]],
+    name: ['',[Validators.required, Validators.maxLength(50)]],
+    lastName: ['',[Validators.required, Validators.maxLength(100)]],
     email: ['',[Validators.required, Validators.email]],
-    alias: ['',[Validators.minLength(3), Validators.maxLength(20)]],
+    alias: ['',[Validators.minLength(2), Validators.maxLength(20)]],
     vip: [false],
-    fotoPerfil: [null],
-    cumpleanos: ['',[Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
-    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
+    imageId: [0],
+    birthDate: ['',[Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+    password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     
 
   });
@@ -53,7 +53,9 @@ export class RegisteruserComponent {
 
   selectPhoto(photoUrl: string): void {
     this.selectedPhoto = photoUrl;
-    this.registerForm.get('fotoPerfil')?.setValue(photoUrl);
+    // Extraer el número del avatar (avatar1.PNG -> 1)
+    const avatarNumber = parseInt(photoUrl.match(/avatar(\d+)/)?.[1] || '0');
+    this.registerForm.get('imageId')?.setValue(avatarNumber);
     this.showPhotoOptions = false;
   }
 }
