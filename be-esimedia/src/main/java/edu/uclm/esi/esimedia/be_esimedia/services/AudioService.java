@@ -63,6 +63,7 @@ public class AudioService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    // TODO Recibir token para poner alias de creador
     public void uploadAudio(AudioDTO audioDTO) {
         // Validar primero que audioDTO no sea null
         if (audioDTO == null) {
@@ -70,6 +71,7 @@ public class AudioService {
             throw new AudioUploadException();
         }
 
+        // Establecer fecha de cambio de visibilidad
         audioDTO.setVisibilityChangeDate(Instant.now());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
@@ -232,6 +234,10 @@ public class AudioService {
                 audioDTO.getVisibilityDeadline())) {
             logger.warn("La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
             throw new AudioUploadException("Fecha límite de visibilidad inválida");
+        }
+
+        if (!validateService.isImageIdValid(audioDTO.getImageId())){
+            audioDTO.setImageId(0); // ID de la imagen por defecto
         }
     }
 

@@ -82,6 +82,10 @@ public class ValidateService {
         return email != null && EMAIL_PATTERN.matcher(email).matches();
     }
 
+    public boolean isImageIdValid(int imageId) {
+        return imageId >= 0;
+    }
+
     public boolean isPasswordSecure(String password) { // NOSONAR Falso positivo
         if (password == null || password.length() < 8) {
             return false;
@@ -166,7 +170,15 @@ public class ValidateService {
             return false;
         }
 
-        return !(!type.equals(AUDIO_TYPE) && !type.equals(VIDEO_TYPE));
+        return type.equals(AUDIO_TYPE) || type.equals(VIDEO_TYPE);
+    }
+
+    public boolean isDescriptionValid(String description) {
+        if (description == null || description.isEmpty()) {
+            return true; // Descripción es opcional
+        }
+        
+        return description.length() <= 500;
     }
 
     public boolean isFilePresent(MultipartFile file) {
@@ -422,56 +434,10 @@ public class ValidateService {
             return false;
         }
         
-        Instant now = Instant.now();
-        // Convertir a LocalDate para calcular años correctamente
-        java.time.LocalDate birthDate = java.time.LocalDateTime.ofInstant(fechaNacimiento, java.time.ZoneId.systemDefault()).toLocalDate();
-        java.time.LocalDate today = java.time.LocalDateTime.ofInstant(now, java.time.ZoneId.systemDefault()).toLocalDate();
-        
-        // Calcular edad en años
-        long age = java.time.temporal.ChronoUnit.YEARS.between(birthDate, today);
-        
-        return fechaNacimiento.isBefore(now) && age >= MIN_AGE;
+        return fechaNacimiento.isBefore(Instant.now());
     }
 
     public boolean isEnumValid(Enum<?> enumValue) {
         return enumValue != null;
     }
-
-    /*
-     * ====== VALIDACIONES DE USUARIO, ADMIN Y CREADOR ======
-     */
-
-    public boolean isAdminDepartmentValid(String department) {
-        if (department == null || department.isEmpty()) {
-            return false;
-        }
-
-        return "PELICULA".equals(department) ||
-               "SERIE".equals(department) ||
-               "LIBRO".equals(department) ||
-               "VIDEOJUEGO".equals(department) ||
-               "MUSICA".equals(department);
-    }
-
-    public boolean isCreatorFieldValid(String field) {
-        if (field == null || field.isEmpty()) {
-            return false;
-        }
-
-        return "PELICULA".equals(field) ||
-               "SERIE".equals(field) ||
-               "LIBRO".equals(field) ||
-               "VIDEOJUEGO".equals(field) ||
-               "MUSICA".equals(field);
-    }
-
-    public boolean isCreatorTypeValid(String type) {
-        if (type == null || type.isEmpty()) {
-            return false;
-        }
-
-        return AUDIO_TYPE.equals(type) ||
-               VIDEO_TYPE.equals(type);
-    }
-
 } 

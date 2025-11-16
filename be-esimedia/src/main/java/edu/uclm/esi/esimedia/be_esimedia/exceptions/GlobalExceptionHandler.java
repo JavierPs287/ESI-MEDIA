@@ -25,6 +25,13 @@ public class GlobalExceptionHandler {
             .body(Map.of(ERROR_KEY, e.getMessage()));
     }
 
+    @ExceptionHandler(RegisterException.class)
+    public ResponseEntity<Map<String, String>> handleRegisterException(RegisterException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
+
     @ExceptionHandler(AudioUploadException.class)
     public ResponseEntity<Map<String, String>> handleAudioUpload(AudioUploadException e) {
         logger.warn(e.getMessage());
