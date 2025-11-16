@@ -68,6 +68,12 @@ public class ContenidoService {
             throw new RatingInvalidException();
         }
 
+        // Comprobar que no exista ya una valoración del mismo usuario para el mismo contenido
+        if (ratingUsuarioRepository.existsByContenidoIdAndUserId(
+                ratingUsuarioDTO.getContenidoId(), ratingUsuarioDTO.getUserId())) {
+            throw new RatingInvalidException("El usuario ya ha valorado este contenido");
+        }
+
         // Crear y guardar RatingUsuario
         RatingUsuario ratingUsuario = new RatingUsuario(ratingUsuarioDTO);
         try {
