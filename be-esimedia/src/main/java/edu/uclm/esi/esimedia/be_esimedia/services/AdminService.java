@@ -108,7 +108,7 @@ public class AdminService {
         authService.validateUserCreation(user);
 
         // Validar alias
-        if (!validateService.isRequiredFieldEmpty(creador.getAlias(), 2, 20)) {
+        if (validateService.isRequiredFieldEmpty(creador.getAlias(), 2, 20)) {
             throw new RegisterException("El alias es obligatorio y debe tener entre 2 y 20 caracteres");
         }
         creador.setAlias(creador.getAlias().trim());
