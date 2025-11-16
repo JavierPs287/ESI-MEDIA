@@ -98,7 +98,7 @@ public class AdminService {
     private void validateAdminCreation(User user, Admin admin) {
         authService.validateUserCreation(user);
 
-        if (!validateService.isFieldEmpty(admin.getDepartment())) {
+        if (validateService.isFieldEmpty(admin.getDepartment())) {
             throw new RegisterException("El departamento es obligatorio");
         }
         admin.setDepartment(admin.getDepartment().trim());
@@ -119,7 +119,7 @@ public class AdminService {
         }
         
         // Descripción validar longitud
-        if (!validateService.isFieldEmpty(creador.getDescription())) {
+        if (validateService.isFieldEmpty(creador.getDescription())) {
             creador.setDescription(creador.getDescription().trim());
             if (!validateService.isDescriptionValid(creador.getDescription())) {
                 throw new RegisterException("La descripción no puede tener más de 500 caracteres");
@@ -127,7 +127,7 @@ public class AdminService {
         }
 
         // Validar especialidad y tipo
-        if (!validateService.isFieldEmpty(creador.getField())) {
+        if (validateService.isFieldEmpty(creador.getField())) {
             throw new RegisterException("La especialidad es obligatoria");
         }
         creador.setField(creador.getField().trim());

@@ -125,7 +125,7 @@ public class AuthService {
             }
         }
         
-        if (!validateService.isBirthDateValid(usuario.getBirthDate()) && !validateService.isAgeValid(usuario.getAge())) {
+        if (!validateService.isBirthDateValid(usuario.getBirthDate()) || !validateService.isAgeValid(usuario.getAge())) {
             throw new RegisterException("La fecha de nacimiento no es válida");
         }
     }
