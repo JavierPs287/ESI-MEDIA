@@ -25,7 +25,7 @@ export class RegistercreatorComponent implements OnInit {
   photoOptions = PHOTO_OPTIONS;
   isSubmitting = false;
 
-  especialidades: string[] = [
+  fields: string[] = [
     'Música',
     'Podcast',
     'Educación',
@@ -54,7 +54,7 @@ export class RegistercreatorComponent implements OnInit {
     field: ['', [Validators.required]],
     type: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetirContrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repetePassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   }, { validators: passwordMatchValidator() });
   }
 
