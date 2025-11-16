@@ -6,15 +6,13 @@ pool:
 resources:
   pipelines:
     - pipeline: frontend
-      source: 'ESI-MEDIA'  # Nombre del proyecto
-      pipeline: 'FE Compilation'  # Nombre del pipeline de frontend
+      source: 'FE Compilation'  # Nombre del pipeline de frontend en Azure DevOps
       trigger:
         branches:
           include:
             - develop
     - pipeline: backend
-      source: 'ESI-MEDIA'  # Nombre del proyecto
-      pipeline: 'BE Compilation'  # Nombre del pipeline de backend
+      source: 'BE Compilation'  # Nombre del pipeline de backend en Azure DevOps
       trigger:
         branches:
           include:
