@@ -36,12 +36,6 @@ RUN mvn dependency:go-offline -B
 # Copy backend source
 COPY be-esimedia/src ./src
 
-# Copy frontend build to backend static resources
-COPY --from=frontend-build /app/frontend/dist/fe-esimedia/browser ./src/main/resources/static
-
-# Verificar que los archivos se copiaron
-RUN ls -la ./src/main/resources/static
-
 # Build backend (skip tests for faster builds)
 RUN mvn clean package -DskipTests -B
 
@@ -52,12 +46,20 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Create non-root user
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
+# Create directory for static files
+RUN mkdir -p /app/public
 
 # Copy built JAR from backend-build stage
 COPY --from=backend-build /app/backend/target/*.jar app.jar
+
+# Copy frontend build to /app/public
+COPY --from=frontend-build /app/frontend/dist/fe-esimedia/browser /app/public
+
+# Create non-root user and set permissions
+RUN addgroup -S spring && adduser -S spring -G spring && \
+    chown -R spring:spring /app
+
+USER spring:spring
 
 # Expose port (Render uses PORT environment variable)
 EXPOSE 8081
