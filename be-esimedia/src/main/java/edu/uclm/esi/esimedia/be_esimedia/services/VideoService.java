@@ -47,6 +47,7 @@ public class VideoService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    // TODO Recibir token para poner alias de creador
     public void uploadVideo(VideoDTO videoDTO) {
         // Validar primero que videoDTO no sea null
         if (videoDTO == null) {
@@ -54,6 +55,7 @@ public class VideoService {
             throw new VideoUploadException();
         }
 
+        // Establecer fecha de cambio de visibilidad
         videoDTO.setVisibilityChangeDate(Instant.now());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
@@ -139,6 +141,10 @@ public class VideoService {
                 videoDTO.getVisibilityDeadline())) {
             logger.warn("La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
             throw new VideoUploadException("Fecha límite de visibilidad inválida");
+        }
+
+        if (!validateService.isImageIdValid(videoDTO.getImageId())){
+            videoDTO.setImageId(0); // ID de la imagen por defecto
         }
     }
 
