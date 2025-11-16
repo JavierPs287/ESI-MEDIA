@@ -60,6 +60,13 @@ public class GlobalExceptionHandler {
             .body(Map.of(ERROR_KEY, e.getMessage()));
     }
 
+    @ExceptionHandler(RatingInvalidException.class)
+    public ResponseEntity<Map<String, String>> handleRatingInvalid(RatingInvalidException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
+
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Map<String, String>> handleNotFound(NoSuchElementException e) {
         logger.warn(e.getMessage());

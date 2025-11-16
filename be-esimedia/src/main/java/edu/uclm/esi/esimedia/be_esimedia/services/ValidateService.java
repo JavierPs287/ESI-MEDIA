@@ -20,6 +20,7 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URL_PATTERN;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.RatingUsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
@@ -387,6 +388,25 @@ public class ValidateService {
         }
 
         return isResolutionValid(video.getResolution(), usuario.isVip());
+    }
+
+    public boolean isRatingUsuarioDTOValid(RatingUsuarioDTO ratingUsuarioDTO) {
+        if (ratingUsuarioDTO == null) {
+            return false;
+        }
+
+        ratingUsuarioDTO.setContenidoId(ratingUsuarioDTO.getContenidoId().trim());
+        if (isRequiredFieldEmpty(ratingUsuarioDTO.getContenidoId(), 24, 24)) {
+            return false;
+        }
+
+        ratingUsuarioDTO.setUserId(ratingUsuarioDTO.getUserId().trim());
+        if (isRequiredFieldEmpty(ratingUsuarioDTO.getUserId(), 24, 24)) {
+            return false;
+        }
+
+        int rating = ratingUsuarioDTO.getRating();
+        return rating >= 1 && rating <= 5;
     }
 
     public boolean isBirthDateValid(Instant fechaNacimiento) {
