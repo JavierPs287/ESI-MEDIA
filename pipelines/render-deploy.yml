@@ -1,0 +1,47 @@
+trigger: none  # Se ejecuta tras el pipeline de Docker Build
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  pipelines:
+    - pipeline: dockerBuild
+      source: 'Docker Build'  # Nombre del pipeline de docker-build en Azure DevOps
+      trigger:
+        branches:
+          include:
+            - develop
+
+variables:
+  renderServiceId: 'YOUR_RENDER_SERVICE_ID'  # Obtener de Render Dashboard (srv-XXXXXXXXXX)
+
+stages:
+  - stage: Deploy
+    displayName: 'Deploy to Render'
+    jobs:
+      - job: TriggerRenderDeploy
+        displayName: 'Trigger Render Deployment'
+        steps:
+          - script: |
+              echo "Triggering deployment on Render..."
+              echo "Service ID: $(renderServiceId)"
+            displayName: 'Prepare Deployment'
+
+          - script: |
+              curl -X POST \
+                https://api.render.com/deploy/$(renderServiceId) \
+                -H "Accept: application/json" \
+                -H "Authorization: Bearer $(RENDER_API_KEY)"
+            displayName: 'Call Render Deploy Hook'
+            env:
+              RENDER_API_KEY: $(RENDER_API_KEY)
+
+          - script: |
+              echo "=========================================="
+              echo "Deployment triggered successfully!"
+              echo "=========================================="
+              echo "Service ID: $(renderServiceId)"
+              echo "Check deployment status at:"
+              echo "https://dashboard.render.com/web/$(renderServiceId)"
+              echo "=========================================="
+            displayName: 'Deployment Confirmation'
