@@ -5,6 +5,8 @@ trigger:
   paths:
     include:
       - be-esimedia/**
+      - Dockerfile
+      - pipelines/**
 
 pool:
   vmImage: 'ubuntu-latest'
