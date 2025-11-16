@@ -25,14 +25,6 @@ stages:
             inputs:
               versionSpec: $(nodeVersion)
 
-          # - task: Cache@2
-          #   displayName: 'Cache npm packages'
-          #   inputs:
-          #     key: 'npm | "$(Agent.OS)" | fe-esimedia/package-lock.json'
-          #     restoreKeys: |
-          #       npm | "$(Agent.OS)"
-          #     path: $(npmCacheFolder)
-
           - script: |
               cd fe-esimedia
               npm ci
