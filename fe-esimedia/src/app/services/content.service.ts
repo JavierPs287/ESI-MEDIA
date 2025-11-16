@@ -105,10 +105,7 @@ export class ContentService {
     return new Observable<Blob>(observer => {
       fetch(`http://localhost:8081/usuario/audio/${urlId}`, {
         method: 'GET',
-        credentials: 'include',  // ✅ Envía automáticamente la cookie JSESSIONID
-        headers: {
-          'Accept': 'audio/*'
-        }
+        credentials: 'include',
       })
       .then(response => response.blob())
       .then(blob => {
