@@ -57,7 +57,7 @@ USER spring:spring
 COPY --from=backend-build /app/backend/target/*.jar app.jar
 
 # Expose port (Render uses PORT environment variable)
-EXPOSE 8080
+EXPOSE 8081
 
 # Use environment variables for configuration
 ENV JAVA_OPTS="-Xmx512m -Xms256m"

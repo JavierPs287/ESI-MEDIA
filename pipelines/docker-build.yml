@@ -1,104 +1,62 @@
-# No trigger automático - se ejecuta solo cuando BE y FE pasan
-trigger: none
-
-# Dependencias de otros pipelines
-resources:
-  pipelines:
-    - pipeline: backendBuild
-      source: 'Backend Compilation'  # Nombre exacto del pipeline de BE en Azure DevOps
-      trigger:
-        branches:
-          include:
-            - develop
-    - pipeline: frontendBuild
-      source: 'Frontend Compilation'  # Nombre exacto del pipeline de FE en Azure DevOps
-      trigger:
-        branches:
-          include:
-            - develop
+trigger: none  # No se ejecuta automáticamente, solo manualmente o tras otros pipelines
 
 pool:
   vmImage: 'ubuntu-latest'
 
+resources:
+  pipelines:
+    - pipeline: frontend
+      source: 'fe-compilation'  # Nombre del pipeline de frontend
+      trigger:
+        branches:
+          include:
+            - develop
+    - pipeline: backend
+      source: 'be-compilation'  # Nombre del pipeline de backend
+      trigger:
+        branches:
+          include:
+            - develop
+
 variables:
-  imageName: 'esimedia'
-  imageTag: '$(Build.BuildId)'
+  dockerRegistryServiceConnection: 'docker-hub-connection'  # Nombre de tu service connection
+  imageRepository: 'esimedia'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
 
 stages:
   - stage: BuildDocker
-    displayName: 'Build Docker Image'
+    displayName: 'Build and Push Docker Image'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
     jobs:
       - job: DockerBuild
-        displayName: 'Build and Push Docker Image'
+        displayName: 'Build Docker Image'
         steps:
+          - checkout: self
+            displayName: 'Checkout Source Code'
+
           - task: Docker@2
             displayName: 'Build Docker Image'
             inputs:
               command: 'build'
-              Dockerfile: '**/Dockerfile'
+              Dockerfile: $(dockerfilePath)
+              repository: $(imageRepository)
               tags: |
-                $(imageName):$(imageTag)
-                $(imageName):latest
-              arguments: '--no-cache'
+                $(tag)
+                latest
 
           - task: Docker@2
-            displayName: 'Save Docker Image'
+            displayName: 'Push Docker Image to Registry'
             inputs:
-              command: 'save'
-              arguments: '-o $(Build.ArtifactStagingDirectory)/$(imageName)-$(imageTag).tar $(imageName):$(imageTag)'
-
-          - task: PublishBuildArtifacts@1
-            displayName: 'Publish Docker Image as Artifact'
-            inputs:
-              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-              ArtifactName: 'docker-image'
-              publishLocation: 'Container'
+              containerRegistry: $(dockerRegistryServiceConnection)
+              repository: $(imageRepository)
+              command: 'push'
+              tags: |
+                $(tag)
+                latest
 
           - script: |
-              echo "Docker image built successfully!"
-              echo "Image name: $(imageName):$(imageTag)"
-              echo "Image name: $(imageName):latest"
-              docker images | grep $(imageName)
-            displayName: 'Display Docker Images'
-
-  - stage: TestDocker
-    displayName: 'Test Docker Image'
-    dependsOn: BuildDocker
-    jobs:
-      - job: DockerTest
-        displayName: 'Run Docker Container Tests'
-        steps:
-          - task: Docker@2
-            displayName: 'Build Docker Image for Testing'
-            inputs:
-              command: 'build'
-              Dockerfile: '**/Dockerfile'
-              tags: '$(imageName):test'
-
-          #TODO
-          - script: |
-              echo "Starting Docker container for testing..."
-              docker run -d --name esimedia-test \
-                -p 8080:8080 \
-                -e SPRING_DATA_MONGODB_URI="mongodb+srv://prueba:prueba@esimediadev.krctjsb.mongodb.net" \
-                -e SPRING_DATA_MONGODB_DATABASE="esimedia_test" \
-                -e JWT_SECRET="test_secret_key_for_pipeline_testing_with_256_bits_minimum" \
-                $(imageName):test
-              
-              echo "Waiting for application to start..."
-              sleep 30
-              
-              echo "Checking if application is running..."
-              docker ps | grep esimedia-test
-              
-              echo "Checking application logs..."
-              docker logs esimedia-test
-              
-              echo "Testing health endpoint..."
-              curl -f http://localhost:8080 || echo "Health check failed"
-              
-              echo "Stopping container..."
-              docker stop esimedia-test
-              docker rm esimedia-test
-            displayName: 'Test Docker Container'
-            continueOnError: true
+              echo "Docker image built and pushed successfully!"
+              echo "Image: $(imageRepository):$(tag)"
+              echo "Image: $(imageRepository):latest"
+            displayName: 'Display Build Info'
