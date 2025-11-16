@@ -1,4 +1,4 @@
-trigger: none  # No se ejecuta automáticamente, solo manualmente o tras otros pipelines
+trigger: none  # No trigger directo, solo cuando terminen FE y BE
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -6,13 +6,13 @@ pool:
 resources:
   pipelines:
     - pipeline: frontend
-      source: 'FE Compilation'  # Nombre del pipeline de frontend en Azure DevOps
+      source: 'FE Compilation'
       trigger:
         branches:
           include:
             - develop
     - pipeline: backend
-      source: 'BE Compilation'  # Nombre del pipeline de backend en Azure DevOps
+      source: 'BE Compilation'
       trigger:
         branches:
           include:

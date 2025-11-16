@@ -2,11 +2,6 @@ trigger:
   branches:
     include:
       - develop
-  paths:
-    include:
-      - be-esimedia/**
-      - Dockerfile
-      - pipelines/**
 
 pool:
   vmImage: 'ubuntu-latest'
