@@ -18,7 +18,6 @@ import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@CrossOrigin("*")
 public class VideoController {
 
     private final VideoService videoService;

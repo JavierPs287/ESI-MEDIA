@@ -20,7 +20,6 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.AudioService;
 
 @RestController
-@CrossOrigin("*")
 public class AudioController {
 
     private final AudioService audioService;
