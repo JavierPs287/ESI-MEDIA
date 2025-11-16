@@ -1,22 +1,10 @@
-trigger: none  # No trigger directo, solo cuando terminen FE y BE
+trigger:
+  branches:
+    include:
+      - develop
 
 pool:
   vmImage: 'ubuntu-latest'
-
-resources:
-  pipelines:
-    - pipeline: frontend
-      source: 'FE Compilation'
-      trigger:
-        branches:
-          include:
-            - develop
-    - pipeline: backend
-      source: 'BE Compilation'
-      trigger:
-        branches:
-          include:
-            - develop
 
 variables:
   imageRepository: 'esimedia'
