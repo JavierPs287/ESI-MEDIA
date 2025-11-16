@@ -13,7 +13,6 @@ resources:
             - develop
 
 variables:
-  renderServiceId: 'YOUR_RENDER_SERVICE_ID'  # Obtener de Render Dashboard (srv-XXXXXXXXXX)
   appUrl: 'https://esi-media.onrender.com'  # URL de tu aplicación en Render
 
 stages:
@@ -44,11 +43,24 @@ stages:
                       else
                         echo "Using Render API to trigger deploy..."
                         
-                        curl -X POST \
+                        RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
                           "https://api.render.com/v1/services/$(renderServiceId)/deploys" \
                           -H "Authorization: Bearer $(RENDER_API_KEY)" \
                           -H "Content-Type: application/json" \
-                          -d '{}'
+                          -d '{}')
+                        
+                        HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+                        BODY=$(echo "$RESPONSE" | head -n-1)
+                        
+                        echo "Response: $BODY"
+                        echo "HTTP Status: $HTTP_CODE"
+                        
+                        if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+                          echo "✅ Deploy triggered successfully!"
+                        else
+                          echo "❌ Deploy failed with HTTP $HTTP_CODE"
+                          exit 1
+                        fi
                         
                         echo "✅ Deploy triggered successfully!"
                       fi
