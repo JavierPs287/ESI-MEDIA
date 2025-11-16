@@ -17,7 +17,7 @@ import edu.uclm.esi.esimedia.be_esimedia.services.TokenService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("auth")
 @CrossOrigin(origins = "*")
 public class PasswordResetController {    
     private final UserService userService;

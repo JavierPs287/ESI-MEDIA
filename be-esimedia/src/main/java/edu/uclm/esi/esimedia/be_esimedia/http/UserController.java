@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.uclm.esi.esimedia.be_esimedia.dto.PlaylistDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
-
+import edu.uclm.esi.esimedia.be_esimedia.services.PlaylistService;
 
 @RestController
 @RequestMapping("user")
@@ -29,11 +30,13 @@ public class UserController {
     private final AuthService authService;
     private final UserService userService;
     private final JwtUtils jwtUtils;
+    private final PlaylistService playlistService;
 
-    public UserController(AuthService authService, UserService userService, JwtUtils jwtUtils) {
+    public UserController(AuthService authService, UserService userService, JwtUtils jwtUtils, PlaylistService playlistService) {
         this.authService = authService;
         this.userService = userService;
         this.jwtUtils = jwtUtils;
+        this.playlistService = playlistService;
     }
     
     @PostMapping("/register")
@@ -179,4 +182,12 @@ public class UserController {
                     .body(Map.of("error", "Token inválido: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/create-playlist")
+    public ResponseEntity<Map<String, String>> createPlaylist(@RequestBody PlaylistDTO playlistDTO) {
+        playlistService.createPlaylist(playlistDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("message", "Playlist creada exitosamente"));
+    }
+    
 }
