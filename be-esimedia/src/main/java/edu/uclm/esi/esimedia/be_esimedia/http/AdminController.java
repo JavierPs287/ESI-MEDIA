@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ERROR_KEY;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
@@ -23,7 +24,6 @@ import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 
 public class AdminController {
     
-    private static final String ERROR_KEY = "error";
     private final AdminService adminService;
 
     public AdminController(AdminService adminService) {

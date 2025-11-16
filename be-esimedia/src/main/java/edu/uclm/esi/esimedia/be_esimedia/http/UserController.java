@@ -21,6 +21,7 @@ import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 
+// TODO: Corregir errores del sonar relacinados con las constantes de Strings
 
 @RestController
 @RequestMapping("user")
