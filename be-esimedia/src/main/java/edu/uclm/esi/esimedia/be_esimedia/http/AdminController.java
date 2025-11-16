@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 
 @RestController
@@ -52,26 +53,30 @@ public class AdminController {
 
     @PatchMapping("/users/{email}/blocked")
     public ResponseEntity<Object> setUserBlocked(@PathVariable("email") String emailPath, @RequestBody Map<String, Boolean> body) {
-        // Decode path variable in case the email was URL-encoded
         String email = java.net.URLDecoder.decode(emailPath, java.nio.charset.StandardCharsets.UTF_8);
+        Boolean blocked = body.get("blocked");
 
-        // Basic validation: ensure we received a plausible email
-        if (email == null || !email.contains("@")) {
-            return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email inválido"));
-        }
-
-        Boolean blocked = body != null ? body.get("blocked") : null;
-        if (blocked == null) {
-            return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Campo 'blocked' requerido"));
-        }
         try {
             adminService.setUserBlocked(email, blocked);
             return ResponseEntity.ok(Map.of("ok", true));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_KEY, "Usuario no encontrado"));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "Error interno"));
         }
     }
 
+    @PatchMapping("/users/{email}")
+    public ResponseEntity<String> updateUser(@PathVariable("email") String emailPath, @RequestBody UsuarioDTO usuarioDTO) {
+        String email = java.net.URLDecoder.decode(emailPath, java.nio.charset.StandardCharsets.UTF_8);
+
+        try {
+            adminService.updateUser(email, usuarioDTO);
+            return ResponseEntity.ok("Usuario actualizado correctamente");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
