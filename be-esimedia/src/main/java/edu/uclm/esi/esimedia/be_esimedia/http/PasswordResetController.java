@@ -1,7 +1,6 @@
 package edu.uclm.esi.esimedia.be_esimedia.http;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +17,6 @@ import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*")
 public class PasswordResetController {    
     private final UserService userService;
     private final TokenService tokenService;
