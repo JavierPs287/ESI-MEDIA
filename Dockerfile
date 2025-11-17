@@ -58,7 +58,8 @@ COPY --from=frontend-build /app/frontend/dist/fe-esimedia/browser /app/public
 
 # Create non-root user and set permissions
 RUN addgroup -S spring && adduser -S spring -G spring && \
-    chown -R spring:spring /app
+    chown -R spring:spring /app && \
+    chown -R spring:spring /tmp/uploads
 
 USER spring:spring
 
@@ -74,8 +75,8 @@ ENTRYPOINT ["sh", "-c", "java \
   -Dserver.port=${PORT:-8081} \
   -Dserver.address=0.0.0.0 \
   -Dspring.servlet.multipart.enabled=true \
-  -Dspring.servlet.multipart.max-file-size=50MB \
-  -Dspring.servlet.multipart.max-request-size=50MB \
-  -Dspring.servlet.multipart.file-size-threshold=2MB \
+  -Dspring.servlet.multipart.max-file-size=1MB \
+  -Dspring.servlet.multipart.max-request-size=1MB \
+  -Dspring.servlet.multipart.file-size-threshold=512KB \
   -Dspring.servlet.multipart.location=/tmp/uploads \
   -jar app.jar"]
