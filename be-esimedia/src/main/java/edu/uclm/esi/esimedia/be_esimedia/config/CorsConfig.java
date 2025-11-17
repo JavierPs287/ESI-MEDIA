@@ -23,8 +23,7 @@ public class CorsConfig {
         // Permitir orígenes del frontend (NOTA: modificar antes de meter a producción)
         configuration.setAllowedOrigins(List.of(
             "http://localhost:4200",
-            "http://localhost:8081",
-            "https://esi-media.onrender.com"
+            "http://localhost:8081"
         ));
         // También admitir patrones de origen (más flexible en dev)
         configuration.setAllowedOriginPatterns(List.of("http://localhost:4200", "http://localhost:8081"));
