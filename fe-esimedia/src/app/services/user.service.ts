@@ -49,7 +49,7 @@ export class UserService {
       }).subscribe({
         next: (response) => {
           const body: any = response.body;
-          console.log('Login exitoso. Cookie recibida:', document.cookie);
+          console.log('Login exitoso.');
           observer.next({ 
             message: body.message || 'Login exitoso', 
             role: body.role,
@@ -61,7 +61,7 @@ export class UserService {
           observer.complete();
         },
         error: (err) => {
-          console.error('Error en el login:', err);
+          console.error('Error en el login:');
           let errorMessage = 'Error en el login';
           const body = err?.error;
           
