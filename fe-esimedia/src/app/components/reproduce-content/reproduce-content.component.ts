@@ -11,7 +11,7 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
 
 @Component({
   selector: 'app-reproduce-content',
-  imports: [CommonModule, MatChipsModule, MatButtonModule],
+  imports: [CommonModule, MatChipsModule, MatButtonModule, MatIcon],
   templateUrl: './reproduce-content.component.html',
   styleUrls: ['./reproduce-content.component.css']
 })
@@ -107,4 +107,18 @@ export class ReproduceContentComponent implements OnInit {
     }
   }
 
+   getImageUrl(imageID: number): string {
+    return getImageUrlByName(imageID);
+  }
+
+  formatDuration(seconds?: number): string {
+    if (!seconds) return '0:00:00';
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hours > 0) {
+      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
 }

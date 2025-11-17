@@ -12,7 +12,7 @@ import { DialogData } from '../../models/dialog.model';
   templateUrl: './confirm-dialog.component.html',
   styleUrls: ['./confirm-dialog.component.css']
 })
-export class ConfirmDialogComponent implements OnInit {
+export class ConfirmDialogComponent{
 
   title: string;
   message: string;
@@ -31,8 +31,6 @@ export class ConfirmDialogComponent implements OnInit {
     this.cancelText = data.cancelText || 'No';
     this.type = data.type || 'info';
   }
-
-  ngOnInit() {}
 
   onCancel(): void {
     this.dialogRef.close(false);
