@@ -29,7 +29,6 @@ public final class Constants {
     public static final int URLID_LENGTH = 11;
 
     // Audio
-    public static final String AUDIO_UPLOAD_DIR = "src/main/resources/audios/";
     public static final int AUDIO_MAX_FILE_SIZE = 1024 * 1024; // 1 MB
 
     // Video

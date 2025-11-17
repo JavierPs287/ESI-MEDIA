@@ -74,6 +74,10 @@ export const routes: Routes = [
         data: { roles: ['ADMIN'] },
         children: [
             {
+                path: '',
+                component: ShowContentComponent
+            },
+            {
                 path: 'userManagement',
                 component: UserManagementComponent
             },

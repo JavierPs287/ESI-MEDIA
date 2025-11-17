@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -23,7 +24,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioGetException;
@@ -45,6 +45,9 @@ public class AudioService {
                                                                             // clase (Constants)
 
     private final Logger logger = LoggerFactory.getLogger(AudioService.class);
+
+    @Value("${audio.upload.dir}")
+    private String audioUploadDir;
 
     private final ValidateService validateService;
     private final ContenidoService contenidoService;
@@ -204,7 +207,7 @@ public class AudioService {
     // Public para permitir mockearlo en pruebas unitarias
     public String saveFile(MultipartFile file, String fileName) throws IOException {
         try {
-            Path uploadPath = Path.of(AUDIO_UPLOAD_DIR);
+            Path uploadPath = Path.of(audioUploadDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }

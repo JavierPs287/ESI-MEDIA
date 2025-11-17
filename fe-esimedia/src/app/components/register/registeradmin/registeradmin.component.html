@@ -94,7 +94,7 @@
 
     <!-- Campo: Repetir Contraseña -->
     <div class="form-field">
-      <label for="repetirContrasena">Repetir Contraseña *</label>
+      <label for="repetePassword">Repetir Contraseña *</label>
       <div class="password-field">
       <input [type]="!visibleRepetePassword?'password':'text'" placeholder="Repetir contraseña" formControlName="repetePassword">
       <button type="button" class="eyeicon" (click)="toggleRepetePasswordVisibility()">
@@ -111,8 +111,7 @@
     </div>
 
     <!-- Botón de envío -->
-    <button type="submit" class="create-btn"
-    [disabled]="!registerForm.valid || isSubmitting"  >
+    <button type="submit" [disabled]="!registerForm.valid || isSubmitting" class="create-btn">
       {{ isSubmitting ? 'Registrando...' : 'Crear cuenta' }}
     </button>
 
