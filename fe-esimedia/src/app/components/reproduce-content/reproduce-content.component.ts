@@ -23,7 +23,7 @@ export class ReproduceContentComponent implements OnInit {
 
   contentSelect: Content | null = null;
   audioUrl: SafeUrl | null = null;
-  videoUrl: SafeUrl | null = null;
+  videoUrl: SafeResourceUrl | null = null;
   isLoading = true;
   errorMessage = '';
   private audioBlobUrl: string | null = null;
@@ -50,7 +50,7 @@ export class ReproduceContentComponent implements OnInit {
       this.errorMessage = 'Contenido no encontrado';
       this.isLoading = false;
       return;
-      }
+    }
 
     this.loadContent(urlId, this.contentSelect.type);
   }
@@ -65,7 +65,8 @@ export class ReproduceContentComponent implements OnInit {
       this.isLoading = false;
     }
   }
-   loadAudio(urlId: string) {
+
+  loadAudio(urlId: string) {
     this.contentService.getAudioByUrlId(urlId).subscribe({
       next: (blob: Blob) => {
         this.audioBlobUrl = URL.createObjectURL(blob);
@@ -83,7 +84,9 @@ export class ReproduceContentComponent implements OnInit {
   loadVideo(urlId: string) {
     this.contentService.getVideoByUrlId(urlId).subscribe({
       next: (url: string) => {
-        this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        // Convertir URL de YouTube a formato embed
+        const embedUrl = this.convertToYouTubeEmbed(url);
+        this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
         this.isLoading = false;
       },
       error: (error) => {
@@ -93,6 +96,30 @@ export class ReproduceContentComponent implements OnInit {
       }
     });
   }
+
+  convertToYouTubeEmbed(url: string): string {
+    let videoId = '';
+    
+    // Extraer el ID del video de diferentes formatos de URL
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('v=')[1]?.split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+      // Ya está en formato embed
+      return url;
+    } else if (url.includes('youtube.com/shorts/')) {
+      videoId = url.split('shorts/')[1]?.split('?')[0];
+    }
+    
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    
+    // Si no se pudo extraer, devolver la URL original
+    return url;
+  }
+
   goBack() {
     this.router.navigate(['/menu/user']);
   }
@@ -107,7 +134,7 @@ export class ReproduceContentComponent implements OnInit {
     }
   }
 
-   getImageUrl(imageID: number): string {
+  getImageUrl(imageID: number): string {
     return getImageUrlByName(imageID);
   }
 
@@ -118,7 +145,7 @@ export class ReproduceContentComponent implements OnInit {
     const secs = seconds % 60;
     if (hours > 0) {
       return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 }
