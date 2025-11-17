@@ -68,4 +68,4 @@ EXPOSE 8081
 ENV PORT=8081
 
 # Run the application - bind to all interfaces and use PORT variable
-ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8081} -Dserver.address=0.0.0.0 -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Xms256m -Xmx1024m -Dserver.port=${PORT:-8081} -Dserver.address=0.0.0.0 -jar app.jar"]
