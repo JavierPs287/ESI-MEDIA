@@ -12,7 +12,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -35,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         try {
             // Extraer token de la cookie
-            String token = extractTokenFromCookie(request);
+            String token = jwtUtils.extractTokenFromCookie(request);
             
             if (token != null && jwtUtils.validateToken(token)) {
                 // Extraer información del token
@@ -66,19 +65,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         // Continuar con la cadena de filtros
         filterChain.doFilter(request, response);
-    }
-
-    /**
-     * Extrae el token JWT de la cookie "esi_token"
-     */
-    private String extractTokenFromCookie(HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("esi_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 }

@@ -29,6 +29,7 @@ public class PasswordResetController {
         return ResponseEntity.ok("Si el correo existe en nuestro sistema, recibirás instrucciones para restablecer tu contraseña.");
     }
 
+    // TODO Quitar excepciones de Controller
     @GetMapping("/resetPassword/validate")
     public ResponseEntity<String> validateToken(@RequestParam String token) {
         try {

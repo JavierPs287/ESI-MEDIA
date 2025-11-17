@@ -16,6 +16,7 @@ public final class Constants {
     public static final String ADMIN_ROLE = "ADMIN";
     public static final String CREADOR_ROLE = "CREADOR";
     public static final String USUARIO_ROLE = "USUARIO";
+    public static final String JWT_COOKIE_NAME = "esi_token";
 
     // Rutas
     public static final String PUBLIC_DIR = "/app/public/";

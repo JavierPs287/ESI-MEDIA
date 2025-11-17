@@ -1,0 +1,98 @@
+<div class="reproduce-container">
+  <!-- Estado de carga -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-icon class="loading-icon">refresh</mat-icon>
+    <p>Cargando contenido...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="errorMessage" class="error-container">
+    <mat-icon>error</mat-icon>
+    <p>{{ errorMessage }}</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon> Volver
+    </button>
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!isLoading && !errorMessage && contentSelect" class="content-container">
+    <!-- Botón volver -->
+    <button mat-icon-button class="back-button" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <!-- Sección de video/audio -->
+    <div class="video-section">
+      <div class="video-player" [class.audio-player]="contentSelect.type === 'AUDIO'">
+        <!-- Reproductor de VIDEO -->
+        <iframe 
+          *ngIf="contentSelect.type === 'VIDEO' && videoUrl" 
+          [src]="videoUrl" 
+          [title]="contentSelect.title"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+        
+        <!-- Reproductor de AUDIO -->
+        <div *ngIf="contentSelect.type === 'AUDIO'" class="audio-container">
+          <div class="audio-cover">
+            <img [src]="getImageUrl(contentSelect.imageId)" [alt]="contentSelect.title">
+            <div class="audio-overlay">
+              <mat-icon>music_note</mat-icon>
+            </div>
+          </div>
+          <audio 
+            *ngIf="audioUrl" 
+            controls 
+            [src]="audioUrl"
+            class="audio-player-controls">
+            Tu navegador no soporta el elemento de audio.
+          </audio>
+        </div>
+        
+        <!-- Preview de imagen (otros tipos) -->
+        <div *ngIf="contentSelect.type !== 'VIDEO' && contentSelect.type !== 'AUDIO'" class="image-preview">
+          <img [src]="getImageUrl(contentSelect.imageId)" [alt]="contentSelect.title">
+          <div class="play-overlay">
+            <mat-icon>play_circle_filled</mat-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del contenido -->
+    <div class="content-info">
+
+      <h2>{{ contentSelect.title }}</h2>
+      <p>{{ contentSelect.description }}</p>
+
+      <div class="tags" *ngIf="contentSelect.tags && contentSelect.tags.length > 0">
+        <mat-chip-set>
+          <mat-chip *ngFor="let tag of contentSelect.tags">{{ tag }}</mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <div class="badges">
+        <span class="vip-badge" *ngIf="contentSelect.vip">
+          <mat-icon>stars</mat-icon> VIP
+        </span>
+        <span class="age-rating" *ngIf="contentSelect.minAge && contentSelect.minAge > 4">
+          +{{ contentSelect.minAge }}
+        </span>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <mat-icon>star</mat-icon>
+          <span>{{ contentSelect.rating ?? 0 }} / 5</span>
+        </div>
+        <div class="stat-item">
+          <mat-icon>play_arrow</mat-icon>
+          <span>{{ (contentSelect.views ?? 0) | number }} reproducciones</span>
+        </div> 
+      </div>
+      
+    </div>
+  </div>
+</div>

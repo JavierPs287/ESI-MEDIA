@@ -21,7 +21,7 @@ interface MenuItem {
     RouterOutlet
   ],
   templateUrl: './main-menu-creator.component.html',
-  styleUrls: ['./main-menu-creator.component.css'],
+  styleUrls: ['../menu.styles.css'],
 })
 export class MainMenuCreatorComponent {
   showFiller = false;

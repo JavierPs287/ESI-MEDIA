@@ -5,10 +5,11 @@ import { RouterLink, Router } from '@angular/router';
 import { NavbarComponent } from "../navbar/navbar.component";
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-loginuser',
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, NavbarComponent],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, NavbarComponent, MatIconModule],
   templateUrl: './loginuser.component.html',
   styleUrls: ['./loginuser.component.css']
 })
@@ -16,6 +17,7 @@ export class LoginuserComponent {
   fb = inject(FormBuilder);
   userService = inject(UserService);
   router = inject(Router);
+  visiblePassword = false;
   private readonly authService = inject(AuthService);
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -52,11 +54,17 @@ export class LoginuserComponent {
       // Navegar según el rol
       if (result.role === 'ADMIN') {
         this.router.navigate(['/menu/admin']);
-      } else if (result.role === 'CREATOR') {
+      } else if (result.role === 'CREADOR') {
         this.router.navigate(['/menu/creator']);
+      } else if (result.role === 'USUARIO') {
+        this.router.navigate(['/menu/user']);
       } else {
         this.router.navigate(['/']);
       }
     });
+  }
+  togglePasswordVisibility(): void {
+    this.visiblePassword = !this.visiblePassword;
+
   }
 }

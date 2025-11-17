@@ -14,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.uclm.esi.esimedia.be_esimedia.dto.PlaylistDTO;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.JWT_COOKIE_NAME;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
-import edu.uclm.esi.esimedia.be_esimedia.services.PlaylistService;
 
 @RestController
 @RequestMapping("user")
@@ -41,15 +40,11 @@ public class UserController {
     
     @PostMapping("/register")
     public ResponseEntity<String> registerUsuario(@RequestBody UsuarioDTO usuarioDTO){
-        try {
-            authService.register(usuarioDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
-            
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+        authService.register(usuarioDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
     }
 
+    // TODO Quitar toda lógica de Controller
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUsuario(@RequestBody LoginRequest loginRequest){
         try {
@@ -58,9 +53,10 @@ public class UserController {
             String role = jwtUtils.getRoleFromToken(token);
             String userId = jwtUtils.getUserIdFromToken(token);
             
-            ResponseCookie cookie = ResponseCookie.from("esi_token", token)
-                    .httpOnly(true)
-                    .secure(false)
+            // Crear cookie HTTP-Only con el token
+            ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
+                    .httpOnly(true)  // No accesible desde JavaScript
+                    .secure(false)   //TODO Cambiar a true en producción con HTTPS
                     .path("/")
                     .maxAge(24L * 60 * 60)
                     .sameSite("Lax")
@@ -85,7 +81,8 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<Map<String, String>> getCurrentUser(jakarta.servlet.http.HttpServletRequest request) {
         try {
-            String token = extractTokenFromCookie(request);
+            // Extraer token de la cookie
+            String token = jwtUtils.extractTokenFromCookie(request);
             
             if (token == null || !jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -113,21 +110,11 @@ public class UserController {
         List<User> users = userService.findAll();
         return ResponseEntity.ok(users);
     }
-    
-    private String extractTokenFromCookie(jakarta.servlet.http.HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("esi_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout() {
-        ResponseCookie cookie = ResponseCookie.from("esi_token", "")
+        // Crear cookie con maxAge 0 para eliminarla
+        ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(false)
                 .path("/")

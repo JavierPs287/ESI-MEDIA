@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ERROR_KEY;
 
@@ -22,6 +23,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleUserExists(UserAlreadyExistsException e) {
         logger.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
+
+    @ExceptionHandler(RegisterException.class)
+    public ResponseEntity<Map<String, String>> handleRegisterException(RegisterException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(Map.of(ERROR_KEY, e.getMessage()));
     }
 
@@ -65,6 +73,13 @@ public class GlobalExceptionHandler {
         logger.warn(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(Map.of(ERROR_KEY, e.getMessage()));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException e) {
+        logger.warn(e.getMessage());
+        return ResponseEntity.status(e.getStatusCode())
+            .body(Map.of(ERROR_KEY, e.getReason()));
     }
 
     @ExceptionHandler(NoSuchElementException.class)

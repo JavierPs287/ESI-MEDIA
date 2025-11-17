@@ -26,27 +26,19 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    // Manda la contraseña mal y la foto en null
     @PostMapping("/registerAdmin")
     public ResponseEntity<String> registerAdmin(@RequestBody AdminDTO adminDTO){
-        try {
-            adminService.registerAdmin(adminDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Administrador registrado correctamente");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+        adminService.registerAdmin(adminDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Administrador registrado correctamente");
     }
 
     @PostMapping("/registerCreador")
     public ResponseEntity<String> registerCreador(@RequestBody CreadorDTO creadorDTO){
-        try {
-            adminService.registerCreador(creadorDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Creador registrado correctamente");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
+        adminService.registerCreador(creadorDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Creador registrado correctamente");
     }
 
+    // TODO Quitar toda lógica de Controller
     @PatchMapping("/users/{email}/blocked")
     public ResponseEntity<Object> setUserBlocked(@PathVariable("email") String emailPath, @RequestBody Map<String, Boolean> body) {
         // Decode path variable in case the email was URL-encoded

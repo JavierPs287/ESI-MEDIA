@@ -12,11 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpSession;
-
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MESSAGE_KEY;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.AudioService;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class AudioController {
@@ -36,8 +35,8 @@ public class AudioController {
     }
 
     @GetMapping("/usuario/audio/{urlId}")
-    public ResponseEntity<Resource> getAudio(@PathVariable String urlId, HttpSession session) {
-        return audioService.getAudio(urlId, session);
+    public ResponseEntity<Resource> getAudio(@PathVariable String urlId, HttpServletRequest request) {
+        return audioService.getAudio(urlId, request);
     }
 
 }

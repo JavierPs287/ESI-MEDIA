@@ -129,12 +129,12 @@ h1 {
 
 .role-admin {
   background-color: #e7ffe5;
-  color: forestgreen;
+  color: rgb(16, 107, 16);
 }
 
 .role-moderator {
   background-color: #fff3e0;
-  color: #f57c00;
+  color: var(--rojo);
 }
 
 .role-usuario {
@@ -200,6 +200,16 @@ h1 {
 .icon-btn.delete:hover {
   border-color: var(--rojo);
   color: var(--rojo);
+}
+
+.icon-btn.block:hover {
+  border-color: var(--rojo);
+  color: var(--rojo);
+}
+
+.icon-btn.unblock:hover {
+  border-color: forestgreen;
+  color: forestgreen;
 }
 
 .empty-state {

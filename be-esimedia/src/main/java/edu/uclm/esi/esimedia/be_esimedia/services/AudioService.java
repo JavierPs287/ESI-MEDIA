@@ -25,7 +25,6 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FI
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
-
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
@@ -35,8 +34,9 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class AudioService {
@@ -53,16 +53,20 @@ public class AudioService {
     private final ContenidoRepository contenidoRepository;
     private final UsuarioRepository usuarioRepository;
 
+    private final JwtUtils jwtUtils;
+
     @Autowired
     public AudioService(ValidateService validateService, ContenidoService contenidoService, 
-            AudioRepository audioRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository) {
+            AudioRepository audioRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
         this.validateService = validateService;
         this.contenidoService = contenidoService;
         this.audioRepository = audioRepository;
         this.contenidoRepository = contenidoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.jwtUtils = jwtUtils;
     }
 
+    // TODO Recibir token para poner alias de creador
     public void uploadAudio(AudioDTO audioDTO) {
         // Validar primero que audioDTO no sea null
         if (audioDTO == null) {
@@ -70,6 +74,7 @@ public class AudioService {
             throw new AudioUploadException();
         }
 
+        // Establecer fecha de cambio de visibilidad
         audioDTO.setVisibilityChangeDate(Instant.now());
 
         // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
@@ -120,13 +125,15 @@ public class AudioService {
         }
     }
 
-    public ResponseEntity<Resource> getAudio(String urlId, HttpSession session) {
+    public ResponseEntity<Resource> getAudio(String urlId, HttpServletRequest request) {
         // TODO mover a método común si tenemos mucha duplicidad
-        // Conseguir usuario de la sesión
-        String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        // Conseguir usuario del token
+        String token = jwtUtils.extractTokenFromCookie(request);
+        if (token == null || !jwtUtils.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
         }
+    
+        String userId = jwtUtils.getUserIdFromToken(token);
 
         Usuario usuario = usuarioRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
@@ -232,6 +239,10 @@ public class AudioService {
                 audioDTO.getVisibilityDeadline())) {
             logger.warn("La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
             throw new AudioUploadException("Fecha límite de visibilidad inválida");
+        }
+
+        if (!validateService.isImageIdValid(audioDTO.getImageId())){
+            audioDTO.setImageId(0); // ID de la imagen por defecto
         }
     }
 

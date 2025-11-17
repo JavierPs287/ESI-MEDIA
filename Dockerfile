@@ -36,9 +36,6 @@ RUN mvn dependency:go-offline -B
 # Copy backend source
 COPY be-esimedia/src ./src
 
-# Copy frontend build to backend static resources
-COPY --from=frontend-build /app/frontend/dist/fe-esimedia/browser ./src/main/resources/static
-
 # Build backend (skip tests for faster builds)
 RUN mvn clean package -DskipTests -B
 
@@ -49,18 +46,26 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Create non-root user
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
+# Create directory for static files
+RUN mkdir -p /app/public
 
 # Copy built JAR from backend-build stage
 COPY --from=backend-build /app/backend/target/*.jar app.jar
 
+# Copy frontend build to /app/public
+COPY --from=frontend-build /app/frontend/dist/fe-esimedia/browser /app/public
+
+# Create non-root user and set permissions
+RUN addgroup -S spring && adduser -S spring -G spring && \
+    chown -R spring:spring /app
+
+USER spring:spring
+
 # Expose port (Render uses PORT environment variable)
 EXPOSE 8081
 
-# Use environment variables for configuration
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
+# Variables de entorno por defecto
+ENV PORT=8081
 
-# Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar app.jar"]
+# Run the application - bind to all interfaces and use PORT variable
+ENTRYPOINT ["sh", "-c", "java -Xms256m -Xmx1024m -Dserver.port=${PORT:-8081} -Dserver.address=0.0.0.0 -jar app.jar"]

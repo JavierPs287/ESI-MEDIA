@@ -1,20 +1,19 @@
 import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { Router, RouterOutlet } from '@angular/router';
+
 
 @Component({
-  selector: 'app-main-menu-admin',
-  imports: [CommonModule,
-    MatSidenavModule, MatButtonModule, MatIconModule,
-    RouterOutlet],
-  templateUrl: './main-menu-admin.component.html',
+  selector: 'app-main-menu-user',
+  imports: [CommonModule, 
+    MatSidenavModule, MatButtonModule, MatIconModule, RouterOutlet],
+  templateUrl: './main-menu-user.component.html',
   styleUrls: ['../menu.styles.css']
 })
-export class MainMenuAdminComponent {
-  showFiller = false;
+export class MainMenuUserComponent {
   username = 'UserName';
   userEmail = 'Email';
 
@@ -35,7 +34,7 @@ export class MainMenuAdminComponent {
     //TO DO cambiar por email de la bbdd
     return storedUsername ?? 'UserName';
   }
-  
+
   getEmail(): string {
     const storedEmail = localStorage.getItem('creatorEmail');
     //TO DO cambiar por email de la bbdd

@@ -20,7 +20,7 @@ export class RegisteradminComponent implements OnInit {
   visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
   selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
-  departamentos: string[] = [
+  departments: string[] = [
   'Recursos Humanos',
   'Finanzas',
   'Tecnología',

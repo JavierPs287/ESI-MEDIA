@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MESSAGE_KEY;
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class VideoController {
@@ -34,8 +34,8 @@ public class VideoController {
     }
 
     @GetMapping("/usuario/video/{urlId}")
-    public ResponseEntity<String> getVideo(@PathVariable String urlId, HttpSession session) {
-        return videoService.getVideo(urlId, session);
+    public ResponseEntity<String> getVideo(@PathVariable String urlId, HttpServletRequest request) {
+        return videoService.getVideo(urlId, request);
     }
 
 }

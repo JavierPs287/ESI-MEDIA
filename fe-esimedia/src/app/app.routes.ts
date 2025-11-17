@@ -14,7 +14,9 @@ import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { ForgotpasswordComponent } from './components/forgotpassword/forgotpassword.component';
 import { ResetpasswordComponent } from './components/resetpassword/resetpassword.component';
-import { TemporalplaylistsComponent } from './components/temporalplaylists/temporalplaylists.component';
+import { MainMenuUserComponent } from './components/menus/main-menu-user/main-menu-user.component';
+import { ShowContentComponent } from './components/show-content/show-content.component';
+import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
 
 export const routes: Routes = [
 
@@ -48,8 +50,12 @@ export const routes: Routes = [
         path: 'menu/creator',
         component: MainMenuCreatorComponent,
         canActivate: [authGuard, roleGuard],
-        data: { roles: ['CREATOR'] },
+        data: { roles: ['CREADOR'] },
         children: [
+            {
+                path: '',
+                component: ShowContentComponent
+            },
             {
                 path: 'uploadContent/audio',
                 component: UploadAudioComponent
@@ -81,13 +87,22 @@ export const routes: Routes = [
             },
         ]
     },
+
     {
-        path: 'forgotpassword',
-        component: ForgotpasswordComponent
-    },
-    {
-        path: 'resetPassword',
-        component: ResetpasswordComponent
+        path: 'menu/user',
+        component: MainMenuUserComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['USUARIO'] },
+        children: [
+            {
+                path: '',
+                component: ShowContentComponent
+            },
+            {
+                path: 'reproduce/:urlId',
+                component: ReproduceContentComponent
+            }
+        ]
     },
         {
         path: 'playlist',

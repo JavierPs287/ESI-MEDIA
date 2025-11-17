@@ -7,7 +7,7 @@ public class UserDTO {
     private String password;
     private int imageId;
     private boolean blocked;
-    private boolean active;
+    private boolean active = true;
 
     // Getters and Setters
     public String getName() {
