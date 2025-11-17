@@ -20,7 +20,7 @@ import { finalize } from 'rxjs/internal/operators/finalize';
 export class RegistercreatorComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
+  visiblePassword: boolean = false; visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
   isSubmitting = false;
@@ -54,7 +54,7 @@ export class RegistercreatorComponent implements OnInit {
     field: ['', [Validators.required]],
     type: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetePassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repeatePassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   }, { validators: passwordMatchValidator() });
   }
 
@@ -118,8 +118,8 @@ export class RegistercreatorComponent implements OnInit {
   togglePasswordVisibility() {
     this.visiblePassword = !this.visiblePassword;
   }
-  toggleRepetePasswordVisibility() {
-    this.visibleRepetePassword = !this.visibleRepetePassword;
+  toggleRepeatePasswordVisibility() {
+    this.visibleRepeatePassword = !this.visibleRepeatePassword;
   }
 
   selectPhoto(imageID: number): void {

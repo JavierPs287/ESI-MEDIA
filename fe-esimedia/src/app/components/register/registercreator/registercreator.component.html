@@ -139,19 +139,19 @@
 
     <!-- Campo: Repetir Contraseña -->
     <div class="form-field">
-      <label for="repetePassword">Repetir Contraseña *</label>
+      <label for="repeatePassword">Repetir Contraseña *</label>
       <div class="password-field">
-      <input [type]="!visibleRepetePassword?'password':'text'" placeholder="Repetir contraseña" formControlName="repetePassword">
-      <button type="button" class="eyeicon" (click)="toggleRepetePasswordVisibility()">
-        <mat-icon *ngIf="visibleRepetePassword">visibility</mat-icon>
-        <mat-icon *ngIf="!visibleRepetePassword">visibility_off</mat-icon>
+      <input [type]="!visibleRepeatePassword?'password':'text'" placeholder="Repetir contraseña" formControlName="repeatePassword">
+      <button type="button" class="eyeicon" (click)="toggleRepeatePasswordVisibility()">
+        <mat-icon *ngIf="visibleRepeatePassword">visibility</mat-icon>
+        <mat-icon *ngIf="!visibleRepeatePassword">visibility_off</mat-icon>
       </button>
     </div>
-      <div class="error-container" *ngIf="(getControl('repetePassword')?.invalid && (getControl('repetePassword')?.touched || getControl('repetePassword')?.dirty)) || (registerForm.errors?.['passwordMismatch'] && (getControl('repetePassword')?.touched || getControl('repetePassword')?.dirty))">
-        <p class ="error-message" *ngIf="getControl('repetePassword')?.hasError('required')"> El campo es obligatorio. </p>
-        <p class ="error-message" *ngIf="getControl('repetePassword')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
-        <p class ="error-message" *ngIf="getControl('repetePassword')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
-        <p class ="error-message" *ngIf="registerForm.errors?.['passwordMismatch'] && (getControl('repetePassword')?.touched || getControl('repetePassword')?.dirty)"> Las contraseñas no coinciden. </p>
+      <div class="error-container" *ngIf="(getControl('repeatePassword')?.invalid && (getControl('repeatePassword')?.touched || getControl('repeatePassword')?.dirty)) || (registerForm.errors?.['passwordMismatch'] && (getControl('repeatePassword')?.touched || getControl('repeatePassword')?.dirty))">
+        <p class ="error-message" *ngIf="getControl('repeatePassword')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('repeatePassword')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('repeatePassword')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
+        <p class ="error-message" *ngIf="registerForm.errors?.['passwordMismatch'] && (getControl('repeatePassword')?.touched || getControl('repeatePassword')?.dirty)"> Las contraseñas no coinciden. </p>
       </div>
     </div>
 

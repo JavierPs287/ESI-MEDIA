@@ -21,7 +21,7 @@ import { finalize } from 'rxjs/internal/operators/finalize';
 export class RegisteruserComponent implements  OnInit {
   isVip = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
+  visiblePassword: boolean = false; visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
   registrationResponse: Response | null = null;
   avatarOptions = PHOTO_OPTIONS;
@@ -42,7 +42,7 @@ export class RegisteruserComponent implements  OnInit {
     imageId: [this.avatarOptions[0].id],
     birthDate: ['', [Validators.required, this.minAgeValidator(4)]],
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repeatePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
   }
 
@@ -101,8 +101,8 @@ export class RegisteruserComponent implements  OnInit {
   togglePasswordVisibility(): void {
     this.visiblePassword = !this.visiblePassword;
   }
-  toggleRepetePasswordVisibility(): void {
-    this.visibleRepetePassword = !this.visibleRepetePassword;
+  toggleRepeatePasswordVisibility(): void {
+    this.visibleRepeatePassword = !this.visibleRepeatePassword;
   }
 
 //MANEJO ERRORES

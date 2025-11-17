@@ -17,7 +17,7 @@ import { MatIcon } from '@angular/material/icon';
 export class RegisteradminComponent implements OnInit {
   isVip = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
+  visiblePassword: boolean = false; visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
   departments: string[] = [
@@ -45,7 +45,7 @@ export class RegisteradminComponent implements OnInit {
     department: ['',[Validators.required]],
     imageId: [this.photoOptions[0].id],
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repeatePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
   }
 
@@ -105,8 +105,8 @@ getControl(controlName: string): AbstractControl | null {
   togglePasswordVisibility(){
     this.visiblePassword = !this.visiblePassword;
   }
-  toggleRepetePasswordVisibility(){
-    this.visibleRepetePassword = !this.visibleRepetePassword;
+  toggleRepeatePasswordVisibility(){
+    this.visibleRepeatePassword = !this.visibleRepeatePassword;
   }
 
   selectPhoto(photoUrl: number): void {
