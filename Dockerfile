@@ -47,7 +47,8 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Create directory for static files
-RUN mkdir -p /app/public
+RUN mkdir -p /app/public /tmp/uploads && \
+    chmod -R 777 /tmp/uploads
 
 # Copy built JAR from backend-build stage
 COPY --from=backend-build /app/backend/target/*.jar app.jar
@@ -68,4 +69,13 @@ EXPOSE 8081
 ENV PORT=8081
 
 # Run the application - bind to all interfaces and use PORT variable
-ENTRYPOINT ["sh", "-c", "java -Xms256m -Xmx1024m -Dserver.port=${PORT:-8081} -Dserver.address=0.0.0.0 -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java \
+  -Xms256m -Xmx1024m \
+  -Dserver.port=${PORT:-8081} \
+  -Dserver.address=0.0.0.0 \
+  -Dspring.servlet.multipart.enabled=true \
+  -Dspring.servlet.multipart.max-file-size=50MB \
+  -Dspring.servlet.multipart.max-request-size=50MB \
+  -Dspring.servlet.multipart.file-size-threshold=2MB \
+  -Dspring.servlet.multipart.location=/tmp/uploads \
+  -jar app.jar"]
