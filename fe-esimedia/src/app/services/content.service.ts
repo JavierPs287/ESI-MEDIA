@@ -12,7 +12,7 @@ import { ContentFilter } from '../models/contentFilter.model';
 })
 export class ContentService {
   private readonly creatorBaseUrl = `${environment.apiUrl}/creador`;
-  private readonly contentBaseUrl = `${environment.apiUrl}/contenido`;
+  private readonly userBaseUrl = `${environment.apiUrl}/user`;
 
   constructor(private readonly http: HttpClient) { }
 
@@ -81,7 +81,7 @@ export class ContentService {
    */
   listContents(filters?: ContentFilter): Observable<Content[]> {
     return new Observable<Content[]>(observer => {
-      this.http.post<Content[]>(`${this.contentBaseUrl}/listContenidos`, filters || {})
+      this.http.post<Content[]>(`${this.userBaseUrl}/listContenidos`, filters || {})
         .subscribe({
           next: (contents) => {
             observer.next(contents);
