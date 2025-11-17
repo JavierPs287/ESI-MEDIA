@@ -119,7 +119,7 @@ public class AdminService {
         }
         
         // Descripción validar longitud
-        if (validateService.isFieldEmpty(creador.getDescription())) {
+        if (!validateService.isFieldEmpty(creador.getDescription())) {
             creador.setDescription(creador.getDescription().trim());
             if (!validateService.isDescriptionValid(creador.getDescription())) {
                 throw new RegisterException("La descripción no puede tener más de 500 caracteres");
@@ -135,6 +135,7 @@ public class AdminService {
         if (!validateService.isContenidoTypeValid(creador.getType())) {
             throw new RegisterException("El tipo es obligatorio");
         }
+        creador.setType(creador.getType().trim().toUpperCase());
     }
 
     public void setUserBlocked(String email, boolean blocked) {

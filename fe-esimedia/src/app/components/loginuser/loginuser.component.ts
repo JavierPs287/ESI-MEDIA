@@ -54,9 +54,9 @@ export class LoginuserComponent {
       // Navegar según el rol
       if (result.role === 'ADMIN') {
         this.router.navigate(['/menu/admin']);
-      } else if (result.role === 'CREATOR') {
+      } else if (result.role === 'CREADOR') {
         this.router.navigate(['/menu/creator']);
-      } else if (result.role === 'USER') {
+      } else if (result.role === 'USUARIO') {
         this.router.navigate(['/menu/user']);
       } else {
         this.router.navigate(['/']);

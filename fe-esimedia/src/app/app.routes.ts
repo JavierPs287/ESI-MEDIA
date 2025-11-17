@@ -50,7 +50,7 @@ export const routes: Routes = [
         path: 'menu/creator',
         component: MainMenuCreatorComponent,
         canActivate: [authGuard, roleGuard],
-        data: { roles: ['CREATOR'] },
+        data: { roles: ['CREADOR'] },
         children: [
             {
                 path: '',
@@ -74,6 +74,10 @@ export const routes: Routes = [
         data: { roles: ['ADMIN'] },
         children: [
             {
+                path: '',
+                component: ShowContentComponent
+            },
+            {
                 path: 'userManagement',
                 component: UserManagementComponent
             },
@@ -92,7 +96,7 @@ export const routes: Routes = [
         path: 'menu/user',
         component: MainMenuUserComponent,
         canActivate: [authGuard, roleGuard],
-        data: { roles: ['USER'] },
+        data: { roles: ['USUARIO'] },
         children: [
             {
                 path: '',

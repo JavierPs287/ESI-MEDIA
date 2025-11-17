@@ -42,7 +42,7 @@ export class RegisteruserComponent implements  OnInit {
     imageId: [this.avatarOptions[0].id],
     birthDate: ['', [Validators.required, this.minAgeValidator(4)]],
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repetePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
   }
 

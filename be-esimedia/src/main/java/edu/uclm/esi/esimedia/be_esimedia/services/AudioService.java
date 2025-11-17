@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -23,9 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
-
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
@@ -35,8 +34,9 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class AudioService {
@@ -46,6 +46,9 @@ public class AudioService {
 
     private final Logger logger = LoggerFactory.getLogger(AudioService.class);
 
+    @Value("${audio.upload.dir}")
+    private String audioUploadDir;
+
     private final ValidateService validateService;
     private final ContenidoService contenidoService;
 
@@ -53,14 +56,17 @@ public class AudioService {
     private final ContenidoRepository contenidoRepository;
     private final UsuarioRepository usuarioRepository;
 
+    private final JwtUtils jwtUtils;
+
     @Autowired
     public AudioService(ValidateService validateService, ContenidoService contenidoService, 
-            AudioRepository audioRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository) {
+            AudioRepository audioRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
         this.validateService = validateService;
         this.contenidoService = contenidoService;
         this.audioRepository = audioRepository;
         this.contenidoRepository = contenidoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.jwtUtils = jwtUtils;
     }
 
     // TODO Recibir token para poner alias de creador
@@ -122,13 +128,15 @@ public class AudioService {
         }
     }
 
-    public ResponseEntity<Resource> getAudio(String urlId, HttpSession session) {
+    public ResponseEntity<Resource> getAudio(String urlId, HttpServletRequest request) {
         // TODO mover a método común si tenemos mucha duplicidad
-        // Conseguir usuario de la sesión
-        String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        // Conseguir usuario del token
+        String token = jwtUtils.extractTokenFromCookie(request);
+        if (token == null || !jwtUtils.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
         }
+    
+        String userId = jwtUtils.getUserIdFromToken(token);
 
         Usuario usuario = usuarioRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
@@ -199,7 +207,7 @@ public class AudioService {
     // Public para permitir mockearlo en pruebas unitarias
     public String saveFile(MultipartFile file, String fileName) throws IOException {
         try {
-            Path uploadPath = Path.of(AUDIO_UPLOAD_DIR);
+            Path uploadPath = Path.of(audioUploadDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }

@@ -169,6 +169,7 @@ public class ValidateService {
         if (type == null || type.isEmpty()) {
             return false;
         }
+        type = type.trim().toUpperCase();
 
         return type.equals(AUDIO_TYPE) || type.equals(VIDEO_TYPE);
     }

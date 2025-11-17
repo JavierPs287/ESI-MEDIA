@@ -31,7 +31,7 @@ export function passwordMatchValidator(): ValidatorFn {
   return (formGroup: AbstractControl): ValidationErrors | null => {
     if (formGroup instanceof FormGroup) {
       const password = formGroup.get('password')?.value;
-      const confirmPassword = formGroup.get('repetirContrasena')?.value;
+      const confirmPassword = formGroup.get('repetePassword')?.value;
       return password && confirmPassword && password === confirmPassword ? null : { passwordMismatch: true };
     }
     return null;

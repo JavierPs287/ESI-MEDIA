@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.JWT_COOKIE_NAME;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
@@ -52,7 +53,7 @@ public class UserController {
             String userId = jwtUtils.getUserIdFromToken(token);
             
             // Crear cookie HTTP-Only con el token
-            ResponseCookie cookie = ResponseCookie.from("esi_token", token)
+            ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
                     .httpOnly(true)  // No accesible desde JavaScript
                     .secure(false)   //TODO Cambiar a true en producción con HTTPS
                     .path("/")
@@ -85,7 +86,7 @@ public class UserController {
     public ResponseEntity<Map<String, String>> getCurrentUser(jakarta.servlet.http.HttpServletRequest request) {
         try {
             // Extraer token de la cookie
-            String token = extractTokenFromCookie(request);
+            String token = jwtUtils.extractTokenFromCookie(request);
             
             if (token == null || !jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -114,20 +115,6 @@ public class UserController {
         List<User> users = userService.findAll();
         return ResponseEntity.ok(users);
     }
-    
-    /**
-     * Método auxiliar para extraer el token de la cookie
-     */
-    private String extractTokenFromCookie(jakarta.servlet.http.HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("esi_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      * Endpoint para cerrar sesión (eliminar cookie)
@@ -135,7 +122,7 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout() {
         // Crear cookie con maxAge 0 para eliminarla
-        ResponseCookie cookie = ResponseCookie.from("esi_token", "")
+        ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
