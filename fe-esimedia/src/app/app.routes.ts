@@ -14,6 +14,7 @@ import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { ForgotpasswordComponent } from './components/forgotpassword/forgotpassword.component';
 import { ResetpasswordComponent } from './components/resetpassword/resetpassword.component';
+import { TemporalplaylistsComponent } from './components/temporalplaylists/temporalplaylists.component';
 
 export const routes: Routes = [
 
@@ -85,11 +86,11 @@ export const routes: Routes = [
         component: ForgotpasswordComponent
     },
     {
-        path: 'resetpassword',
-        component: ResetpasswordComponent
-    },
-    {
         path: 'resetPassword',
         component: ResetpasswordComponent
+    },
+        {
+        path: 'playlist',
+        component: TemporalplaylistsComponent
     },
 ];

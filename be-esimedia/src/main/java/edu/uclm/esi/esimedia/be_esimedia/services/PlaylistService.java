@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import ch.qos.logback.classic.Logger;
 import edu.uclm.esi.esimedia.be_esimedia.dto.PlaylistDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.PlaylistException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Playlist;
 import edu.uclm.esi.esimedia.be_esimedia.repository.PlaylistRepository;
-import edu.uclm.esi.esimedia.be_esimedia.exceptions.PlaylistException;
 
 @Service
 public class PlaylistService {
@@ -19,6 +19,7 @@ public class PlaylistService {
 
     private final PlaylistRepository playlistsRepository;
     private final ValidateService validateService;
+    
     public PlaylistService(PlaylistRepository playlistsRepository, ValidateService validateService) {
         this.playlistsRepository = playlistsRepository;
         this.validateService = validateService;
@@ -49,14 +50,13 @@ public class PlaylistService {
         validateFields(playlistDTO);
 
         Playlist playlist = new Playlist(playlistDTO);
-        try{
+        try {
             playlistsRepository.save(playlist);
-            logger.info("Playlist creada con éxito: " + playlist.getName());
+            logger.info("Playlist creada con éxito: {}", playlist.getName());
         } catch (Exception e) {
-            logger.error("Error al crear la playlist: " + e.getMessage());
+            logger.error("Error al crear la playlist: {}", e.getMessage());
             throw new PlaylistException("Error al crear la playlist");
         }
-
     }
 
     private void validateFields(PlaylistDTO playlistDTO) {
@@ -66,7 +66,7 @@ public class PlaylistService {
         }
 
         if (playlistDTO.isPublic() && playlistsRepository.existsByName(playlistDTO.getName())) {
-            logger.error("Ya existe una playlist pública con el nombre: " + playlistDTO.getName());
+            logger.error("Ya existe una playlist pública con el nombre: {}", playlistDTO.getName());
             throw new PlaylistException("Ya existe una playlist pública con ese nombre");
         }
 
@@ -84,7 +84,5 @@ public class PlaylistService {
             logger.error("La playlist debe contener al menos un contenido");
             throw new PlaylistException("La playlist debe contener al menos un contenido");
         }
-
     }
-
 }

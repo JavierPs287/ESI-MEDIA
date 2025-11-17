@@ -26,8 +26,8 @@ export class ResetpasswordComponent implements OnInit {
   private readonly router = inject(Router);
   
   registerForm = this.fb.nonNullable.group({
-    contrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
+    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
   }, { validators: passwordMatchValidator() });
 
   ngOnInit(): void {
@@ -64,9 +64,10 @@ export class ResetpasswordComponent implements OnInit {
   }
 
   onSubmit(): void {
+    
     if (this.registerForm.valid) {
       const formValue = this.registerForm.getRawValue();
-      const contrasena = formValue.contrasena;
+      const contrasena = formValue.password;
 
       this.resetPasswordService.setNewPassword(this.token!, contrasena).subscribe({
         next: (response) => {

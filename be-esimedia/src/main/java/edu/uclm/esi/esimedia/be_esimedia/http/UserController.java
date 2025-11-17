@@ -55,20 +55,17 @@ public class UserController {
         try {
             String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
             
-            // Extraer información del token para enviarla en la respuesta
             String role = jwtUtils.getRoleFromToken(token);
             String userId = jwtUtils.getUserIdFromToken(token);
             
-            // Crear cookie HTTP-Only con el token
             ResponseCookie cookie = ResponseCookie.from("esi_token", token)
-                    .httpOnly(true)  // No accesible desde JavaScript
-                    .secure(false)   //TODO Cambiar a true en producción con HTTPS
+                    .httpOnly(true)
+                    .secure(false)
                     .path("/")
-                    .maxAge(24L * 60 * 60) // 24 horas
+                    .maxAge(24L * 60 * 60)
                     .sameSite("Lax")
                     .build();
             
-            // Preparar respuesta con información del usuario
             Map<String, String> response = new HashMap<>();
             response.put("message", "Login exitoso");
             response.put("role", role);
@@ -85,14 +82,9 @@ public class UserController {
         }
     }
 
-    /**
-     * Endpoint para obtener la información del usuario actual desde el token
-     * Requiere estar autenticado (cookie con token válido)
-     */
     @GetMapping("/me")
     public ResponseEntity<Map<String, String>> getCurrentUser(jakarta.servlet.http.HttpServletRequest request) {
         try {
-            // Extraer token de la cookie
             String token = extractTokenFromCookie(request);
             
             if (token == null || !jwtUtils.validateToken(token)) {
@@ -100,7 +92,6 @@ public class UserController {
                         .body(Map.of("error", "Token inválido o no proporcionado"));
             }
             
-            // Extraer información del token
             String email = jwtUtils.getEmailFromToken(token);
             String role = jwtUtils.getRoleFromToken(token);
             String userId = jwtUtils.getUserIdFromToken(token);
@@ -123,9 +114,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
     
-    /**
-     * Método auxiliar para extraer el token de la cookie
-     */
     private String extractTokenFromCookie(jakarta.servlet.http.HttpServletRequest request) {
         if (request.getCookies() != null) {
             for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
@@ -137,12 +125,8 @@ public class UserController {
         return null;
     }
 
-    /**
-     * Endpoint para cerrar sesión (eliminar cookie)
-     */
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout() {
-        // Crear cookie con maxAge 0 para eliminarla
         ResponseCookie cookie = ResponseCookie.from("esi_token", "")
                 .httpOnly(true)
                 .secure(false)
@@ -184,10 +168,44 @@ public class UserController {
     }
 
     @PostMapping("/create-playlist")
-    public ResponseEntity<Map<String, String>> createPlaylist(@RequestBody PlaylistDTO playlistDTO) {
-        playlistService.createPlaylist(playlistDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "Playlist creada exitosamente"));
+    public ResponseEntity<Map<String, String>> createPlaylist(
+            @RequestBody PlaylistDTO playlistDTO,
+            jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            // Extraer token de la cookie
+            String token = extractTokenFromCookie(request);
+            
+            if (token == null || !jwtUtils.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Usuario no autenticado"));
+            }
+            
+            // Obtener el rol y userId del token
+            String userRole = jwtUtils.getRoleFromToken(token);
+            String userId = jwtUtils.getUserIdFromToken(token);
+            
+            // Validar que no sea ADMIN
+            if ("ADMIN".equals(userRole)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Los administradores no pueden crear playlists"));
+            }
+            
+            // Si es USER, forzar playlist privada
+            if ("USER".equals(userRole)) {
+                playlistDTO.setPublic(false);
+            }
+            
+            // Asignar el ownerId
+            playlistDTO.setOwnerId(userId);
+            
+            playlistService.createPlaylist(playlistDTO);
+            
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("message", "Playlist creada exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
     
 }

@@ -25,9 +25,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREADOR_ROLE;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
 import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -55,30 +52,30 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Comentar desde aquí para pruebas con Postman
                 // Endpoints públicos (sin autenticación)
-                .requestMatchers("/user/login", "/user/logout", "/user/verify-token", "/user/register").permitAll()
-                .requestMatchers("/", "/index.html", "/assets/**", "/public/**").permitAll()
+                // .requestMatchers("/user/login", "/user/logout", "/user/verify-token", "/user/register").permitAll()
+                // .requestMatchers("/", "/index.html", "/assets/**", "/public/**", "/auth/**", "/playlist/**").permitAll()
                 
-                // Endpoint para obtener usuario actual (requiere token válido)
-                .requestMatchers("/user/me").authenticated()
+                // // Endpoint para obtener usuario actual (requiere token válido)
+                // .requestMatchers("/user/me").authenticated()
                 
-                // Endpoints solo para ADMIN
-                .requestMatchers("/admin/**").hasRole(ADMIN_ROLE)
+                // // Endpoints solo para ADMIN
+                // .requestMatchers("/admin/**").hasRole(ADMIN_ROLE)
                 
-                // Endpoints solo para CREADOR
-                .requestMatchers("/creador/**").hasAnyRole(CREADOR_ROLE)
+                // // Endpoints solo para CREADOR
+                // .requestMatchers("/creador/**").hasAnyRole(CREADOR_ROLE)
 
-                // Endpoints solo para USUARIO
-                .requestMatchers("/usuario/**").hasAnyRole(USUARIO_ROLE)
+                // // Endpoints solo para USUARIO
+                // .requestMatchers("/usuario/**").hasAnyRole(USUARIO_ROLE)
                 
-                // Endpoints para usuarios autenticados (cualquier rol)
-                .requestMatchers("/user/**").hasAnyRole(USUARIO_ROLE, CREADOR_ROLE, ADMIN_ROLE)
+                // // Endpoints para usuarios autenticados (cualquier rol)
+                // // .requestMatchers("/user/**").hasAnyRole(USUARIO_ROLE, CREADOR_ROLE, ADMIN_ROLE)
                 
-                // Endpoints de contenido: lectura para todos, escritura para creators
-                .requestMatchers("/audio/**", "/video/**").permitAll()
+                // // Endpoints de contenido: lectura para todos, escritura para creators
+                // .requestMatchers("/audio/**", "/video/**").permitAll()
                 
-                // El resto requiere autenticación
-                .anyRequest().authenticated()
-                // .anyRequest().permitAll() // Para pruebas con Postman
+                // // El resto requiere autenticación
+                // .anyRequest().authenticated()
+                .anyRequest().permitAll() // Para pruebas con Postman
             );
         
         return http.build();

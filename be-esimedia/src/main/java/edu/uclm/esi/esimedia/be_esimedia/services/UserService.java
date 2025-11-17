@@ -3,9 +3,9 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ForgotPasswordTokenDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidPasswordException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
@@ -20,11 +20,15 @@ public class UserService {
     private final TokenRepository tokenRepository;
     private final ValidateService validateService;
     private final BCryptPasswordEncoder passwordEncoder;
-    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder) {
+    private final TokenService tokenService;
+    private final EmailService emailService;
+    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, TokenService tokenService, EmailService emailService) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.validateService = validateService;
         this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
+        this.emailService = emailService;
     }
 
     public boolean existsEmail(String email) {
@@ -39,7 +43,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public void startPasswordReset(String email, TokenService tokenService, EmailService emailService, TokenRepository tokenRepository) {
+    public void startPasswordReset(String email) {
         User user = findByEmail(email);
 
         if (user == null) {
@@ -54,7 +58,7 @@ public class UserService {
         emailService.sendPasswordResetEmail(user, token);
     }
 
-    public void resetPassword(String token, String newPassword, TokenService tokenService) throws InvalidTokenException {
+    public void resetPassword(String token, String newPassword) throws InvalidTokenException {
         // Primero validamos el JWT
         tokenService.validatePasswordResetToken(token);
         
