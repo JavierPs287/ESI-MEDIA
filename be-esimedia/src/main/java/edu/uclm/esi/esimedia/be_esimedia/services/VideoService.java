@@ -22,8 +22,9 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.VideoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class VideoService {
@@ -37,14 +38,17 @@ public class VideoService {
     private final ContenidoRepository contenidoRepository;
     private final UsuarioRepository usuarioRepository;
 
+    private final JwtUtils jwtUtils;
+
     @Autowired
     public VideoService(ValidateService validateService, ContenidoService contenidoService, 
-            VideoRepository videoRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository) {
+            VideoRepository videoRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
         this.validateService = validateService;
         this.contenidoService = contenidoService;
         this.videoRepository = videoRepository;
         this.contenidoRepository = contenidoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.jwtUtils = jwtUtils;
     }
 
     // TODO Recibir token para poner alias de creador
@@ -90,13 +94,15 @@ public class VideoService {
 
     }
 
-    public ResponseEntity<String> getVideo(String urlId, HttpSession session) {
+    public ResponseEntity<String> getVideo(String urlId, HttpServletRequest request) {
         // TODO mover a método común si tenemos mucha duplicidad
-        // Conseguir usuario de la sesión
-        String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        // Conseguir usuario del token
+        String token = jwtUtils.extractTokenFromCookie(request);
+        if (token == null || !jwtUtils.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
         }
+    
+        String userId = jwtUtils.getUserIdFromToken(token);
 
         Usuario usuario = usuarioRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
