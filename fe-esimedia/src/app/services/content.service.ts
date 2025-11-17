@@ -103,11 +103,16 @@ export class ContentService {
    */
   getAudioByUrlId(urlId: string): Observable<Blob> {
     return new Observable<Blob>(observer => {
-      fetch(`http://localhost:8081/usuario/audio/${urlId}`, {
+      fetch(`${environment.apiUrl}/usuario/audio/${urlId}`, {
         method: 'GET',
         credentials: 'include',
       })
-      .then(response => response.blob())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.blob();
+      })
       .then(blob => {
         observer.next(blob);
         observer.complete();
