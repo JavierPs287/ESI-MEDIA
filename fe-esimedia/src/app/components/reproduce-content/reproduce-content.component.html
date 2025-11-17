@@ -63,14 +63,6 @@
 
     <!-- Información del contenido -->
     <div class="content-info">
-      <div class="badges">
-        <span class="vip-badge" *ngIf="contentSelect.vip">
-          <mat-icon>stars</mat-icon> VIP
-        </span>
-        <span class="age-rating" *ngIf="contentSelect.minAge && contentSelect.minAge > 4">
-          +{{ contentSelect.minAge }}
-        </span>
-      </div>
 
       <h2>{{ contentSelect.title }}</h2>
       <p>{{ contentSelect.description }}</p>
@@ -79,6 +71,15 @@
         <mat-chip-set>
           <mat-chip *ngFor="let tag of contentSelect.tags">{{ tag }}</mat-chip>
         </mat-chip-set>
+      </div>
+
+      <div class="badges">
+        <span class="vip-badge" *ngIf="contentSelect.vip">
+          <mat-icon>stars</mat-icon> VIP
+        </span>
+        <span class="age-rating" *ngIf="contentSelect.minAge && contentSelect.minAge > 4">
+          +{{ contentSelect.minAge }}
+        </span>
       </div>
 
       <div class="stats">

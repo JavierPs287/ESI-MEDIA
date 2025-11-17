@@ -91,19 +91,13 @@
 .content-info {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
-.header {
+.badges {
   display: flex;
-  align-items: center;
   gap: 12px;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 500;
+  margin-bottom: 8px;
 }
 
 .vip-badge {
@@ -116,26 +110,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.metadata {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  color: #606060;
-  font-size: 14px;
-}
-
-.metadata > span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.metadata mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
 }
 
 .age-rating {
@@ -163,20 +137,6 @@
 
 .stat-item mat-icon {
   color: var(--oro);
-}
-
-.description {
-  margin-top: 8px;
-}
-
-.description h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-}
-
-.description p {
-  color: #606060;
-  line-height: 1.6;
 }
 
 .image-preview {
