@@ -3,6 +3,7 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -169,6 +170,7 @@ public class ValidateService {
         if (type == null || type.isEmpty()) {
             return false;
         }
+        type = type.trim().toUpperCase();
 
         return type.equals(AUDIO_TYPE) || type.equals(VIDEO_TYPE);
     }
@@ -221,27 +223,31 @@ public class ValidateService {
     }
 
     // Escanea el archivo buscando firmas de ejecutables embebidos
-    // Esto detecta polyglots y archivos concatenados
+    // Solo verifica los primeros bytes para evitar falsos positivos
     private static boolean containsExecutableSignature(MultipartFile file) {
         try (InputStream is = file.getInputStream()) {
-            byte[] buffer = new byte[8192]; // Buffer de lectura
-            int bytesRead;
-            int totalRead = 0;
+            // Solo verificamos los primeros KB del archivo
+            // Los ejecutables embebidos típicamente están al inicio o cerca
+            byte[] header = new byte[4096];
+            int bytesRead = is.read(header);
             
-            while ((bytesRead = is.read(buffer)) != -1) {
-                // Buscar firmas peligrosas en este chunk
-                for (byte[] signature : EXECUTABLE_SIGNATURES) {
-                    for (int i = 0; i <= bytesRead - signature.length; i++) {
-                        if (matchesSignatureAt(buffer, i, signature)) {
-                            String hexSignature = bytesToHex(signature);
-                            logger.error("Firma ejecutable encontrada en offset {}: {}", 
-                                       totalRead + i, 
-                                       hexSignature);
-                            return true;
-                        }
+            if (bytesRead < 1) {
+                return false;
+            }
+            
+            // Buscar firmas peligrosas solo en el header
+            for (byte[] signature : EXECUTABLE_SIGNATURES) {
+                // Verificar solo los primeros 512 bytes para la mayoría de firmas
+                // Excepto ZIP/JAR que pueden estar más adelante
+                int searchLimit = Arrays.equals(signature, new byte[]{0x50, 0x4B, 0x03, 0x04}) ? bytesRead : Math.min(512, bytesRead);
+                
+                for (int i = 0; i <= searchLimit - signature.length; i++) {
+                    if (matchesSignatureAt(header, i, signature)) {
+                        String hexSignature = bytesToHex(signature);
+                        logger.error("Firma ejecutable encontrada en offset {}: {}", i, hexSignature);
+                        return true;
                     }
                 }
-                totalRead += bytesRead;
             }
             
             return false;
@@ -440,4 +446,4 @@ public class ValidateService {
     public boolean isEnumValid(Enum<?> enumValue) {
         return enumValue != null;
     }
-} 
+}

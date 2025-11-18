@@ -52,7 +52,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Comentar desde aquí para pruebas con Postman
                 // Endpoints públicos (sin autenticación)
-                .requestMatchers("/user/login", "/user/logout", "/user/verify-token", "/user/register").permitAll()
+                .requestMatchers("/user/login", "/user/logout", "/user/verify-token", "/user/register", 
+                    "/auth/forgotPassword", "/auth/resetPassword", "/auth/resetPassword/validate").permitAll()
                 // Permitir todos los recursos estáticos de Angular (JS, CSS, assets, etc.)
                 .requestMatchers("/", "/index.html", "/*.js", "/*.css", "/*.ico", "/assets/**", "/public/**").permitAll()
                 

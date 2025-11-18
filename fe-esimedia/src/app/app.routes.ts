@@ -48,6 +48,16 @@ export const routes: Routes = [
     },
 
     {
+        path: 'forgotpassword',
+        component: ForgotpasswordComponent
+    },
+
+    {
+        path: 'resetPassword',
+        component: ResetpasswordComponent
+    },
+
+    {
         path: 'menu/creator',
         component: MainMenuCreatorComponent,
         canActivate: [authGuard, roleGuard],
@@ -74,6 +84,10 @@ export const routes: Routes = [
         canActivate: [authGuard, roleGuard],
         data: { roles: ['ADMIN'] },
         children: [
+            {
+                path: '',
+                component: ShowContentComponent
+            },
             {
                 path: 'userManagement',
                 component: UserManagementComponent

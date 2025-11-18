@@ -12,6 +12,7 @@ import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
 import edu.uclm.esi.esimedia.be_esimedia.model.ResetPasswordToken;
 import edu.uclm.esi.esimedia.be_esimedia.services.TokenService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
+import edu.uclm.esi.esimedia.be_esimedia.repository.PasswordHistoryRepository;
 
 @RestController
 @RequestMapping("auth")

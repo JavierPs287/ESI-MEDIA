@@ -12,7 +12,7 @@ import { ContentFilter } from '../models/contentFilter.model';
 })
 export class ContentService {
   private readonly creatorBaseUrl = `${environment.apiUrl}/creador`;
-  private readonly contentBaseUrl = `${environment.apiUrl}/contenido`;
+  private readonly userBaseUrl = `${environment.apiUrl}/user`;
 
   constructor(private readonly http: HttpClient) { }
 
@@ -81,7 +81,7 @@ export class ContentService {
    */
   listContents(filters?: ContentFilter): Observable<Content[]> {
     return new Observable<Content[]>(observer => {
-      this.http.post<Content[]>(`${this.contentBaseUrl}/listContenidos`, filters || {})
+      this.http.post<Content[]>(`${this.userBaseUrl}/listContenidos`, filters || {})
         .subscribe({
           next: (contents) => {
             observer.next(contents);
@@ -103,11 +103,16 @@ export class ContentService {
    */
   getAudioByUrlId(urlId: string): Observable<Blob> {
     return new Observable<Blob>(observer => {
-      fetch(`http://localhost:8081/usuario/audio/${urlId}`, {
+      fetch(`${environment.apiUrl}/usuario/audio/${urlId}`, {
         method: 'GET',
         credentials: 'include',
       })
-      .then(response => response.blob())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.blob();
+      })
       .then(blob => {
         observer.next(blob);
         observer.complete();

@@ -114,11 +114,11 @@
 //                 .andExpect(status().isBadRequest());
 //     }
 
-//     // Reset Password Tests
-//     @Test
-//     @DisplayName("Debe resetear contraseña exitosamente")
-//     void testResetPassword_success() throws Exception {
-//         doNothing().when(userService).resetPassword(anyString(), anyString(), any());
+    // Reset Password Tests
+    @Test
+    @DisplayName("Debe resetear contraseña exitosamente")
+    void testResetPassword_success() throws Exception {
+        doNothing().when(userService).resetPassword(anyString(), anyString(), any(), any());
 
 //         mockMvc.perform(post("/auth/resetPassword")
 //                 .contentType("application/json")
@@ -127,10 +127,10 @@
 //                 .andExpect(content().string("Contraseña cambiada correctamente."));
 //     }
 
-//     @Test
-//     @DisplayName("Debe retornar BadRequest cuando resetPassword falla")
-//     void testResetPassword_failure() throws Exception {
-//         doThrow(new RuntimeException("Token inválido")).when(userService).resetPassword(anyString(), anyString(), any());
+    @Test
+    @DisplayName("Debe retornar BadRequest cuando resetPassword falla")
+    void testResetPassword_failure() throws Exception {
+        doThrow(new RuntimeException("Token inválido")).when(userService).resetPassword(anyString(), anyString(), any(), any());
 
 //         mockMvc.perform(post("/auth/resetPassword")
 //                 .contentType("application/json")
@@ -139,10 +139,10 @@
 //                 .andExpect(content().string("Error al restablecer la contraseña: Token inválido"));
 //     }
 
-//     @Test
-//     @DisplayName("Debe retornar error cuando nueva contraseña está vacía")
-//     void testResetPassword_passwordVacia() throws Exception {
-//         doThrow(new RuntimeException("Contraseña vacía")).when(userService).resetPassword(anyString(), anyString(), any());
+    @Test
+    @DisplayName("Debe retornar error cuando nueva contraseña está vacía")
+    void testResetPassword_passwordVacia() throws Exception {
+        doThrow(new RuntimeException("Contraseña vacía")).when(userService).resetPassword(anyString(), anyString(), any(), any());
 
 //         mockMvc.perform(post("/auth/resetPassword")
 //                 .contentType("application/json")
@@ -177,10 +177,10 @@
 //                 .andExpect(status().isUnsupportedMediaType());
 //     }
 
-//     @Test
-//     @DisplayName("Debe manejar contraseña débil en resetPassword")
-//     void testResetPassword_passwordDebil() throws Exception {
-//         doThrow(new RuntimeException("Contraseña muy débil")).when(userService).resetPassword(anyString(), anyString(), any());
+    @Test
+    @DisplayName("Debe manejar contraseña débil en resetPassword")
+    void testResetPassword_passwordDebil() throws Exception {
+        doThrow(new RuntimeException("Contraseña muy débil")).when(userService).resetPassword(anyString(), anyString(), any(), any());
 
 //         mockMvc.perform(post("/auth/resetPassword")
 //                 .contentType("application/json")

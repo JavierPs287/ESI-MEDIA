@@ -45,7 +45,7 @@ export class RegisteradminComponent implements OnInit {
     department: ['',[Validators.required]],
     imageId: [this.photoOptions[0].id],
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repetePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
   }
 

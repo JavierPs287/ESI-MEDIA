@@ -53,7 +53,12 @@ public class AdminService {
 
         // Validar datos
         validateAdminCreation(user, admin);
-        
+
+        // Comprobar que la contraseña no esté en la blacklist
+        if (authService.isPasswordBlacklisted(adminDTO.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
+
         // Asignar rol de administrador
         user.setRole(ADMIN_ROLE);
 
@@ -80,6 +85,11 @@ public class AdminService {
 
         // Validar datos
         validateCreadorCreation(user, creador);
+
+        // Comprobar que la contraseña no esté en la blacklist
+        if (authService.isPasswordBlacklisted(creadorDTO.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
 
         // Asignar rol de creador
         user.setRole(CREADOR_ROLE);
@@ -119,7 +129,7 @@ public class AdminService {
         }
         
         // Descripción validar longitud
-        if (validateService.isFieldEmpty(creador.getDescription())) {
+        if (!validateService.isFieldEmpty(creador.getDescription())) {
             creador.setDescription(creador.getDescription().trim());
             if (!validateService.isDescriptionValid(creador.getDescription())) {
                 throw new RegisterException("La descripción no puede tener más de 500 caracteres");
@@ -135,6 +145,7 @@ public class AdminService {
         if (!validateService.isContenidoTypeValid(creador.getType())) {
             throw new RegisterException("El tipo es obligatorio");
         }
+        creador.setType(creador.getType().trim().toUpperCase());
     }
 
     public void setUserBlocked(String email, boolean blocked) {

@@ -42,6 +42,7 @@ public class ContenidoService {
         this.mongoTemplate = mongoTemplate;
     }
 
+    // TODO Recibir token para mostrar contenido no visible a creadores
     public List<ContenidoDTO> listContenidos(ContenidoFilterDTO filters) {
         List<ContenidoDTO> result = new ArrayList<>();
         List<Contenido> contenidos;

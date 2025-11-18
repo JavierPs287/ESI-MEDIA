@@ -20,6 +20,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.BlacklistPasswordRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -36,12 +37,14 @@ public class AuthService {
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BlacklistPasswordRepository blacklistPasswordRepository;
 
     public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, 
-                       UserRepository userRepository) {
+                       UserRepository userRepository, BlacklistPasswordRepository blacklistPasswordRepository) {
         this.usuarioRepository = usuarioRepository;
         this.userRepository = userRepository;
         this.validateService = validateService;
+        this.blacklistPasswordRepository = blacklistPasswordRepository;
     }
 
     public void register(UsuarioDTO usuarioDTO) {
@@ -57,6 +60,11 @@ public class AuthService {
         // Validar datos
         validateUsuarioCreation(user, usuario);
 
+        // Comprobar que la contraseña no esté en la blacklist
+        if (isPasswordBlacklisted(usuarioDTO.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
+
         // Asignar rol de usuario
         user.setRole(USUARIO_ROLE);
 
@@ -70,6 +78,11 @@ public class AuthService {
             throw new RegisterException();
         }
     }
+        // Verifica si la contraseña está en la blacklist
+        public boolean isPasswordBlacklisted(String password) {
+            return blacklistPasswordRepository.findAll().stream()
+                .anyMatch(blacklist -> passwordEncoder.matches(password, blacklist.getPasswordHash()));
+        }
 
     public void validateUserCreation(User user) {
         if (validateService.isRequiredFieldEmpty(user.getName(), 2, 50)) {

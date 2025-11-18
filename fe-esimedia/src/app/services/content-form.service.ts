@@ -72,7 +72,10 @@ export class ContentFormService {
         }
 
         if (form.value.availableUntil) {
-            formData.append('visibilityDeadline', form.value.availableUntil.toISOString());
+            const dateValue = typeof form.value.availableUntil === 'string'
+                ? new Date(form.value.availableUntil)
+                : form.value.availableUntil;
+            formData.append('visibilityDeadline', dateValue.toISOString());
         }
 
         const imageId = this.getImageIdFromUrl(selectedImage, availableImages);
