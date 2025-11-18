@@ -90,7 +90,6 @@ public class UserService {
             throw new InvalidPasswordException("La nueva contraseña no puede ser igual a la anterior.");
         }
 
-        // Actualizamos la contraseña del usuario
         User user = resetToken.getUser();
 
         List<PasswordHistory> lastFivePasswords = passwordHistoryRepository.findTop5ByUserIdOrderByCreatedAtDesc(user.getId());

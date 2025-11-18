@@ -162,12 +162,12 @@ public class AuthService {
             long secondsSinceLastAttempt = now.getEpochSecond() - user.getLastLoginAttemptTime().getEpochSecond();
             
             // Si pasó más de 1 minuto (60 segundos), resetear contador
-            if (secondsSinceLastAttempt >= 60) {
+            if (secondsSinceLastAttempt >= 10) {
                 user.setLoginAttemptsInWindow(0);
                 logger.info("Ventana de rate limiting reseteada para usuario: {}", email);
             }
             
-            // Si ya tiene 5 intentos en la ventana actual (1 minuto)
+            // Si ya tiene 5 intentos en la ventana actual (10 segundos)
             if (user.getLoginAttemptsInWindow() >= 5) {
                 long remainingSeconds = 60 - secondsSinceLastAttempt;
                 logger.warn("Rate limit excedido para usuario: {}. Debe esperar {} segundos", 
