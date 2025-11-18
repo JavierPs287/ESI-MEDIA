@@ -154,45 +154,95 @@ public class AuthService {
         }
 
         Instant now = Instant.now();
-        // Bloque progresivo por intentos fallidos
-            if (user.getBlockedUntil() != null && user.getBlockedUntil().isAfter(now)) {
-                // Convertir a hora de España (CET)
-                java.time.ZoneId zoneMadrid = java.time.ZoneId.of("Europe/Madrid");
-                java.time.ZonedDateTime blockedMadrid = user.getBlockedUntil().atZone(zoneMadrid);
-                String fechaFormateada = blockedMadrid.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-                throw new IllegalArgumentException("Usuario bloqueado hasta " + fechaFormateada);
+        
+        // ========================================
+        // RATE LIMITING - Ventana de 1 minuto
+        // ========================================
+        if (user.getLastLoginAttemptTime() != null) {
+            long secondsSinceLastAttempt = now.getEpochSecond() - user.getLastLoginAttemptTime().getEpochSecond();
+            
+            // Si pasó más de 1 minuto (60 segundos), resetear contador
+            if (secondsSinceLastAttempt >= 60) {
+                user.setLoginAttemptsInWindow(0);
+                logger.info("Ventana de rate limiting reseteada para usuario: {}", email);
+            }
+            
+            // Si ya tiene 5 intentos en la ventana actual (1 minuto)
+            if (user.getLoginAttemptsInWindow() >= 5) {
+                long remainingSeconds = 60 - secondsSinceLastAttempt;
+                logger.warn("Rate limit excedido para usuario: {}. Debe esperar {} segundos", 
+                        email, remainingSeconds);
+                throw new IllegalArgumentException(
+                    "Demasiados intentos de inicio de sesión. Por favor, espera " + 
+                    remainingSeconds + " segundos antes de intentar nuevamente."
+                );
+            }
+        }
+        
+        // Incrementar contador de rate limiting (ANTES de validar contraseña)
+        user.setLoginAttemptsInWindow(user.getLoginAttemptsInWindow() + 1);
+        user.setLastLoginAttemptTime(now);
+        
+        // ========================================
+        // BLOQUEO PROGRESIVO
+        // ========================================
+        if (user.getBlockedUntil() != null && user.getBlockedUntil().isAfter(now)) {
+            java.time.ZoneId zoneMadrid = java.time.ZoneId.of("Europe/Madrid");
+            java.time.ZonedDateTime blockedMadrid = user.getBlockedUntil().atZone(zoneMadrid);
+            String fechaFormateada = blockedMadrid.format(
+                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+            );
+            throw new IllegalArgumentException("Usuario bloqueado hasta " + fechaFormateada);
         }
         user.setBlocked(false);
 
+        // ========================================
+        // VALIDACIÓN DE CONTRASEÑA
+        // ========================================
         if (!passwordEncoder.matches(password, user.getPassword())) {
             int attempts = user.getFailedAttempts() + 1;
             user.setFailedAttempts(attempts);
+            
+            // Bloqueo progresivo por intentos fallidos
             if (attempts >= 10) {
                 user.setBlockedUntil(now.plusSeconds(3600)); // 1 hora
+                logger.warn("Usuario {} bloqueado por 1 hora (10+ intentos fallidos)", email);
             } else if (attempts >= 5) {
                 user.setBlockedUntil(now.plusSeconds(600)); // 10 minutos
+                logger.warn("Usuario {} bloqueado por 10 minutos (5+ intentos fallidos)", email);
             } else if (attempts >= 3) {
                 user.setBlockedUntil(now.plusSeconds(60)); // 1 minuto
+                logger.warn("Usuario {} bloqueado por 1 minuto (3+ intentos fallidos)", email);
             }
+            
             userRepository.save(user);
             throw new IllegalArgumentException("Credenciales inválidas");
-        } else {
-            user.setFailedAttempts(0);
-            user.setBlockedUntil(null);
-            userRepository.save(user);
         }
+        
+        // ========================================
+        // LOGIN EXITOSO
+        // ========================================
+        // Resetear contadores en login exitoso
+        user.setFailedAttempts(0);
+        user.setBlockedUntil(null);
+        user.setLoginAttemptsInWindow(0); // Resetear rate limiting también
+        user.setLastLoginAttemptTime(null);
+        userRepository.save(user);
 
-        // Comprobar si el usuario esta bloqueado (flag manual)
+        // Comprobar si el usuario está bloqueado (flag manual de admin)
         if (user.isBlocked()) {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
 
+        // ========================================
+        // GENERAR JWT TOKEN
+        // ========================================
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-
-        // Generar token de autenticación JWT con expiración de 8 horas
         long expirationTime = 28800000; // 8 horas en milisegundos
         Instant expiryDate = now.plusMillis(expirationTime);
 
+        logger.info("Login exitoso para usuario: {}", email);
+        
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("role", user.getRole())
