@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
+import java.time.Instant;
 
 @Document(collection = "USERS")
 public class User {
@@ -17,6 +18,24 @@ public class User {
     private String password;
     private int imageId = 0;
     private boolean blocked = false;
+    private int failedAttempts = 0;
+    private Instant blockedUntil;
+    
+        public int getFailedAttempts() {
+            return failedAttempts;
+        }
+
+        public void setFailedAttempts(int failedAttempts) {
+            this.failedAttempts = failedAttempts;
+        }
+
+        public Instant getBlockedUntil() {
+            return blockedUntil;
+        }
+
+        public void setBlockedUntil(Instant blockedUntil) {
+            this.blockedUntil = blockedUntil;
+        }
     private boolean active = true;
     private String role;
 

@@ -149,21 +149,48 @@ public class AuthService {
         }
 
         User user = userRepository.findByEmail(email);
-        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+        if (user == null) {
             throw new IllegalArgumentException("Credenciales inválidas");
         }
 
-        // Comprobar si el usuario esta bloqueado
+        Instant now = Instant.now();
+        // Bloque progresivo por intentos fallidos
+            if (user.getBlockedUntil() != null && user.getBlockedUntil().isAfter(now)) {
+                // Convertir a hora de España (CET)
+                java.time.ZoneId zoneMadrid = java.time.ZoneId.of("Europe/Madrid");
+                java.time.ZonedDateTime blockedMadrid = user.getBlockedUntil().atZone(zoneMadrid);
+                String fechaFormateada = blockedMadrid.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                throw new IllegalArgumentException("Usuario bloqueado hasta " + fechaFormateada);
+        }
+        user.setBlocked(false);
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            int attempts = user.getFailedAttempts() + 1;
+            user.setFailedAttempts(attempts);
+            if (attempts >= 10) {
+                user.setBlockedUntil(now.plusSeconds(3600)); // 1 hora
+            } else if (attempts >= 5) {
+                user.setBlockedUntil(now.plusSeconds(600)); // 10 minutos
+            } else if (attempts >= 3) {
+                user.setBlockedUntil(now.plusSeconds(60)); // 1 minuto
+            }
+            userRepository.save(user);
+            throw new IllegalArgumentException("Credenciales inválidas");
+        } else {
+            user.setFailedAttempts(0);
+            user.setBlockedUntil(null);
+            userRepository.save(user);
+        }
+
+        // Comprobar si el usuario esta bloqueado (flag manual)
         if (user.isBlocked()) {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
-        
+
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
         // Generar token de autenticación JWT con expiración de 8 horas
-        //TODO Reducir Tiempo de inactividad a 15 min (usuario) y 20 min (admin y creador)
         long expirationTime = 28800000; // 8 horas en milisegundos
-        Instant now = Instant.now();
         Instant expiryDate = now.plusMillis(expirationTime);
 
         return Jwts.builder()
@@ -174,6 +201,5 @@ public class AuthService {
                 .expiration(Date.from(expiryDate))
                 .signWith(key)
                 .compact();
-
     }
 }
