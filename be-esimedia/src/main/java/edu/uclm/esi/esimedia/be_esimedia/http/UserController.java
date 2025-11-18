@@ -90,11 +90,8 @@ public class UserController {
      */
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getCurrentUser(jakarta.servlet.http.HttpServletRequest request) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.getCurrentUser(request));
-        } catch(Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        UserDTO userDTO = userService.getCurrentUser(request);
+        return ResponseEntity.status(HttpStatus.OK).body(userDTO);
     }
 
     @GetMapping("/all")
