@@ -25,6 +25,27 @@ import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 @RestController
 @RequestMapping("user")
 public class UserController {
+    //TODO eliminar lógica de los controllers y moverla a servicios
+    /**
+     * Endpoint para activar 2FA TOTP y devolver QR y secreto
+     */
+    @PostMapping("/2fa/activate")
+    public ResponseEntity<Map<String, String>> activar2FA(@RequestBody Map<String, String> body) {
+        try {
+            String email = body.get("userId");
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Email no proporcionado"));
+            }
+            Map<String, String> result = authService.activar2FA(email);
+            if (result == null || result.isEmpty() || !result.containsKey("qrUrl")) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "No se pudo generar el QR de 2FA"));
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Error al activar 2FA: " + e.getMessage()));
+        }
+    }
 
     private final AuthService authService;
     private final UserService userService;

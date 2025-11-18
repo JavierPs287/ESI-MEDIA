@@ -17,6 +17,7 @@ import { ResetpasswordComponent } from './components/resetpassword/resetpassword
 import { MainMenuUserComponent } from './components/menus/main-menu-user/main-menu-user.component';
 import { ShowContentComponent } from './components/show-content/show-content.component';
 import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
+import { ConnectTotpComponent } from './components/connect-totp/connect-totp.component';
 
 export const routes: Routes = [
 
@@ -117,5 +118,9 @@ export const routes: Routes = [
                 component: ReproduceContentComponent
             }
         ]
+    },
+    {
+        path: 'activar2FA',
+        component: ConnectTotpComponent
     },
 ];

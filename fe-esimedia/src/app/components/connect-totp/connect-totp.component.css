@@ -1,0 +1,77 @@
+.totp-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.totp-qr-container h2 {
+  color: #1976d2;
+  margin-bottom: 1rem;
+}
+
+.totp-qr-container img {
+  margin: 1rem 0;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  display: block;
+}
+
+/* Debug info - eliminar después */
+.debug-info {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  text-align: left;
+  width: 100%;
+  max-width: 500px;
+}
+
+.debug-info p {
+  margin: 0.25rem 0;
+}
+
+/* Mensajes de estado */
+.error-message {
+  background-color: #f44336;
+  color: white;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  width: 100%;
+  max-width: 500px;
+}
+
+.loading {
+  color: #1976d2;
+  font-size: 1.2rem;
+  padding: 2rem;
+}
+
+.no-qr {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 2rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.secret-container {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  word-break: break-all;
+  max-width: 500px;
+}
+
+.secret-container strong {
+  color: #1976d2;
+  font-family: monospace;
+  font-size: 1.1rem;
+}

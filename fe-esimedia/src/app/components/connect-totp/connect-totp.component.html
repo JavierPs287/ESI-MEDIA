@@ -1,0 +1,49 @@
+<div class="totp-qr-container">
+  <h2>Activa la verificación en dos pasos (2FA)</h2>
+  
+  <!-- Debug info (eliminar después de resolver el problema) -->
+  <div class="debug-info">
+    <p><strong>Debug Info:</strong></p>
+    <p>Email: {{ email || 'No encontrado' }}</p>
+    <p>Loading: {{ loading ? 'Sí' : 'No' }}</p>
+    <p>QR URL existe: {{ qrUrl ? 'Sí (' + qrUrl.length + ' caracteres)' : 'No' }}</p>
+    <p>Secret existe: {{ secret ? 'Sí' : 'No' }}</p>
+  </div>
+  
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+  
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <p>Generando código QR...</p>
+  </div>
+  
+  <!-- Contenido principal -->
+  <ng-container *ngIf="!loading && !error">
+    <p>Escanea este código QR con Google Authenticator, Authy o cualquier app compatible.</p>
+    
+    <!-- Imagen del QR con manejo de errores -->
+    <div *ngIf="qrUrl; else noQr">
+      <img 
+        [src]="qrUrl" 
+        alt="Código QR TOTP" 
+        width="300" 
+        height="300"
+      />
+    </div>
+    
+    <ng-template #noQr>
+      <div class="no-qr">
+        <p>No se generó el código QR</p>
+      </div>
+    </ng-template>
+    
+    <p *ngIf="secret" class="secret-container">
+      Secreto manual: <strong>{{ secret }}</strong>
+    </p>
+    
+    <p>Después, introduce el código generado por la app para completar la activación.</p>
+  </ng-container>
+</div>

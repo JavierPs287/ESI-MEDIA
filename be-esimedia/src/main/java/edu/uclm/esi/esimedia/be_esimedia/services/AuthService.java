@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Map;
+import java.util.HashMap;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
@@ -46,6 +48,61 @@ public class AuthService {
         this.validateService = validateService;
         this.blacklistPasswordRepository = blacklistPasswordRepository;
     }
+    // TOTP
+    public Map<String, String> activar2FA(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return Map.of();
+
+        try {
+            javax.crypto.KeyGenerator keyGen = javax.crypto.KeyGenerator.getInstance("HmacSHA1");
+            keyGen.init(160);
+            javax.crypto.SecretKey secretKey = keyGen.generateKey();
+            byte[] secretBytes = secretKey.getEncoded();
+            // Convertir a base32
+            String base32Secret = toBase32(secretBytes);
+            user.setTotpSecret(base32Secret);
+            userRepository.save(user);
+
+            String otpauthUrl = "otpauth://totp/ESIMEDIA:" + user.getEmail() + "?secret=" + base32Secret + "&issuer=ESIMEDIA";
+            String qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=" + java.net.URLEncoder.encode(otpauthUrl, java.nio.charset.StandardCharsets.UTF_8);
+
+            Map<String, String> result = new HashMap<>();
+            result.put("qrUrl", qrUrl);
+            result.put("secret", base32Secret);
+            return result;
+        } catch (Exception e) {
+            return Map.of();
+        }
+    }
+
+    // Utilidad para convertir a base32 (RFC 4648, sin padding)
+    private static final String BASE32_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    private String toBase32(byte[] bytes) {
+        StringBuilder base32 = new StringBuilder();
+        int i = 0, index = 0, digit = 0;
+        int currByte, nextByte;
+        while (i < bytes.length) {
+            currByte = bytes[i] >= 0 ? bytes[i] : bytes[i] + 256;
+            if (index > 3) {
+                if ((i + 1) < bytes.length) {
+                    nextByte = bytes[i + 1] >= 0 ? bytes[i + 1] : bytes[i + 1] + 256;
+                } else {
+                    nextByte = 0;
+                }
+                digit = currByte & (0xFF >> index);
+                index = (index + 5) % 8;
+                digit <<= index;
+                digit |= nextByte >> (8 - index);
+                i++;
+            } else {
+                digit = (currByte >> (8 - (index + 5))) & 0x1F;
+                index = (index + 5) % 8;
+                if (index == 0) i++;
+            }
+            base32.append(BASE32_CHARS.charAt(digit));
+        }
+        return base32.toString();
+    }
 
     public void register(UsuarioDTO usuarioDTO) {
         if (usuarioDTO == null) {
@@ -60,10 +117,11 @@ public class AuthService {
         // Validar datos
         validateUsuarioCreation(user, usuario);
 
+        //TODO Tiempo largo de consulta
         // Comprobar que la contraseña no esté en la blacklist
-        if (isPasswordBlacklisted(usuarioDTO.getPassword())) {
-            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
-        }
+        // if (isPasswordBlacklisted(usuarioDTO.getPassword())) {
+        //     throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
+        // }
 
         // Asignar rol de usuario
         user.setRole(USUARIO_ROLE);

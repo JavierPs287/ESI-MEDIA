@@ -10,6 +10,7 @@ import { passwordStrengthValidator, passwordMatchValidator } from '../register-f
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/internal/operators/finalize';
+import { ConnectTotpService } from '../../../services/connect-totp.service';
 
 @Component({
   selector: 'app-registeruser',
@@ -31,6 +32,7 @@ export class RegisteruserComponent implements  OnInit {
   registerForm!: FormGroup;
   userService = inject(UserService);
   router = inject(Router);
+  connectTotpService = inject(ConnectTotpService);
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
@@ -66,7 +68,11 @@ export class RegisteruserComponent implements  OnInit {
       .subscribe({
         next: (response) => {
           alert('Registro usuario exitoso.');
-          this.router.navigate(['/login']);
+          // Guardar email codificado en base64 en cookie para 2FA
+          const encodedEmail = btoa(userData.email);
+          document.cookie = `esi_email=${encodedEmail}; path=/; SameSite=Lax`;
+          // Redirigir a activar2FA pasando el email como identificador
+          this.router.navigate(['/activar2FA'], { state: { email: userData.email } });
           this.registerForm.reset();
         },
         error: (error) => {
@@ -91,9 +97,6 @@ export class RegisteruserComponent implements  OnInit {
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
 
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
       return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
     };
   }

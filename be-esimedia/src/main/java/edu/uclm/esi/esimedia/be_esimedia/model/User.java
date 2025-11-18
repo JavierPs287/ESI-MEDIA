@@ -30,6 +30,9 @@ public class User {
     private boolean active = true;
     private String role;
 
+    // Secreto TOTP para 2FA
+    private String totpSecret;
+
     // Constructor vacío requerido por Spring Data MongoDB
     public User() {
     }
@@ -50,6 +53,13 @@ public class User {
     }
     
     // Getters and Setters
+        public String getTotpSecret() {
+            return totpSecret;
+        }
+
+        public void setTotpSecret(String totpSecret) {
+            this.totpSecret = totpSecret;
+        }
     public String getId() {
         return id;
     }
