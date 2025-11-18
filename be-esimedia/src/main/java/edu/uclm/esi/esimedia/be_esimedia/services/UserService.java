@@ -63,6 +63,8 @@ public class UserService {
     }
 
     public UserDTO getCurrentUser(HttpServletRequest request) {
+        String hiddenPassword = "XXXXXXXXX";
+
         String token = extractTokenFromCookie(request);
         if (token == null || token.isEmpty()) {
             throw new InvalidTokenException("Token no proporcionado");
@@ -91,7 +93,7 @@ public class UserService {
                 usuarioDTO.setEmail(user.getEmail());
                 usuarioDTO.setName(user.getName());
                 usuarioDTO.setLastName(user.getLastName());
-                usuarioDTO.setPassword("XXXXXXXXX");
+                usuarioDTO.setPassword(hiddenPassword);
                 usuarioDTO.setImageId(user.getImageId());
                 usuarioDTO.setBlocked(user.isBlocked());
                 usuarioDTO.setActive(user.isActive());
@@ -114,7 +116,7 @@ public class UserService {
                 adminDto.setEmail(user.getEmail());
                 adminDto.setName(user.getName());
                 adminDto.setLastName(user.getLastName());
-                adminDto.setPassword("XXXXXXXXX");
+                adminDto.setPassword(hiddenPassword);
                 adminDto.setImageId(user.getImageId());
                 adminDto.setBlocked(user.isBlocked());
                 adminDto.setActive(user.isActive());
@@ -136,7 +138,7 @@ public class UserService {
                 creadorDto.setEmail(user.getEmail());
                 creadorDto.setName(user.getName());
                 creadorDto.setLastName(user.getLastName());
-                creadorDto.setPassword("XXXXXXXXX");
+                creadorDto.setPassword(hiddenPassword);
                 creadorDto.setImageId(user.getImageId());
                 creadorDto.setBlocked(user.isBlocked());
                 creadorDto.setActive(user.isActive());
