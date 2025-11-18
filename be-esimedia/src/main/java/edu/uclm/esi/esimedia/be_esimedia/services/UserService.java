@@ -22,13 +22,14 @@ public class UserService {
     private final TokenRepository tokenRepository;
     private final ValidateService validateService;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final PasswordHistoryRepository passwordHistoryRepository;
-    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, PasswordHistoryRepository passwordHistoryRepository) {
+    private final AuthService authService;
+
+    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, AuthService authService) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.validateService = validateService;
         this.passwordEncoder = passwordEncoder;
-        this.passwordHistoryRepository = passwordHistoryRepository;
+        this.authService = authService;
     }
 
     public boolean existsEmail(String email) {
@@ -59,6 +60,10 @@ public class UserService {
     }
 
     public void resetPassword(String token, String newPassword, TokenService tokenService, PasswordHistoryRepository passwordHistoryRepository) throws InvalidTokenException {
+        // Verificar que la contraseña no esté en la blacklist usando AuthService
+        if (authService.isPasswordBlacklisted(newPassword)) {
+            throw new InvalidPasswordException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
         // Primero validamos el JWT
         tokenService.validatePasswordResetToken(token);
         
