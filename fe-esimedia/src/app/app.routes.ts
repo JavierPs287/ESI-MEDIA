@@ -47,6 +47,16 @@ export const routes: Routes = [
     },
 
     {
+        path: 'forgotpassword',
+        component: ForgotpasswordComponent
+    },
+
+    {
+        path: 'resetPassword',
+        component: ResetpasswordComponent
+    },
+
+    {
         path: 'menu/creator',
         component: MainMenuCreatorComponent,
         canActivate: [authGuard, roleGuard],
