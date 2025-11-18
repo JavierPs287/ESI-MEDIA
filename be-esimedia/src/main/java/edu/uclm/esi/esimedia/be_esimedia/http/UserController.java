@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.JWT_COOKIE_NAME;
+import edu.uclm.esi.esimedia.be_esimedia.dto.PlaylistDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
+import edu.uclm.esi.esimedia.be_esimedia.services.PlaylistService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 
@@ -160,7 +162,7 @@ public class UserController {
             jakarta.servlet.http.HttpServletRequest request) {
         try {
             // Extraer token de la cookie
-            String token = extractTokenFromCookie(request);
+            String token = jwtUtils.extractTokenFromCookie(request);
             
             if (token == null || !jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
