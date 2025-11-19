@@ -111,6 +111,15 @@ stages:
               failTaskOnFailedTests: true
               testRunTitle: 'Backend Unit Tests'
 
+          - task: PublishCodeCoverageResults@2
+            displayName: 'Publish Code Coverage'
+            condition: succeededOrFailed()
+            inputs:
+              codeCoverageTool: 'JaCoCo'
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/be-esimedia/target/site/jacoco/jacoco.xml'
+              reportDirectory: '$(System.DefaultWorkingDirectory)/be-esimedia/target/site/jacoco'
+              failIfCoverageEmpty: false
+
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Backend Build'
             condition: succeeded()
