@@ -117,11 +117,11 @@ public class AuthService {
         // Validar datos
         validateUsuarioCreation(user, usuario);
 
-        //TODO Tiempo largo de consulta
+        // TODO Tiempo largo de consulta
         // Comprobar que la contraseña no esté en la blacklist
-        // if (isPasswordBlacklisted(usuarioDTO.getPassword())) {
-        //     throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
-        // }
+        if (isPasswordBlacklisted(usuarioDTO.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
 
         // Asignar rol de usuario
         user.setRole(USUARIO_ROLE);
@@ -138,8 +138,7 @@ public class AuthService {
     }
         // Verifica si la contraseña está en la blacklist
         public boolean isPasswordBlacklisted(String password) {
-            return blacklistPasswordRepository.findAll().stream()
-                .anyMatch(blacklist -> passwordEncoder.matches(password, blacklist.getPasswordHash()));
+            return blacklistPasswordRepository.existsByPassword(password);
         }
 
     public void validateUserCreation(User user) {

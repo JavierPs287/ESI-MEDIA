@@ -7,12 +7,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class BlacklistPassword {
     @Id
     private String id;
-    private String passwordHash;
+    private String password;
 
     public BlacklistPassword() {}
 
-    public BlacklistPassword(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public BlacklistPassword(String password) {
+        this.password = password;
     }
 
     public String getId() {
@@ -23,11 +23,11 @@ public class BlacklistPassword {
         this.id = id;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
