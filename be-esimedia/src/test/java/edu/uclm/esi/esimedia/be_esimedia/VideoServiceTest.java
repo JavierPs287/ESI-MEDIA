@@ -19,6 +19,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
@@ -82,6 +83,7 @@ class VideoServiceTest {
         mockCreador = new Creador();
         mockCreador.setId("creador123");
         mockCreador.setAlias("test_creator");
+        mockCreador.setType("VIDEO"); // Establecer tipo VIDEO
 
         // Configurar comportamiento del JwtUtils y CreadorRepository con lenient()
         // para evitar UnnecessaryStubbingException en tests que no llegan a ejecutar
@@ -285,6 +287,36 @@ class VideoServiceTest {
                 () -> videoService.uploadVideo(validVideoDTO, mockRequest));
 
         verify(contenidoRepository, times(1)).save(any(Contenido.class));
+        verify(videoRepository, never()).save(any(Video.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar ResponseStatusException cuando el creador no es de tipo VIDEO")
+    void testUploadVideoWithInvalidCreatorType() {
+        // Arrange
+        mockCreador.setType("AUDIO"); // Tipo incorrecto
+
+        // Act & Assert
+        assertThrows(
+                ResponseStatusException.class,
+                () -> videoService.uploadVideo(validVideoDTO, mockRequest));
+
+        verify(contenidoRepository, never()).save(any(Contenido.class));
+        verify(videoRepository, never()).save(any(Video.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar ResponseStatusException cuando el creador no tiene tipo")
+    void testUploadVideoWithNullCreatorType() {
+        // Arrange
+        mockCreador.setType(null); // Tipo nulo
+
+        // Act & Assert
+        assertThrows(
+                ResponseStatusException.class,
+                () -> videoService.uploadVideo(validVideoDTO, mockRequest));
+
+        verify(contenidoRepository, never()).save(any(Contenido.class));
         verify(videoRepository, never()).save(any(Video.class));
     }
 }
