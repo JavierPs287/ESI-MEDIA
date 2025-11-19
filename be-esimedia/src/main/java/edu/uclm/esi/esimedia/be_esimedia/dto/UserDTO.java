@@ -18,6 +18,7 @@ public class UserDTO {
     }
 
     protected final void initializeFromModel(User user) {
+        this.role = user.getRole();
         this.name = user.getName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
