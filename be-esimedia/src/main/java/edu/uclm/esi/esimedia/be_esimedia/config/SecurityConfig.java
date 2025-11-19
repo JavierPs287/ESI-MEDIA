@@ -57,7 +57,7 @@ public class SecurityConfig {
                 // Endpoints públicos (sin autenticación)
                 .requestMatchers("/user/login", "/user/logout", "/user/verify-token", "/user/register", 
                     "/auth/forgotPassword", "/auth/resetPassword", "/auth/resetPassword/validate", "user/2fa/activate",
-                "user/2fa/verify", "user/2fa/token").permitAll()
+                "user/2fa/verify", "user/2fa/token", "user/2fa").permitAll()
                 // Permitir todos los recursos estáticos de Angular (JS, CSS, assets, etc.)
                 .requestMatchers("/", "/index.html", "/*.js", "/*.css", "/*.ico", "/assets/**", "/public/**").permitAll()
                 

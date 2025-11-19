@@ -73,21 +73,30 @@ export class RegisteruserComponent implements  OnInit {
         next: (response) => {
           const encodedEmail = btoa(userData.email);
           document.cookie = `esi_email=${encodedEmail}; path=/; SameSite=Lax`;
-          
-          // Si el usuario activó 2FA, preguntar si quiere configurarlo
+
           if (this.is2FAEnabled) {
+            // Si la casilla está marcada, redirigir directamente a activar2FA
+            this.router.navigate(['/activar2FA'], { state: { email: userData.email } });
+          } else {
+            // Si no está marcada, mostrar el popup
             const wantsToActivate2FA = confirm('¿Deseas activar la verificación en dos pasos (2FA) ahora?');
             if (wantsToActivate2FA) {
-              this.router.navigate(['/activar2FA'], { state: { email: userData.email } });
+              // Actualizar el usuario en la base de datos con 2FA activado
+              this.userService.update2FA(userData.email, true).subscribe({
+                next: () => {
+                  this.router.navigate(['/activar2FA'], { state: { email: userData.email } });
+                },
+                error: () => {
+                  alert('Error al activar 2FA.');
+                  this.router.navigate(['/home']);
+                }
+              });
             } else {
               alert('Registro exitoso. Puedes activar 2FA más tarde desde tu perfil.');
               this.router.navigate(['/home']);
             }
-          } else {
-            alert('Registro exitoso.');
-            this.router.navigate(['/home']);
           }
-          
+
           this.registerForm.reset();
         },
         error: (error) => {

@@ -1,3 +1,4 @@
+
 package edu.uclm.esi.esimedia.be_esimedia.http;
 
 import java.util.HashMap;
@@ -233,6 +234,23 @@ public class UserController {
             return ResponseEntity.ok(Map.of("success", true));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "error", "Código TOTP incorrecto"));
+        }
+    }
+        /**
+     * Endpoint para actualizar el estado de 2FA de un usuario
+     */
+    @PostMapping("/2fa")
+    public ResponseEntity<Map<String, String>> update2FA(@RequestBody Map<String, Object> body) {
+        String email = (String) body.get("email");
+        Boolean enable2FA = (Boolean) body.get("enable2FA");
+        if (email == null || enable2FA == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email y enable2FA requeridos"));
+        }
+        boolean updated = userService.update2FA(email, enable2FA);
+        if (updated) {
+            return ResponseEntity.ok(Map.of("message", "2FA actualizado correctamente"));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "No se pudo actualizar 2FA"));
         }
     }
 }

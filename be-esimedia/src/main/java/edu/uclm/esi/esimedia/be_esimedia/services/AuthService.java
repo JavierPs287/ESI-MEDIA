@@ -61,6 +61,7 @@ public class AuthService {
             // Convertir a base32
             String base32Secret = toBase32(secretBytes);
             user.setTotpSecret(base32Secret);
+            user.setTwoFaEnabled(true);
             userRepository.save(user);
 
             String otpauthUrl = "otpauth://totp/ESIMEDIA:" + user.getEmail() + "?secret=" + base32Secret + "&issuer=ESIMEDIA";

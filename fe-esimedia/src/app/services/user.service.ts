@@ -39,7 +39,7 @@ export class UserService {
    * @param email Email del usuario
    * @param password Contraseña del usuario
    */
-  login(email: string, password: string): Observable<{ message: string; role?: string; userId?: string; error?: string; httpStatus?: number; errorType?: string }> {
+  login(email: string, password: string): Observable<{ message: string; role?: string; userId?: string; error?: string; httpStatus?: number; errorType?: string; twoFaEnabled?: boolean }> {
     const payload = { email, password };
     console.log('Enviando petición de login:', payload);
     return new Observable(observer => {
@@ -77,6 +77,14 @@ export class UserService {
         }
       });
     });
+  }
+    /**
+   * Actualiza el estado de 2FA de un usuario
+   * @param email Email del usuario
+   * @param enable2FA Booleano para activar/desactivar 2FA
+   */
+  update2FA(email: string, enable2FA: boolean): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/2fa`, { email, enable2FA });
   }
 
   /**

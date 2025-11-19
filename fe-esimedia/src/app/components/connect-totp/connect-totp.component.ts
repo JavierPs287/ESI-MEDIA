@@ -85,6 +85,22 @@ export class ConnectTotpComponent implements OnInit {
   }
 
   goToHome(): void {
-    this.router.navigate(['/home']);
+    // Obtener el email guardado en la cookie (último registro admin/creator)
+    const match = document.cookie.match(/(?:^|; )esi_email=([^;]*)/);
+    let cookieEmail = '';
+    if (match) {
+      try {
+        cookieEmail = atob(decodeURIComponent(match[1]));
+      } catch (e) {
+        cookieEmail = '';
+      }
+    }
+
+    // Si el email actual coincide con el de la cookie, es admin/creator
+    if (this.email && cookieEmail && this.email === cookieEmail) {
+      this.router.navigate(['/menu/admin']);
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 }

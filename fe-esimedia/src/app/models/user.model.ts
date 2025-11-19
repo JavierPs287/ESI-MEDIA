@@ -8,4 +8,5 @@ export interface User {
     vip: boolean;
     enable2FA?: boolean;
     imageId?: number | null;
+    twoFaEnabled?: boolean;
 }

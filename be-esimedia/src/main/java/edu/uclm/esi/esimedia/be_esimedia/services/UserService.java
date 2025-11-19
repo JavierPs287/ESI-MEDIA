@@ -110,5 +110,18 @@ public class UserService {
         resetToken.setUsed(true);
         tokenRepository.save(resetToken);
     }
+        /**
+     * Actualiza el estado de 2FA del usuario (totpSecret)
+     */
+    public boolean update2FA(String email, boolean enable2FA) {
+        User user = findByEmail(email);
+        if (user == null) return false;
+        user.setTwoFaEnabled(enable2FA);
+        if (!enable2FA) {
+            user.setTotpSecret("");
+        }
+        userRepository.save(user);
+        return true;
+    }
     
 }
