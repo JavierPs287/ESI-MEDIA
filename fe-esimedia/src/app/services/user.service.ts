@@ -103,6 +103,4 @@ export class UserService {
     // El interceptor añade automáticamente withCredentials: true
     return this.http.get<{ email: string; role: string; userId: string }>(`${this.baseUrl}/me`);
   }
-
-  getMe(): Observable<}> {
 }

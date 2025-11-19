@@ -59,6 +59,7 @@ export class LoginuserComponent {
       } else if (result.role === 'USUARIO') {
         this.router.navigate(['/menu/user']);
       } else {
+        console.log('[Login] Redirigido');
         this.router.navigate(['/']);
       }
     });
