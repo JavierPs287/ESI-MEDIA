@@ -1,3 +1,4 @@
+
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
 import org.springframework.data.annotation.Id;
@@ -31,6 +32,7 @@ public class User {
     private String role;
 
     // Secreto TOTP para 2FA
+    private boolean twoFaEnabled;
     private String totpSecret;
 
     // Constructor vacío requerido por Spring Data MongoDB
@@ -53,13 +55,14 @@ public class User {
     }
     
     // Getters and Setters
-        public String getTotpSecret() {
-            return totpSecret;
-        }
+    public String getTotpSecret() {
+        return totpSecret;
+    }
 
-        public void setTotpSecret(String totpSecret) {
-            this.totpSecret = totpSecret;
-        }
+    public void setTotpSecret(String totpSecret) {
+        this.totpSecret = totpSecret;
+    }
+    
     public String getId() {
         return id;
     }
@@ -163,5 +166,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }    
+    
+    public boolean isTwoFaEnabled() {
+        return twoFaEnabled;
+    }
+
+    public void setTwoFaEnabled(boolean twoFaEnabled) {
+        this.twoFaEnabled = twoFaEnabled;
     }
 }

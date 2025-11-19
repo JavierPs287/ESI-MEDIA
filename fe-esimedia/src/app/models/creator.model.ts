@@ -8,4 +8,5 @@ export interface Creator {
     field: string;
     type: string;
     password: string;
+    twoFaEnabled?: boolean;
 }

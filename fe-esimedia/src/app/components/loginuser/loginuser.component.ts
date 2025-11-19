@@ -45,7 +45,7 @@ export class LoginuserComponent {
         return; // template will show loginResponse.error
       }
 
-      if ('2faRequired' in result && result['2faRequired']) {
+      if (result.twoFaEnabled === true || ('2faRequired' in result && result['2faRequired'])) {
         // Setear cookie esi_email para 2FA
         document.cookie = `esi_email=${encodeURIComponent(btoa(this.loginForm.value.email))}; path=/; SameSite=Lax`;
         // Redirigir a verify-totp si requiere 2FA

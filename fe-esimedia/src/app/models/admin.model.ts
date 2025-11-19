@@ -5,4 +5,5 @@ export interface Admin {
     department: string;
     imageId: number;
     password: string;
+    twoFaEnabled?: boolean;
 }

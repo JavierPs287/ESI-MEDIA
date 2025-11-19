@@ -1,4 +1,4 @@
-package edu.uclm.esi.esimedia.be_esimedia.service;
+package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
