@@ -124,12 +124,6 @@ public class AuthService {
         // Validar datos
         validateUsuarioCreation(user, usuario);
 
-        // TODO Tiempo largo de consulta
-        // Comprobar que la contraseña no esté en la blacklist
-        if (isPasswordBlacklisted(usuarioDTO.getPassword())) {
-            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
-        }
-
         // Asignar rol de usuario
         user.setRole(USUARIO_ROLE);
 
@@ -175,6 +169,10 @@ public class AuthService {
 
         if (!validateService.isPasswordSecure(user.getPassword())) {
             throw new RegisterException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
+        }
+
+        if (blacklistPasswordRepository.existsByPassword(user.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
         }
 
         // Verificar email duplicado en users

@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
@@ -39,8 +38,6 @@ public class AdminService {
     private final ValidateService validateService;
     private final AuthService authService;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
     @Autowired
     public AdminService(UserRepository userRepository, AdminRepository adminRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, ValidateService validateService, AuthService authService) {
         this.userRepository = userRepository;
@@ -63,11 +60,6 @@ public class AdminService {
 
         // Validar datos
         validateAdminCreation(user, admin);
-
-        // Comprobar que la contraseña no esté en la blacklist
-        if (authService.isPasswordBlacklisted(adminDTO.getPassword())) {
-            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
-        }
 
         // Asignar rol de administrador
         user.setRole(ADMIN_ROLE);
@@ -96,64 +88,8 @@ public class AdminService {
         // Validar datos
         validateCreadorCreation(user, creador);
 
-        // Comprobar que la contraseña no esté en la blacklist
-        if (authService.isPasswordBlacklisted(creadorDTO.getPassword())) {
-            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
-        }
-
-        // Verificar email duplicado en users
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("El email ya está registrado");
-        }
-
-        // Establecer foto por defecto si no se proporciona (imagen id nulo o <= 0)
-        Integer imageId = user.getImageId();
-        if (imageId == null || imageId <= 0) {
-            user.setImageId(0);
-        }
-
-        // Encriptar la contraseña
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-    }
-
-    private void validateAdminCreation(User user, Admin admin) {
-        // Guardar user y administrador
-        try {
-            user = userRepository.save(user);
-            admin.setId(user.getId());
-            adminRepository.save(admin);
-        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
-            logger.error("Error al guardar el administrador en la base de datos: {}", e.getMessage(), e);
-            throw new RegisterException();
-        }
-    }
-
-    private void validateCreadorCreation(User user, Creador creador) {
-        // Validar alias (opcional, pero si se proporciona debe cumplir requisitos)
-        if (!validateService.isFieldEmpty(creador.getAlias())) {
-            // Validar longitud del alias
-            if (validateService.hasValidLength(creador.getAlias(), 2, 20)) {
-                throw new IllegalArgumentException("El alias debe tener entre 2 y 20 caracteres");
-            }
-
-            // Verificar alias duplicado en creadores
-            if (creadorRepository.existsByAlias(creador.getAlias())) {
-                throw new IllegalArgumentException("El alias ya está registrado");
-            }
-        }
-        
-        // Descripción validar longitud
-        if (creador.getDescription() != null && creador.getDescription().length() > 500) {
-            throw new IllegalArgumentException("La descripción no puede tener más de 500 caracteres");
-        }
-
-        // Validar campo y tipo
-        if (!validateService.isRequiredFieldEmpty(creador.getField(), 0, 1000)) {
-            throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
-        }
-        if (!validateService.isRequiredFieldEmpty(creador.getType(), 0, 1000)) {
-            throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
-        }
+        // Asignar rol de creador
+        user.setRole(CREADOR_ROLE);
 
         // Guardar user y creador
         try {
@@ -166,6 +102,54 @@ public class AdminService {
         }
     }
 
+    private void validateAdminCreation(User user, Admin admin) {
+        authService.validateUserCreation(user);
+
+        if (validateService.isFieldEmpty(admin.getDepartment())) {
+            throw new RegisterException("El departamento es obligatorio");
+        }
+        admin.setDepartment(admin.getDepartment().trim());
+    }
+
+    private void validateCreadorCreation(User user, Creador creador) {
+        authService.validateUserCreation(user);
+
+        // Validar alias
+        if (validateService.isRequiredFieldEmpty(creador.getAlias(), 2, 20)) {
+            throw new RegisterException("El alias es obligatorio y debe tener entre 2 y 20 caracteres");
+        }
+        creador.setAlias(creador.getAlias().trim());
+
+        // Verificar alias duplicado en creadores
+        if (creadorRepository.existsByAlias(creador.getAlias())) {
+            throw new RegisterException("El alias ya está registrado");
+        }
+        
+        // Descripción validar longitud
+        if (!validateService.isFieldEmpty(creador.getDescription())) {
+            creador.setDescription(creador.getDescription().trim());
+            if (!validateService.isDescriptionValid(creador.getDescription())) {
+                throw new RegisterException("La descripción no puede tener más de 500 caracteres");
+            }
+        }
+
+        // Validar especialidad y tipo
+        if (validateService.isFieldEmpty(creador.getField())) {
+            throw new RegisterException("La especialidad es obligatoria");
+        }
+        creador.setField(creador.getField().trim());
+
+        if (!validateService.isContenidoTypeValid(creador.getType())) {
+            throw new RegisterException("El tipo es obligatorio");
+        }
+        creador.setType(creador.getType().trim().toUpperCase());
+    }
+
+    // TODO hacer validateUserUpdateFields(UserDTO userDTO) SOLO con campos comunes
+    // TODO hacer validateUsuarioUpdateFields(UsuarioDTO usuarioDTO) que llame al anterior
+    // y valide alias y birthDate (al tener herencia, se puede llamar con validateUserUpdateFields(usuarioDTO))
+    // TODO hacer lo mismo con validateAdminUpdateFields y validateCreadorUpdateFields
+    // TODO Quitar campos que no se pueden editar (ver apuntes del primer Sprint en Discord, Apuntes Proyecto.txt)
     public void validateUserUpdateFields(UsuarioDTO usuarioDTO) {
         if (validateService.isRequiredFieldEmpty(usuarioDTO .getName(), 2, 50)) {
             throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
@@ -213,6 +197,12 @@ public class AdminService {
         }
     }
 
+    // TODO Quitar campos que no se pueden editar (ver apuntes del primer Sprint en Discord, Apuntes Proyecto.txt)
+    // TODO Hacer caso a TODOs de AdminController y UserService y tener método común updateUser
+    // TODO Tener en cuenta TODOS los atributos que hay en los modelos
+    // Primero coger User por email, luego Usuario por id de User
+    // Y a partir de tener los modelos, actualizar los campos
+    // Así, no se crean nuevos objetos en la BBDD o no se crean sin algunos datos
     public void updateUser(String email, UsuarioDTO usuarioDTO) {
         if (usuarioDTO == null) {
             logger.error("El objeto UsuarioDTO es nulo");
@@ -247,7 +237,7 @@ public class AdminService {
         
         try {
             userRepository.save(user);
-        } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al actualizar el usuario en la base de datos: {}", e.getMessage(), e);
             throw new UpdatingException();
         }
