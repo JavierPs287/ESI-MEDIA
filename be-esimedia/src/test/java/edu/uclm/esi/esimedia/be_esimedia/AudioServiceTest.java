@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
@@ -102,6 +103,7 @@ class AudioServiceTest {
         mockCreador = new Creador();
         mockCreador.setId("creador123");
         mockCreador.setAlias("test_creator");
+        mockCreador.setType("AUDIO"); // Establecer tipo AUDIO
 
         // Configurar comportamiento del JwtUtils y CreadorRepository con lenient()
         // para evitar UnnecessaryStubbingException en tests que no llegan a ejecutar
@@ -464,5 +466,35 @@ class AudioServiceTest {
 
         // Assert
         verify(audioRepository, times(1)).save(any(Audio.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar ResponseStatusException cuando el creador no es de tipo AUDIO")
+    void testUploadAudioWithInvalidCreatorType() {
+        // Arrange
+        mockCreador.setType("VIDEO"); // Tipo incorrecto
+
+        // Act & Assert
+        assertThrows(
+                ResponseStatusException.class,
+                () -> audioService.uploadAudio(validAudioDTO, mockRequest));
+
+        verify(contenidoRepository, never()).save(any(Contenido.class));
+        verify(audioRepository, never()).save(any(Audio.class));
+    }
+
+    @Test
+    @DisplayName("Debe lanzar ResponseStatusException cuando el creador no tiene tipo")
+    void testUploadAudioWithNullCreatorType() {
+        // Arrange
+        mockCreador.setType(null); // Tipo nulo
+
+        // Act & Assert
+        assertThrows(
+                ResponseStatusException.class,
+                () -> audioService.uploadAudio(validAudioDTO, mockRequest));
+
+        verify(contenidoRepository, never()).save(any(Contenido.class));
+        verify(audioRepository, never()).save(any(Audio.class));
     }
 }

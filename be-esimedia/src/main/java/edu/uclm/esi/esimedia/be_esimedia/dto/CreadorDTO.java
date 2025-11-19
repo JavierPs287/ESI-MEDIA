@@ -1,11 +1,24 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
 
+import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
+
 public class CreadorDTO extends UserDTO {
     
     private String alias;
     private String description;
     private String field;
     private String type;
+
+    public CreadorDTO() { /* Constructor vacío (para @ModelAttribute) */ }
+
+    public CreadorDTO(User user, Creador creador) {
+        super.initializeFromModel(user);
+        this.alias = creador.getAlias();
+        this.description = creador.getDescription();
+        this.field = creador.getField();
+        this.type = creador.getType();
+    }
 
     // Getters and Setters
     public String getAlias() {
