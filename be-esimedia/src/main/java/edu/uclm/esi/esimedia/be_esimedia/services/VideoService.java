@@ -67,6 +67,11 @@ public class VideoService {
         Creador creador = creadorRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Creador no autenticado"));
 
+        // Comprobar que el creador es un creador de vídeos
+        if (creador.getType() == null || !creador.getType().equals(VIDEO_TYPE)) {
+            logger.error("El creador autenticado no es un creador de vídeos");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El creador no tiene permisos para subir vídeos");
+        }
         
         if (creador.getAlias() == null || creador.getAlias().isEmpty()) {
             logger.error("El creador no tiene un alias establecido");
