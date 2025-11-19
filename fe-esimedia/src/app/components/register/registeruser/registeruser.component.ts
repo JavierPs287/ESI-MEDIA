@@ -21,8 +21,10 @@ import { ConnectTotpService } from '../../../services/connect-totp.service';
 })
 export class RegisteruserComponent implements  OnInit {
   isVip = false;
+  is2FAEnabled = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
+  visiblePassword: boolean = false; 
+  visibleRepetePassword: boolean = false;
   selectedPhoto: number | null = null;
   registrationResponse: Response | null = null;
   avatarOptions = PHOTO_OPTIONS;
@@ -41,6 +43,7 @@ export class RegisteruserComponent implements  OnInit {
     email: ['', [Validators.required, Validators.email]],
     alias: ['', [Validators.minLength(2), Validators.maxLength(20)]],
     vip: [false],
+    enable2FA: [false],
     imageId: [this.avatarOptions[0].id],
     birthDate: ['', [Validators.required, this.minAgeValidator(4)]],
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
@@ -63,20 +66,32 @@ export class RegisteruserComponent implements  OnInit {
         birthDate: birthDate.toISOString(),
         password: formValue.password,
       };
+      
       this.userService.register(userData)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
         next: (response) => {
-          alert('Registro usuario exitoso.');
-          // Guardar email codificado en base64 en cookie para 2FA
           const encodedEmail = btoa(userData.email);
           document.cookie = `esi_email=${encodedEmail}; path=/; SameSite=Lax`;
-          // Redirigir a activar2FA pasando el email como identificador
-          this.router.navigate(['/activar2FA'], { state: { email: userData.email } });
+          
+          // Si el usuario activó 2FA, preguntar si quiere configurarlo
+          if (this.is2FAEnabled) {
+            const wantsToActivate2FA = confirm('¿Deseas activar la verificación en dos pasos (2FA) ahora?');
+            if (wantsToActivate2FA) {
+              this.router.navigate(['/activar2FA'], { state: { email: userData.email } });
+            } else {
+              alert('Registro exitoso. Puedes activar 2FA más tarde desde tu perfil.');
+              this.router.navigate(['/home']);
+            }
+          } else {
+            alert('Registro exitoso.');
+            this.router.navigate(['/home']);
+          }
+          
           this.registerForm.reset();
         },
         error: (error) => {
-          alert('Credenciales inválidas');
+          alert('Error en el registro. Por favor, intenta de nuevo.');
         },
       });
     } else {
@@ -86,7 +101,6 @@ export class RegisteruserComponent implements  OnInit {
     }
   }
 
- //VALIDADORES PERSONALIZADOS
   minAgeValidator(minAge: number) {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) {
@@ -104,19 +118,23 @@ export class RegisteruserComponent implements  OnInit {
   togglePasswordVisibility(): void {
     this.visiblePassword = !this.visiblePassword;
   }
+  
   toggleRepetePasswordVisibility(): void {
     this.visibleRepetePassword = !this.visibleRepetePassword;
   }
 
-//MANEJO ERRORES
-getControl(controlName: string): AbstractControl | null {
-  return this.registerForm.get(controlName);
-}
+  getControl(controlName: string): AbstractControl | null {
+    return this.registerForm.get(controlName);
+  }
 
-//metodos toggles
   toggleVip(): void {
     this.isVip = !this.isVip;
     this.registerForm.get('vip')?.setValue(this.isVip);
+  }
+
+  toggle2FA(): void {
+    this.is2FAEnabled = !this.is2FAEnabled;
+    this.registerForm.get('enable2FA')?.setValue(this.is2FAEnabled);
   }
 
   togglePhotoOptions(): void {

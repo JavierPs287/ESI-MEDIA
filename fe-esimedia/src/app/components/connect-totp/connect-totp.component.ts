@@ -2,12 +2,13 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConnectTotpService } from '../../services/connect-totp.service';
 import { Router } from '@angular/router';
+import { NavbarComponent } from '../navbar/navbar.component';
 import * as QRCode from 'qrcode';
 
 @Component({
   selector: 'app-connect-totp',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NavbarComponent],
   templateUrl: './connect-totp.component.html',
   styleUrls: ['./connect-totp.component.css']
 })
@@ -45,7 +46,6 @@ export class ConnectTotpComponent implements OnInit {
         next: (data: any) => {
           this.secret = data.secret || '';
           
-          // Generar el QR en el frontend
           if (this.secret) {
             this.generateQRCode();
           }
@@ -54,7 +54,6 @@ export class ConnectTotpComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Error completo:', err);
           this.error = 'Error al activar 2FA';
           this.loading = false;
           this.cdr.detectChanges();
@@ -66,10 +65,8 @@ export class ConnectTotpComponent implements OnInit {
   }
 
   private generateQRCode(): void {
-    // Construir la URL otpauth
     const otpauthUrl = `otpauth://totp/ESIMEDIA:${this.email}?secret=${this.secret}&issuer=ESIMEDIA`;
     
-    // Generar el QR como Data URL
     QRCode.toDataURL(otpauthUrl, {
       width: 300,
       margin: 2,
@@ -83,8 +80,11 @@ export class ConnectTotpComponent implements OnInit {
       this.cdr.detectChanges();
     })
     .catch((err: Error) => {
-      console.error('Error generando QR:', err);
       this.error = 'Error al generar el código QR';
     });
+  }
+
+  goToHome(): void {
+    this.router.navigate(['/home']);
   }
 }
