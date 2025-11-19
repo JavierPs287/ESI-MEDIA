@@ -108,7 +108,7 @@ export class TemporalplaylistsComponent implements OnInit {
       description: this.newPlaylistDescription.trim() || 'Sin descripción',
       ownerId: '', // El backend lo obtendrá del token
       isPublic: this.canChooseVisibility ? this.newPlaylistIsPublic : false,
-      contenidoIds: ['6911cec7a743c821d2ecf2a3'] // Contenido inicial por defecto
+      contenidoIds: [] // Playlist vacía inicialmente
     };
 
     this.playlistService.createPlaylist(playlistData).subscribe({

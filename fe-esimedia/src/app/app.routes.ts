@@ -18,6 +18,8 @@ import { MainMenuUserComponent } from './components/menus/main-menu-user/main-me
 import { ShowContentComponent } from './components/show-content/show-content.component';
 import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
 import { TemporalplaylistsComponent } from './components/temporalplaylists/temporalplaylists.component';
+import { ListPlaylistsComponent } from './components/list-playlists/list-playlists.component';
+import { PlaylistDetailComponent } from './components/playlist-detail/playlist-detail.component';
 
 export const routes: Routes = [
 
@@ -53,9 +55,16 @@ export const routes: Routes = [
     },
 
     {
-        path: 'resetPassword',
+        path: 'resetpassword',
         component: ResetpasswordComponent
     },
+
+    // {
+    //     path: 'playlists',
+    //     component: ListPlaylistsComponent,
+    //     canActivate: [authGuard, roleGuard],
+    //     data: { roles: ['USUARIO', 'CREADOR', 'ADMIN'] }
+    // },
 
     {
         path: 'menu/creator',
@@ -74,6 +83,14 @@ export const routes: Routes = [
             {
                 path: 'uploadContent/video',
                 component: UploadVideoComponent
+            },
+            {
+                path: 'reproduce/:urlId',
+                component: ReproduceContentComponent
+            },
+            {
+                path: 'playlists',
+                component: ListPlaylistsComponent
             }
         ]
     },
@@ -116,19 +133,19 @@ export const routes: Routes = [
             {
                 path: 'reproduce/:urlId',
                 component: ReproduceContentComponent
+            },
+            {
+                path: 'playlists',
+                component: ListPlaylistsComponent
             }
         ]
     },
     {
-        path: 'forgotpassword',
-        component: ForgotpasswordComponent
+        path: 'playlists',
+        component: ListPlaylistsComponent,
     },
     {
-        path: 'resetpassword',
-        component: ResetpasswordComponent
-    },
-    {
-        path: 'playlist',
-        component: TemporalplaylistsComponent
-    },
+        path: 'playlist/:id',
+        component: PlaylistDetailComponent
+    }
 ];

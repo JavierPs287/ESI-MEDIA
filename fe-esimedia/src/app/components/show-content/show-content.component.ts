@@ -8,6 +8,7 @@ import { getImageUrlByName } from '../../services/image.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent} from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-show-content',
@@ -20,12 +21,15 @@ export class ShowContentComponent implements OnInit {
 
   private readonly contentService = inject(ContentService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
   contents: Content[] = [];
   isLoading = true;
   errorMessage = '';
+  userRole = '';
 
   ngOnInit() {
+    this.loadUserRole();
     this.loadContents();
     
   }
@@ -50,6 +54,18 @@ export class ShowContentComponent implements OnInit {
     });
   }
 
+  loadUserRole(): void {
+    this.http.get<any>('http://localhost:8081/user/me', { withCredentials: true })
+      .subscribe({
+        next: (userInfo) => {
+          this.userRole = userInfo.role;
+        },
+        error: (err) => {
+          console.error('Error al cargar información del usuario:', err);
+        }
+      });
+  }
+
   onContentClick(urlId: string) {
     // Validar que urlId existe
     if (!urlId) {
@@ -65,7 +81,15 @@ export class ShowContentComponent implements OnInit {
       return;
     }
 
-    this.router.navigate(['/menu/user/reproduce', urlId], {
+    // Navegar según el rol del usuario
+    let basePath = '/menu/user';
+    if (this.userRole === 'ADMIN') {
+      basePath = '/menu/admin';
+    } else if (this.userRole === 'CREADOR') {
+      basePath = '/menu/creator';
+    }
+
+    this.router.navigate([`${basePath}/reproduce`, urlId], {
       state: { content: selectedContent }
     });
   }
