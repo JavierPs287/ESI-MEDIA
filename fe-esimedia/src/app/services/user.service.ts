@@ -72,7 +72,7 @@ export class UserService {
           else if (status === 404) errorType = 'NOT_FOUND';
           else if (status === 400) errorType = 'BAD_REQUEST';
           else if (status === 500) errorType = 'INTERNAL_SERVER_ERROR';
-          observer.next({ message: '', error: String(errorMessage), httpStatus: status, errorType });
+          observer.error({ message: '', error: String(errorMessage), httpStatus: status, errorType });
           observer.complete();
         }
       });
