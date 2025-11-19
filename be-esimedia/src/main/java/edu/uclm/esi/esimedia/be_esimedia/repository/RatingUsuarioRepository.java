@@ -10,6 +10,6 @@ import edu.uclm.esi.esimedia.be_esimedia.model.RatingUsuario;
 @Repository
 public interface RatingUsuarioRepository extends MongoRepository<RatingUsuario, String> {
     List<RatingUsuario> findByContenidoId(String contenidoId);
-
+    RatingUsuario findByContenidoIdAndUserId(String contenidoId, String userId);
     boolean existsByContenidoIdAndUserId(String contenidoId, String userId);
 }

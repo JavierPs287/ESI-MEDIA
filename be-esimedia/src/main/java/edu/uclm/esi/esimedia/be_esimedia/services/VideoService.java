@@ -95,15 +95,8 @@ public class VideoService {
     }
 
     public ResponseEntity<String> getVideo(String urlId, HttpServletRequest request) {
-        // TODO mover a método común si tenemos mucha duplicidad
         // Conseguir usuario del token
-        String token = jwtUtils.extractTokenFromCookie(request);
-        if (token == null || !jwtUtils.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
-        }
-    
-        String userId = jwtUtils.getUserIdFromToken(token);
-
+        String userId = jwtUtils.getUserIdFromRequest(request);
         Usuario usuario = usuarioRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
 

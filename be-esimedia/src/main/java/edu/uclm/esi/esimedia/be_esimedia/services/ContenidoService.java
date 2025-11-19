@@ -15,11 +15,15 @@ import org.springframework.stereotype.Service;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoFilterDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.RatingUsuarioDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.ReproductionMetadataDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.ContenidoNotFoundException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RatingInvalidException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.RatingUsuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.RatingUsuarioRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class ContenidoService {
@@ -31,15 +35,18 @@ public class ContenidoService {
     private final ContenidoRepository contenidoRepository;
     private final RatingUsuarioRepository ratingUsuarioRepository;
     private final MongoTemplate mongoTemplate;
+    
+    private final JwtUtils jwtUtils;
 
     @Autowired
     public ContenidoService(ContenidoRepository contenidoRepository, ValidateService validateService,
             RatingUsuarioRepository ratingUsuarioRepository,
-            MongoTemplate mongoTemplate) {
+            MongoTemplate mongoTemplate, JwtUtils jwtUtils) {
         this.contenidoRepository = contenidoRepository;
         this.validateService = validateService;
         this.ratingUsuarioRepository = ratingUsuarioRepository;
         this.mongoTemplate = mongoTemplate;
+        this.jwtUtils = jwtUtils;
     }
 
     // TODO Recibir token para mostrar contenido no visible a creadores
@@ -86,7 +93,7 @@ public class ContenidoService {
 
         // Actualizar rating promedio del contenido
         Contenido contenido = contenidoRepository.findById(ratingUsuario.getContenidoId())
-                .orElseThrow(() -> new IllegalArgumentException("Contenido no encontrado"));
+                .orElseThrow(ContenidoNotFoundException::new);
 
         double averageRating = calculateAverageRating(ratingUsuario.getContenidoId());
         contenido.setRating(averageRating);
@@ -102,12 +109,36 @@ public class ContenidoService {
 
     public void incrementViews(String contenidoId) {
         Contenido contenido = contenidoRepository.findById(contenidoId)
-                .orElseThrow(() -> new IllegalArgumentException("Contenido no encontrado"));
+                .orElseThrow(ContenidoNotFoundException::new);
 
         contenido.setViews(contenido.getViews() + 1);
         contenidoRepository.save(contenido);
 
         logger.info("Views incrementadas para contenido ID: {}", contenidoId);
+    }
+
+    public ReproductionMetadataDTO getReproductionMetadata(String urlId, HttpServletRequest request) {
+        Contenido contenido = contenidoRepository.findByUrlId(urlId)
+                .orElseThrow(ContenidoNotFoundException::new);
+
+        ReproductionMetadataDTO metadata = new ReproductionMetadataDTO();
+        metadata.setViews(contenido.getViews());
+        metadata.setAverageRating(contenido.getRating());
+
+        // Obtener userId del token en la solicitud
+        String userId = jwtUtils.getUserIdFromRequest(request);
+
+        // Buscar valoración del usuario para este contenido
+        RatingUsuario ratingUsuario = ratingUsuarioRepository
+                .findByContenidoIdAndUserId(contenido.getId(), userId);
+
+        if (ratingUsuario != null) {
+            metadata.setUserRating(ratingUsuario.getRating());
+        } else {
+            metadata.setUserRating(0); // No ha valorado
+        }
+
+        return metadata;
     }
 
     private List<Contenido> applyFilters(ContenidoFilterDTO filters) {
