@@ -43,20 +43,15 @@ export class UserService {
     const payload = { email, password };
     console.log('Enviando petición de login:', payload);
     return new Observable(observer => {
-      // El interceptor añade automáticamente withCredentials: true
-      this.http.post(`${this.baseUrl}/login`, payload, { 
-        observe: 'response'
-      }).subscribe({
+      this.http.post(`${this.baseUrl}/login`, payload, { observe: 'response' }).subscribe({
         next: (response) => {
           const body: any = response.body;
-          console.log('Login exitoso.');
-          observer.next({ 
-            message: body.message || 'Login exitoso', 
-            role: body.role,
-            userId: body.userId,
-            error: undefined, 
-            httpStatus: 200, 
-            errorType: undefined 
+          observer.next({
+            ...body,
+            message: body.message || 'Login exitoso',
+            error: undefined,
+            httpStatus: 200,
+            errorType: undefined
           });
           observer.complete();
         },
@@ -64,7 +59,6 @@ export class UserService {
           console.error('Error en el login:');
           let errorMessage = 'Error en el login';
           const body = err?.error;
-          
           if (body && typeof body === 'object' && body.error) {
             errorMessage = body.error;
           } else if (typeof body === 'string') {
@@ -72,14 +66,12 @@ export class UserService {
           } else if (err?.message) {
             errorMessage = err.message;
           }
-
           const status = err?.status ?? undefined;
           let errorType: string | undefined = undefined;
           if (status === 401) errorType = 'UNAUTHORIZED';
           else if (status === 404) errorType = 'NOT_FOUND';
           else if (status === 400) errorType = 'BAD_REQUEST';
           else if (status === 500) errorType = 'INTERNAL_SERVER_ERROR';
-
           observer.next({ message: '', error: String(errorMessage), httpStatus: status, errorType });
           observer.complete();
         }

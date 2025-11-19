@@ -6,6 +6,5 @@ import edu.uclm.esi.esimedia.be_esimedia.model.BlacklistPassword;
 
 @Repository
 public interface BlacklistPasswordRepository extends MongoRepository<BlacklistPassword, String> {
-    BlacklistPassword findByPasswordHash(String passwordHash);
-    boolean existsByPasswordHash(String passwordHash);
+    boolean existsByPassword(String password);
 }

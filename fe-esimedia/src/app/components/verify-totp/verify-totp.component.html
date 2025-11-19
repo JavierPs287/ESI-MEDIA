@@ -1,0 +1,17 @@
+<app-navbar></app-navbar>
+<div class="totp-container">
+  <div class="totp-card">
+    <h2>Verifica tu código TOTP</h2>
+    <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()">
+      <div class="form-field">
+        <label for="code">Código de 6 dígitos</label>
+        <input id="code" type="text" formControlName="code" maxlength="6" autocomplete="one-time-code" />
+        <div *ngIf="verifyForm.get('code')?.invalid && verifyForm.get('code')?.touched" class="error-message">
+          Código requerido y debe tener 6 dígitos.
+        </div>
+      </div>
+      <button type="submit" class="create-btn" [disabled]="loading">Verificar</button>
+    </form>
+    <div *ngIf="error" class="error-message">{{ error }}</div>
+  </div>
+</div>

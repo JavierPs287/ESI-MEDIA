@@ -1,0 +1,87 @@
+trigger:
+  branches:
+    include:
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  mavenCacheFolder: $(Pipeline.Workspace)/.m2/repository
+  mavenOpts: '-Dmaven.repo.local=$(mavenCacheFolder)'
+
+stages:
+  - stage: Build
+    displayName: 'Build Backend'
+    jobs:
+      - job: MavenBuild
+        displayName: 'Maven Compile and Test'
+        steps:
+          - task: JavaToolInstaller@0
+            displayName: 'Setup Java 21'
+            inputs:
+              versionSpec: '21'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+
+          - task: Cache@2
+            displayName: 'Cache Maven Dependencies'
+            inputs:
+              key: 'maven | "$(Agent.OS)" | be-esimedia/pom.xml'
+              restoreKeys: |
+                maven | "$(Agent.OS)"
+                maven
+              path: $(mavenCacheFolder)
+
+          - task: Maven@4
+            displayName: 'Maven Clean Compile'
+            inputs:
+              mavenPomFile: 'be-esimedia/pom.xml'
+              goals: 'clean compile'
+              options: '$(mavenOpts) -B -e'
+              publishJUnitResults: false
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.21'
+              mavenVersionOption: 'Default'
+              mavenOptions: '-Xmx3072m'
+              mavenAuthenticateFeed: false
+
+          - task: Maven@4
+            displayName: 'Maven Test'
+            inputs:
+              mavenPomFile: 'be-esimedia/pom.xml'
+              goals: 'test'
+              options: '$(mavenOpts) -B'
+              publishJUnitResults: true
+              testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.21'
+              mavenVersionOption: 'Default'
+              mavenOptions: '-Xmx3072m'
+            continueOnError: false
+
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+              mergeTestResults: true
+              failTaskOnFailedTests: true
+              testRunTitle: 'Backend Unit Tests'
+
+          - task: PublishCodeCoverageResults@2
+            displayName: 'Publish Code Coverage'
+            condition: succeededOrFailed()
+            inputs:
+              codeCoverageTool: 'JaCoCo'
+              summaryFileLocation: '$(System.DefaultWorkingDirectory)/be-esimedia/target/site/jacoco/jacoco.xml'
+              reportDirectory: '$(System.DefaultWorkingDirectory)/be-esimedia/target/site/jacoco'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Backend Success Indicator'
+            condition: succeeded()
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/be-esimedia/target'
+              artifact: 'backend-success'
+              publishLocation: 'pipeline'
