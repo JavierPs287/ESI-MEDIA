@@ -72,7 +72,7 @@ public class UserController {
                 String token = authService.generateJwtToken(user);
                 ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(true)
                         .path("/")
                         .maxAge(24L * 60 * 60)
                         .sameSite("Lax")
@@ -111,7 +111,7 @@ public class UserController {
         // Crear cookie con maxAge 0 para eliminarla
         ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Lax")
@@ -172,7 +172,7 @@ public class UserController {
             String token = authService.generateJwtToken(user);
             ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .path("/")
                     .maxAge(24L * 60 * 60)
                     .sameSite("Lax")
@@ -282,7 +282,7 @@ public class UserController {
                 String token = authService.generateJwtToken(user);
                 ResponseCookie cookie = ResponseCookie.from(Constants.JWT_COOKIE_NAME, token)
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(true)
                         .path("/")
                         .maxAge(24L * 60 * 60)
                         .sameSite("Lax")
@@ -316,7 +316,7 @@ public class UserController {
                 String token = authService.generateJwtToken(user);
                 ResponseCookie cookie = ResponseCookie.from(Constants.JWT_COOKIE_NAME, token)
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(true)
                         .path("/")
                         .maxAge(24L * 60 * 60)
                         .sameSite("Lax")
