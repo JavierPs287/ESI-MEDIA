@@ -42,3 +42,6 @@ application-local.properties
 *.env
 .env
 .env.local
+
+# Keystore 
+src/main/resources/keystore.p12
