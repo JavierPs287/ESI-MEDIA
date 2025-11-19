@@ -57,7 +57,6 @@ export class UserService {
         },
         error: (err) => {
           let errorMessage = 'Error en el login';
-          alert(errorMessage);
           const body = err?.error;
           if (body && typeof body === 'object' && body.error) {
             errorMessage = body.error;

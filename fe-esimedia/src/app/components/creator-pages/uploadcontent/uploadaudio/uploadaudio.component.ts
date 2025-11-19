@@ -74,7 +74,7 @@ export class UploadAudioComponent implements OnInit {
 
   submitAudioForm(): void {
     if (!this.audioForm.valid || !this.selectedAudioFile) {
-      alert('Por favor, completa todos los campos requeridos');
+      alert('Por favor, revisa el formulario');
       this.formService.markFormGroupTouched(this.audioForm);
       return;
     }

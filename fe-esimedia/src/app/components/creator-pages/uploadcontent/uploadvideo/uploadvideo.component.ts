@@ -64,7 +64,7 @@ export class UploadVideoComponent implements OnInit {
 
   submitVideoForm(): void {
     if (!this.videoForm.valid) {
-      alert('Por favor, completa todos los campos requeridos');
+      alert('Por favor, revisa el formulario');
       this.formService.markFormGroupTouched(this.videoForm);
       return;
     }

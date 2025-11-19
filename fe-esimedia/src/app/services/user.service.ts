@@ -50,7 +50,6 @@ export class UserService {
             }
         }),
         catchError(err => {
-            alert('Error en el servicio');
             return throwError(() => err);
         })
         );
