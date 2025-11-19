@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-unauthorized',
-  imports: [CommonModule, RouterLink, NavbarComponent],
+  imports: [CommonModule, NavbarComponent],
   template: `
     <app-navbar></app-navbar>
     <div class="unauthorized-container">
@@ -26,7 +26,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
           <p class="note">Si crees que esto es un error, contacta con un administrador.</p>
         </div>
         <div class="actions">
-          <button class="btn-primary" routerLink="/home">
+          <button class="btn-primary" (click)="goMenu()">
             🏠 Volver al inicio
           </button>
           <button class="btn-secondary" (click)="goBack()">
@@ -43,7 +43,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
       align-items: center;
       min-height: 80vh;
       padding: 2rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--linear-gradient);
     }
 
     .error-content {
@@ -161,23 +161,22 @@ import { NavbarComponent } from '../navbar/navbar.component';
     }
 
     .btn-primary {
-      background-color: #007bff;
+      background-color: var(--azul);
       color: white;
     }
 
     .btn-primary:hover {
-      background-color: #0056b3;
+      background-color: var(--azul-oscuro);
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     .btn-secondary {
-      background-color: #6c757d;
+      background-color: var(--gris);
       color: white;
     }
 
     .btn-secondary:hover {
-      background-color: #5a6268;
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
@@ -187,6 +186,9 @@ export class UnauthorizedComponent {
   constructor(private router: Router) {}
 
   goBack(): void {
-    window.history.back();
+    window.history.go(-2);
+  }
+  goMenu(): void {
+    this.router.navigate(['/']);
   }
 }
