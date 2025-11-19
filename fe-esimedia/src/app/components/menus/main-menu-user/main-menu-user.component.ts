@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterOutlet } from '@angular/router';
 import { User, Usuario } from '../../../models/user.model';
 import { getAvatarUrlById } from '../../../services/image.service';
+import { Observable } from 'rxjs';
 
 
 
@@ -23,6 +24,7 @@ export class MainMenuUserComponent {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
+  public readonly isAuthenticated$: Observable<boolean> = this.authService.isAuthenticated();
 
   showFiller = false;
   currentUser!: Usuario;
@@ -48,7 +50,8 @@ ngOnInit() {
           document.cookie = c
           .replace(/^ +/, "")
           .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
-          this.router.navigate(['/login']);}
+        this.authService.setAuthenticated(false);
+        this.router.navigate(['/']);}
         );},
       error: () => {
         alert('Error al cerrar sesión');

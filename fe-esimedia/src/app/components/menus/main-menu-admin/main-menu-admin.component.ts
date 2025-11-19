@@ -56,7 +56,8 @@ export class MainMenuAdminComponent {
           document.cookie = c
           .replace(/^ +/, "")
           .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
-          this.router.navigate(['/login']);}
+        this.authService.setAuthenticated(false);
+        this.router.navigate(['/']);}
         );},
       error: () => {
         alert('Error al cerrar sesión');
