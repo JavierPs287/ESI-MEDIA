@@ -55,7 +55,8 @@ export class RegisteradminComponent implements OnInit {
         department: formValue.department,
         imageId: formValue.imageId,
         password: formValue.password,
-        twoFaEnabled: true
+        twoFaEnabled: true,
+        threeFaEnabled: true
       };
 
       this.adminService.registerAdmin(admin).subscribe({

@@ -36,4 +36,13 @@ public class EmailService {
                         "El equipo de ESI-MEDIA");
         mailSender.send(message);
     }
+    
+    public void sendThreeFactorCodeEmail(String email, String code) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setFrom("esimedia2025iso@gmail.com");
+        message.setSubject("Código de verificación 3FA");
+        message.setText("Tu código de verificación es: " + code + "\n\nVálido por 10 minutos.");
+        mailSender.send(message);
+    }
 }

@@ -52,14 +52,18 @@ export class VerifyTotpComponent implements OnInit {
     this.loading = true;
     this.verifyTotpService.verifyTotp(this.email, this.verifyForm.value.code).subscribe({
       next: (result: any) => {
+        if ('3faRequired' in result && result['3faRequired']) {
+          // Si requiere 3FA, navegar a verify-email-code
+          this.loading = false;
+          this.router.navigate(['/verify-email-code'], { state: { email: this.email } });
+          return;
+        }
         if (result.success) {
           // Solicitar el token tras 2FA
           this.verifyTotpService.issueToken(this.email).subscribe({
             next: (tokenResult: any) => {
               this.loading = false;
-              // Marcar autenticado para el guardia
               this.authService.setAuthenticated(true, tokenResult.role, tokenResult.userId);
-              // Redirigir según el rol
               if (tokenResult.role === 'ADMIN') {
                 this.router.navigate(['/menu/admin']);
               } else if (tokenResult.role === 'CREADOR') {

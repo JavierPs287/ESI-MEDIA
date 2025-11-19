@@ -29,6 +29,7 @@ export class RegisteruserComponent implements  OnInit {
   registrationResponse: Response | null = null;
   avatarOptions = AVATAR_OPTIONS;
   isSubmitting = false;
+  is3FAEnabled = false;
 
   fb = inject(FormBuilder);
   registerForm!: FormGroup;
@@ -44,6 +45,7 @@ export class RegisteruserComponent implements  OnInit {
     alias: ['', [Validators.minLength(2), Validators.maxLength(20)]],
     vip: [false],
     enable2FA: [false],
+    enable3FA: [false],
     imageId: [this.avatarOptions[0].id],
     birthDate: ['', [Validators.required, this.minAgeValidator(4)]],
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
@@ -144,6 +146,11 @@ export class RegisteruserComponent implements  OnInit {
   toggle2FA(): void {
     this.is2FAEnabled = !this.is2FAEnabled;
     this.registerForm.get('enable2FA')?.setValue(this.is2FAEnabled);
+  }
+  
+  toggle3FA(): void {
+    this.is3FAEnabled = !this.is3FAEnabled;
+    this.registerForm.get('enable3FA')?.setValue(this.is3FAEnabled);
   }
 
   togglePhotoOptions(): void {

@@ -55,6 +55,11 @@ public class AdminController {
         }
     }
 
+    // TODO Cambiar endpoint a otra cosa que no coja el email
+    // TODO Como el usuario puede cambiar cosas que no puede el admin (contraseña, vip), hay dos opciones:
+    // Hacer 2 endpoints de actualizar diferentes (uno aquí y otro en UsuarioController)
+    // O hacer uno solo y comprobar el rol del usuario de la cookie/token (se puede ver un ejemplo en uploadVideo o listContenidos)
+    // TODO En cualquier caso, coger el email es inútil porque ya está en el DTO, quitar de parámetro
     @PatchMapping("/users/{email}")
     public ResponseEntity<String> updateUser(@PathVariable("email") String emailPath, @RequestBody UsuarioDTO usuarioDTO) {
         String email = java.net.URLDecoder.decode(emailPath, java.nio.charset.StandardCharsets.UTF_8);

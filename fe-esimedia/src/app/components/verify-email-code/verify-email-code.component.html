@@ -1,0 +1,41 @@
+<app-navbar></app-navbar>
+<body class="background">
+  <div class="verify-container">
+    <div class="verify-card">
+      <h2>Verificación de código por email</h2>
+      
+      <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()">
+        <div class="form-field">
+          <label for="code">Código recibido</label>
+          <input 
+            id="code" 
+            formControlName="code" 
+            type="text" 
+            maxlength="6"
+            placeholder="Ingresa el código de 6 dígitos"
+            required 
+          />
+        </div>
+
+        <button type="submit" class="verify-btn" [disabled]="loading || !verifyForm.valid">
+          {{ loading ? 'Verificando...' : 'Verificar' }}
+        </button>
+      </form>
+
+      <div *ngIf="error" class="error-message">{{ error }}</div>
+      <div *ngIf="loading" class="loading">Validando código</div>
+      
+      <p class="info-text">
+        Revisa tu bandeja de entrada y spam. El código expira en 10 minutos.
+      </p>
+
+      <hr class="divider">
+      
+      <div class="log-in">
+        <p class="info-link">
+          <a class="link" href="/login">Volver al inicio de sesión</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>

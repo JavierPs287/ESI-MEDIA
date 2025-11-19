@@ -35,6 +35,9 @@ public class User {
     private boolean twoFaEnabled;
     private String totpSecret;
 
+    // 3FA
+    private boolean threeFaEnabled;
+
     // Constructor vacío requerido por Spring Data MongoDB
     public User() {
     }
@@ -174,5 +177,13 @@ public class User {
 
     public void setTwoFaEnabled(boolean twoFaEnabled) {
         this.twoFaEnabled = twoFaEnabled;
+    }
+
+    public boolean isThreeFaEnabled() {
+        return threeFaEnabled;
+    }
+
+    public void setThreeFaEnabled(boolean threeFaEnabled) {
+        this.threeFaEnabled = threeFaEnabled;
     }
 }

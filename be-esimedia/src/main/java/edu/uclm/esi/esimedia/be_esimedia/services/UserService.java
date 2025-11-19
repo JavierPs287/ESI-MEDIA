@@ -67,6 +67,10 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    // TODO No hace falta la request como parámetro, userDTO ya tiene el email
+    // TODO Usar método común de validación (mirar TODOs en AdminService, mover validateUserUpdateFields aquí)
+    // TODO Tener en cuenta que esto es USERService, aquí solo cosas comunes a todos los roles
+    // TODO Mover cosas de Usuario a UsuarioService
     public UsuarioDTO updateProfile(UsuarioDTO usuarioDTO, HttpServletRequest request) {
         String token = jwtUtils.extractTokenFromCookie(request);
 
@@ -197,6 +201,7 @@ public class UserService {
     }
 
     public UserDTO getCurrentUser(HttpServletRequest request) {
+
         String token = jwtUtils.extractTokenFromCookie(request);
         if (token == null || token.isEmpty()) {
             throw new InvalidTokenException("Token no proporcionado");
