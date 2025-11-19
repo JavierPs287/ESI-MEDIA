@@ -66,7 +66,7 @@ public class UserService {
     }
 
     public UsuarioDTO updateProfile(UsuarioDTO usuarioDTO, HttpServletRequest request) {
-        String token = extractTokenFromCookie(request);
+        String token = jwtUtils.extractTokenFromCookie(request);
 
         if (token == null || token.isEmpty()) {
             throw new InvalidTokenException("Token no proporcionado");
@@ -179,7 +179,7 @@ public class UserService {
 
     public UserDTO getCurrentUser(HttpServletRequest request) {
 
-        String token = extractTokenFromCookie(request);
+        String token = jwtUtils.extractTokenFromCookie(request);
         if (token == null || token.isEmpty()) {
             throw new InvalidTokenException("Token no proporcionado");
         }
@@ -350,19 +350,5 @@ public class UserService {
         }
         userRepository.save(user);
         return true;
-    }
-    
-    /**
-     * Método auxiliar para extraer el token de la cookie
-     */
-    private String extractTokenFromCookie(HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("esi_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 }

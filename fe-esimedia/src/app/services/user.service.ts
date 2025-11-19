@@ -103,4 +103,29 @@ export class UserService {
     // El interceptor añade automáticamente withCredentials: true
     return this.http.get<{ email: string; role: string; userId: string }>(`${this.baseUrl}/me`);
   }
+    /**
+     * Verifica el código de un solo uso enviado por email (3FA)
+     * @param email Email del usuario
+     * @param code Código recibido por email
+     */
+    verifyEmailCode(email: string, code: string): Observable<any> {
+      return this.http.post<any>(`${this.baseUrl}/verify-3fa-code`, { email, code });
+    }
+    
+    /**
+     * Solicita el envío del código de 3FA por email
+     * @param email Email del usuario
+     */
+    sendThreeFaCode(email: string): Observable<any> {
+      return this.http.post<any>(`${this.baseUrl}/send-3fa-code`, { email });
+    }
+
+    
+    /**
+     * Solicita el token tras verificación de 3FA
+     * @param email Email del usuario
+     */
+    issueTokenAfterThreeFa(email: string): Observable<any> {
+      return this.http.post<any>(`${this.baseUrl}/3fa/token`, { email });
+    }
 }

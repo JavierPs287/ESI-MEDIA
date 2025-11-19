@@ -29,6 +29,7 @@ export class RegisteruserComponent implements  OnInit {
   registrationResponse: Response | null = null;
   avatarOptions = PHOTO_OPTIONS;
   isSubmitting = false;
+  is3FAEnabled = false;
 
   fb = inject(FormBuilder);
   registerForm!: FormGroup;
@@ -144,6 +145,11 @@ export class RegisteruserComponent implements  OnInit {
   toggle2FA(): void {
     this.is2FAEnabled = !this.is2FAEnabled;
     this.registerForm.get('enable2FA')?.setValue(this.is2FAEnabled);
+  }
+  
+  toggle3FA(): void {
+    this.is3FAEnabled = !this.is3FAEnabled;
+    this.registerForm.get('enable3FA')?.setValue(this.is3FAEnabled);
   }
 
   togglePhotoOptions(): void {

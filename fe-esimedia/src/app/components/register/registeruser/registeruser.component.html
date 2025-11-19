@@ -1,3 +1,14 @@
+    <div class="form-field">
+      <p for="3fa" class="form-subtitle">Activa la verificación en tres pasos para máxima seguridad.</p>
+        <div class="btn-container">
+        <button
+          type="button" class="btn-3fa" (click)="toggle3FA()"
+          [ngClass]="{'fa3-active': is3FAEnabled, 'fa3-inactive': !is3FAEnabled}"
+          [disabled]="!is2FAEnabled">
+          {{ is3FAEnabled ? '3FA Activado' : '3FA Desactivado' }}
+        </button>
+      </div>
+    </div>
 <app-navbar></app-navbar>
 <body class="background">
 <div class="register-container">

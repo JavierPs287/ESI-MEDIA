@@ -6,4 +6,5 @@ export interface Admin {
     imageId: number;
     password: string;
     twoFaEnabled?: boolean;
+    threeFaEnabled?: boolean;
 }

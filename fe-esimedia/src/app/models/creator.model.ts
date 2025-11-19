@@ -9,4 +9,5 @@ export interface Creator {
     type: string;
     password: string;
     twoFaEnabled?: boolean;
+    threeFaEnabled?: boolean;
 }
