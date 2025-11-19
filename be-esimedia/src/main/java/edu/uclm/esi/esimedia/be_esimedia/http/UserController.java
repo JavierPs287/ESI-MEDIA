@@ -8,8 +8,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -191,6 +194,74 @@ public class UserController {
             
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("message", "Playlist creada exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/update-playlist")
+    public ResponseEntity<Map<String, String>> updatePlaylist(
+            @RequestBody PlaylistDTO playlistDTO,
+            jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            // Extraer token de la cookie
+            String token = jwtUtils.extractTokenFromCookie(request);
+            
+            if (token == null || !jwtUtils.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Usuario no autenticado"));
+            }
+            
+            // Obtener el rol y userId del token
+            String userRole = jwtUtils.getRoleFromToken(token);
+            String userId = jwtUtils.getUserIdFromToken(token);
+            
+            // Validar que no sea ADMIN
+            if ("ADMIN".equals(userRole)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Los administradores no pueden actualizar playlists"));
+            }
+            
+            // Actualizar la playlist
+            playlistService.updatePlaylist(playlistDTO, userId);
+            
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of("message", "Playlist actualizada exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/delete-playlist/{playlistId}")
+    public ResponseEntity<Map<String, String>> deletePlaylist(
+            @PathVariable String playlistId,
+            jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            // Extraer token de la cookie
+            String token = jwtUtils.extractTokenFromCookie(request);
+            
+            if (token == null || !jwtUtils.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Usuario no autenticado"));
+            }
+            
+            // Obtener el rol y userId del token
+            String userRole = jwtUtils.getRoleFromToken(token);
+            String userId = jwtUtils.getUserIdFromToken(token);
+            
+            // Validar que no sea ADMIN
+            if ("ADMIN".equals(userRole)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Los administradores no pueden eliminar playlists"));
+            }
+            
+            // Eliminar la playlist
+            playlistService.deletePlaylist(playlistId, userId);
+            
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of("message", "Playlist eliminada exitosamente"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));

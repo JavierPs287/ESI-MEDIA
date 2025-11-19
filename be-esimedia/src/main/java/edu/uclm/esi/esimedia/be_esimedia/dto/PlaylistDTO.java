@@ -4,6 +4,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Playlist;
 
 public class PlaylistDTO {
 
+    private String id;
     private String name;
     private String description;
     private String ownerId;
@@ -18,6 +19,7 @@ public class PlaylistDTO {
     }
 
     private void initializeFromModel(Playlist playlist) {
+        this.id = playlist.getId();
         this.name = playlist.getName();
         this.description = playlist.getDescription();
         this.ownerId = playlist.getOwnerId();
@@ -26,6 +28,13 @@ public class PlaylistDTO {
     }
     
     // Getters and Setters
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }

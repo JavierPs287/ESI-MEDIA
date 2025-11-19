@@ -2,6 +2,7 @@ package edu.uclm.esi.esimedia.be_esimedia.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.PlaylistDTO;
 
@@ -15,6 +16,8 @@ public class Playlist {
     private String description;
     private String ownerId;
     private boolean isPublic;
+    
+    @Field("contenidoIds")
     private String[] contenidoIds;
 
     public Playlist() {
@@ -25,6 +28,7 @@ public class Playlist {
     }
 
     private void initializeFromDTO(PlaylistDTO dto) {
+        this.setId(dto.getId());
         this.setName(dto.getName());
         this.setDescription(dto.getDescription());
         this.setOwnerId(dto.getOwnerId());
@@ -69,10 +73,10 @@ public class Playlist {
     }
 
     public String[] getContenidoIds() {
-        return contenidoIds != null ? (String[]) contenidoIds.clone() : null;
+        return contenidoIds != null ? (String[]) contenidoIds.clone() : new String[0];
     }
     public void setContenidoIds(String[] contenidoIds) {
-        this.contenidoIds = contenidoIds != null ? (String[]) contenidoIds.clone() : null;
+        this.contenidoIds = contenidoIds != null ? (String[]) contenidoIds.clone() : new String[0];
     }
     
 }

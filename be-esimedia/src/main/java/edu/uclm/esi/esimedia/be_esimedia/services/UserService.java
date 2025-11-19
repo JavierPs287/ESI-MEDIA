@@ -23,13 +23,19 @@ public class UserService {
     private final ValidateService validateService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final TokenService tokenService;
+    private final EmailService emailService;
+    private final PasswordHistoryRepository passwordHistoryRepository;
 
-    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, AuthService authService) {
-        this.userRepository = userRepository;
-        this.tokenRepository = tokenRepository;
-        this.validateService = validateService;
-        this.passwordEncoder = passwordEncoder;
-        this.authService = authService;
+    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, AuthService authService, TokenService tokenService, EmailService emailService, PasswordHistoryRepository passwordHistoryRepository) {
+    this.userRepository = userRepository;
+    this.tokenRepository = tokenRepository;
+    this.validateService = validateService;
+    this.passwordEncoder = passwordEncoder;
+    this.authService = authService;
+    this.tokenService = tokenService;
+    this.emailService = emailService;
+    this.passwordHistoryRepository = passwordHistoryRepository;
     }
 
     public boolean existsEmail(String email) {
@@ -59,7 +65,7 @@ public class UserService {
         emailService.sendPasswordResetEmail(user, token);
     }
 
-    public void resetPassword(String token, String newPassword, TokenService tokenService, PasswordHistoryRepository passwordHistoryRepository) throws InvalidTokenException {
+    public void resetPassword(String token, String newPassword) throws InvalidTokenException {
         // Verificar que la contraseña no esté en la blacklist usando AuthService
         if (authService.isPasswordBlacklisted(newPassword)) {
             throw new InvalidPasswordException("La contraseña está en la lista negra de contraseñas comunes.");
