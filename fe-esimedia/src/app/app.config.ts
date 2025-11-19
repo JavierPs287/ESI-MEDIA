@@ -20,7 +20,7 @@ function initializeAuth() {
     if (authService.hasToken()) {
       console.log('[APP_INITIALIZER] Cookie detectada, cargando información del usuario...');
       return new Promise<void>((resolve) => {
-        userService.getCurrentUser().subscribe({
+        userService.getCookieData().subscribe({
           next: (userInfo) => {
             // Actualizar el estado de autenticación con el rol del usuario
             authService.setAuthenticated(true, userInfo.role, userInfo.userId);

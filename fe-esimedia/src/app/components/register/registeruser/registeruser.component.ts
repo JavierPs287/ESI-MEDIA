@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, FormGroup } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
-import { User } from '../../../models/user.model';
+import { Usuario } from '../../../models/usuario.model';
 import { Response } from '../../../models/response.model';
 import { NavbarComponent } from "../../navbar/navbar.component";
 import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
@@ -56,7 +56,7 @@ export class RegisteruserComponent implements  OnInit {
       this.isSubmitting = true;
       const formValue = this.registerForm.getRawValue();
       const birthDate = new Date(formValue.birthDate);
-      const userData: User = {
+      const userData: Usuario = {
         name: formValue.name,
         lastName: formValue.lastName,
         email: formValue.email,

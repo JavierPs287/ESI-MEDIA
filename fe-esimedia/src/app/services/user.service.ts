@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User } from '../models/user.model';
+import { Usuario } from '../models/usuario.model';
 import { Response } from '../models/response.model';
 import { environment } from '../../environments/environment';
 
@@ -18,7 +18,7 @@ export class UserService {
    * @param user Datos del usuario a registrar
    * @returns Observable con la respuesta del servidor
    */
-  register(userData: User): Observable<Response> {
+  register(userData: Usuario): Observable<Response> {
     return new Observable<Response>(observer => {
       this.http.post(`${this.baseUrl}/register`, userData, { responseType: 'text' }).subscribe({
         next: (response) => {
@@ -91,8 +91,20 @@ export class UserService {
    * Obtiene la información del usuario actual desde el token en la cookie
    * @returns Observable con {email, role, userId} o error
    */
-  getCurrentUser(): Observable<{ email: string; role: string; userId: string }> {
+  getCookieData(): Observable<{ email: string; role: string; userId: string }> {
     // El interceptor añade automáticamente withCredentials: true
-    return this.http.get<{ email: string; role: string; userId: string }>(`${this.baseUrl}/me`);
+    return this.http.get<{ email: string; role: string; userId: string }>(`${this.baseUrl}/cookie-data`, { withCredentials: true });
+  }
+
+  getVideoByUrlId(urlId: string): Observable<string> {
+    return this.http.get(`${environment.apiUrl}/usuario/video/${urlId}`, {
+      responseType: 'text',
+      withCredentials: true
+    });
+  }
+  getMe(): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.baseUrl}/me`, { 
+      responseType: 'json',
+      withCredentials: true });
   }
 }

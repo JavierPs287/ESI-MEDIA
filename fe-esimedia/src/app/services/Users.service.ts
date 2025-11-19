@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User } from '../models/user.model';
+import { Usuario } from '../models/usuario.model';
 import { Response } from '../models/response.model';
 import { environment } from '../../environments/environment';
 
@@ -34,7 +34,7 @@ export class UserService {
         return this.http.get<Response>(`${this.baseUrl}/${id}`);
     }
 
-    updateUser(id: string, user: User): Observable<Response> {
+    updateUser(id: string, user: Usuario): Observable<Response> {
         return this.http.put<Response>(`${this.baseUrl}/${id}`, user);
     }
 

@@ -108,6 +108,34 @@ public class UserController {
         }
     }
 
+    @GetMapping("/cookie-data")
+    public ResponseEntity<Map<String, String>> getCookieData(jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            // Extraer token de la cookie
+            String token = jwtUtils.extractTokenFromCookie(request);
+            
+            if (token == null || !jwtUtils.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Token inválido o no proporcionado"));
+            }
+            
+            // Extraer información del token
+            String email = jwtUtils.getEmailFromToken(token);
+            String role = jwtUtils.getRoleFromToken(token);
+            String userId = jwtUtils.getUserIdFromToken(token);
+            
+            Map<String, String> userInfo = new HashMap<>();
+            userInfo.put("email", email);
+            userInfo.put("role", role);
+            userInfo.put("userId", userId);
+            
+            return ResponseEntity.ok(userInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al obtener información del usuario"));
+        }
+    }
+
     @PatchMapping("/profile")
     public ResponseEntity<UsuarioDTO> updateProfile(@RequestBody UsuarioDTO usuarioDTO, jakarta.servlet.http.HttpServletRequest request) {
         UsuarioDTO updatedUsuario = userService.updateProfile(usuarioDTO, request);
