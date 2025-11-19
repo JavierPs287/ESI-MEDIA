@@ -76,9 +76,6 @@ public class SecurityConfig {
                 // Endpoints para usuarios autenticados (cualquier rol)
                 .requestMatchers("/user/**").hasAnyRole(USUARIO_ROLE, CREADOR_ROLE, ADMIN_ROLE)
                 
-                // Endpoints de contenido: lectura para todos, escritura para creators
-                .requestMatchers("/audio/**", "/video/**").permitAll()
-                
                 // El resto requiere autenticación
                 .anyRequest().authenticated()
                 // .anyRequest().permitAll() // Para pruebas con Postman
