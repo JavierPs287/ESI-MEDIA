@@ -22,12 +22,10 @@ export class AdminService {
     return new Observable<Response>(observer => {
       this.http.post(`${this.baseUrl}/registerAdmin`, adminData, { responseType: 'text' }).subscribe({
         next: (response) => {
-          console.log('Respuesta del servidor:', response);
           observer.next({ message: response, error: undefined });
           observer.complete();
         },
         error: (error) => {
-          console.error('Error en el registro del administrador:', error);
           const errorMessage = error?.error?.text || error?.error || error?.message || 'Error en el registro del administrador';
           observer.error({ message: '', error: errorMessage });
           observer.complete();

@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import { Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { FIELDS, DEPARTMENTS } from '../../constants/form-constants';
-import { PHOTO_OPTIONS } from '../../constants/avatar-constants';
+import { AVATAR_OPTIONS } from '../../constants/avatar-constants';
 import { N } from '@angular/cdk/keycodes';
 
 @Component({
@@ -32,7 +32,7 @@ export class EditProfilesComponent {
   backup: any = {};
   fields = FIELDS;
   departments = DEPARTMENTS;
-  photoOptions = PHOTO_OPTIONS;
+  photoOptions = AVATAR_OPTIONS;
   isVip = !!this.editedUser?.vip;
   showPhotoOptions = false;
   selectedPhoto: number | null = null;
@@ -174,9 +174,6 @@ getControl(controlName: string): AbstractControl | null {
 
     // quitar contraseña vacía
     if (!payload.contraseña) delete payload.contraseña;
-
-    // enviar al backend
-    console.log('Payload a enviar:', payload);
     // this.userService.update(payload).subscribe(...)
 
     // actualizar vista local y volver a lectura

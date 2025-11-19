@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, FormGroup } from '@angular/forms';
-import { UserService } from '../../../services/user.service';
+import { UserService } from '../../../services/usuario.service';
 import { Usuario } from '../../../models/usuario.model';
 import { Response } from '../../../models/response.model';
 import { NavbarComponent } from "../../navbar/navbar.component";
-import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
+import { AVATAR_OPTIONS } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -27,7 +27,7 @@ export class RegisteruserComponent implements  OnInit {
   visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
   registrationResponse: Response | null = null;
-  avatarOptions = PHOTO_OPTIONS;
+  avatarOptions = AVATAR_OPTIONS;
   isSubmitting = false;
 
   fb = inject(FormBuilder);

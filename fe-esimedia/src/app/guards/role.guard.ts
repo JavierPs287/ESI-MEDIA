@@ -21,21 +21,15 @@ export const roleGuard: CanActivateFn = (route, state) => {
     switchMap(() => authService.getUserRole()),
     take(1),
     map(userRole => {
-      console.log('[roleGuard] Rol del usuario:', userRole);
-      console.log('[roleGuard] Roles permitidos:', allowedRoles);
-      
       if (!userRole) {
-        console.warn('[roleGuard] No hay rol de usuario, redirigiendo a /login');
+        alert('Por favor, inicia sesión para continuar.');
         router.navigate(['/login']);
         return false;
       }
 
       if (allowedRoles.length === 0 || allowedRoles.includes(userRole)) {
-        console.log('[roleGuard] ✅ Acceso permitido');
         return true;
       } else {
-        console.warn(`[roleGuard] ❌ Acceso denegado. Rol requerido: ${allowedRoles.join(' o ')}, Rol actual: ${userRole}`);
-        alert(`🚫 Acceso Denegado\n\nNo tienes permisos para acceder a esta sección.\n\nRol requerido: ${allowedRoles.join(' o ')}\nTu rol: ${userRole}`);
         router.navigate(['/unauthorized']);
         return false;
       }

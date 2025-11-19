@@ -1,4 +1,4 @@
-export const PHOTO_OPTIONS = [
+export const AVATAR_OPTIONS = [
   { id: 0, url: '/assets/avatars/default.jpg' },
   { id: 1, url: '/assets/avatars/avatar1.PNG' },
   { id: 2, url: '/assets/avatars/avatar2.PNG' },

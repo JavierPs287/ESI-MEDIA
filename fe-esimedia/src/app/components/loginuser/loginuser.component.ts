@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RouterLink, Router } from '@angular/router';
 import { NavbarComponent } from "../navbar/navbar.component";
 import { AuthService } from '../../services/auth.service';
-import { UserService } from '../../services/user.service';
+import { UserService } from '../../services/usuario.service';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -26,7 +26,6 @@ export class LoginuserComponent {
   loginResponse: { message?: string; error?: string; errorType?: string; httpStatus?: number } | null = null;
 
   onSubmit(): void {
-    console.log('Form submitted:', this.loginForm.value);
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -55,7 +54,6 @@ export class LoginuserComponent {
         document.cookie = `esi_email=${encodeURIComponent(btoa(this.loginForm.value.email))}; path=/; SameSite=Lax`;
         // La cookie ya está establecida por el backend
         // Solo actualizamos el estado de autenticación
-        console.log('[Login] Éxito. Rol:', result.role, 'UserID:', result.userId);
         this.authService.setAuthenticated(true, result.role, result.userId);
         this.authService.markAsInitialized();
         // Navegar según el rol

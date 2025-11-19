@@ -70,7 +70,6 @@ export class ResetpasswordComponent implements OnInit {
 
       this.resetPasswordService.setNewPassword(this.token!, contrasena).subscribe({
         next: (response) => {
-          console.log('Respuesta del servidor:', response);
           this.registrationResponse = {
             message: response, 
             error: ''
@@ -82,11 +81,7 @@ export class ResetpasswordComponent implements OnInit {
             this.router.navigate(['/home']);
           }, 2000);
         },
-        error: (error) => {
-          console.error('Error completo:', error);
-          console.error('Error status:', error.status);
-          console.error('Error body:', error.error);
-          
+        error: (error) => {    
           // Extraer el mensaje de error del backend
           let errorMessage = 'Error al restablecer la contraseña';
           if (error.error && typeof error.error === 'string') {

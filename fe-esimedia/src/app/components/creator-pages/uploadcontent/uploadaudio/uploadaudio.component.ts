@@ -89,7 +89,6 @@ export class UploadAudioComponent implements OnInit {
         this.resetForm();
       },
       error: (error) => {
-        console.error('Error:', error);
         alert('Error al subir el audio');
       }
     });

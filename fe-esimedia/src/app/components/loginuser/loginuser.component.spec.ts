@@ -3,7 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { LoginuserComponent } from './loginuser.component';
-import { UserService } from '../../services/user.service';
+import { UserService } from '../../services/usuario.service';
 import { AuthService } from '../../services/auth.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 

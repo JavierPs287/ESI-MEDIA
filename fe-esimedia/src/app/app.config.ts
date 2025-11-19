@@ -18,19 +18,16 @@ function initializeAuth() {
 
     // Si existe cookie, intentar cargar información del usuario
     if (authService.hasToken()) {
-      console.log('[APP_INITIALIZER] Cookie detectada, cargando información del usuario...');
       return new Promise<void>((resolve) => {
         userService.getCookieData().subscribe({
           next: (userInfo) => {
             // Actualizar el estado de autenticación con el rol del usuario
             authService.setAuthenticated(true, userInfo.role, userInfo.userId);
             authService.markAsInitialized();
-            console.log('[APP_INITIALIZER] Usuario autenticado:', userInfo);
             resolve();
           },
           error: (error) => {
             // Si falla (token expirado o inválido), marcar como no autenticado
-            console.error('[APP_INITIALIZER] Error al cargar información del usuario:', error);
             authService.setAuthenticated(false);
             authService.markAsInitialized();
             resolve();
@@ -39,7 +36,6 @@ function initializeAuth() {
       });
     } else {
       // No hay cookie, marcar como inicializado de todos modos
-      console.log('[APP_INITIALIZER] No hay cookie, marcando como inicializado');
       authService.markAsInitialized();
       return Promise.resolve();
     }

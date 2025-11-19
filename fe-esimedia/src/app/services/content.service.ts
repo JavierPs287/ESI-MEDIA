@@ -26,7 +26,6 @@ export class ContentService {
       this.http.post(`${this.creatorBaseUrl}/uploadAudio`, audioData, { responseType: 'text' })
         .subscribe({
           next: (response) => {
-            console.log('Respuesta del servidor:', response);
             try {
               const jsonResponse = JSON.parse(response);
               observer.next(jsonResponse);
@@ -36,7 +35,6 @@ export class ContentService {
             observer.complete();
           },
           error: (error) => {
-            console.error('Error al subir audio:', error);
             const errorMessage = error?.error || error?.message || 'Error al subir el audio';
             observer.error({ message: '', error: errorMessage });
             observer.complete();
@@ -55,7 +53,6 @@ export class ContentService {
       this.http.post(`${this.creatorBaseUrl}/uploadVideo`, videoData, { responseType: 'text' })
         .subscribe({
           next: (response) => {
-            console.log('Respuesta del servidor:', response);
             try {
               const jsonResponse = JSON.parse(response);
               observer.next(jsonResponse);
@@ -65,7 +62,6 @@ export class ContentService {
             observer.complete();
           },
           error: (error) => {
-            console.error('Error al subir vídeo:', error);
             const errorMessage = error?.error || error?.message || 'Error al subir el vídeo';
             observer.next({ message: '', error: errorMessage });
             observer.complete();
@@ -88,7 +84,6 @@ export class ContentService {
             observer.complete();
           },
           error: (error) => {
-            console.error('Error al obtener la lista de contenidos:', error);
             observer.error(error);
             observer.complete();
           }
@@ -118,7 +113,6 @@ export class ContentService {
         observer.complete();
       })
       .catch(error => {
-        console.error('Error al obtener el audio:', error);
         observer.error(error);
         observer.complete();
       });

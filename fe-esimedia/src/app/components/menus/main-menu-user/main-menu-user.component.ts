@@ -6,6 +6,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterOutlet } from '@angular/router';
+import { User, Usuario } from '../../../models/user.model';
+import { getAvatarUrlById } from '../../../services/image.service';
 
 
 
@@ -23,8 +25,18 @@ export class MainMenuUserComponent {
   private readonly authService = inject(AuthService);
 
   showFiller = false;
-  username = 'UserName';
-  userEmail = 'Email';
+  currentUser!: Usuario;
+
+ngOnInit() {
+  this.userService.getCurrentUser().subscribe({
+    next: user => {
+        this.currentUser = user as Usuario;
+    },
+    error: err => {
+      alert('Error al cargar el usuario actual');
+    }
+  });
+}
 
   logout() {
     this.userService.logout().subscribe({
@@ -47,22 +59,8 @@ export class MainMenuUserComponent {
   navigateTo(route: string) {
     this.router.navigate([route]);
   }
-
   getAvatar(): string {
-    const storedAvatar = localStorage.getItem('creatorAvatar');
-    return storedAvatar ?? 'assets/avatars/avatar1.PNG';
-  }
-
-  getUsername(): string {
-    const storedUsername = localStorage.getItem('creatorUsername');
-    return storedUsername ?? 'UserName';
-  }
-
-  getEmail(): string {
-    const storedEmail = localStorage.getItem('creatorEmail');
-    return storedEmail ?? 'Email';
+    return getAvatarUrlById(this.currentUser.imageId || 0);
   }
 
 }
-// ...existing code...
-// El bloque duplicado se elimina. La clase queda con una sola definición y cierre.

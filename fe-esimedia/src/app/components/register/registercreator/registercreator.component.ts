@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { CreatorService } from '../../../services/creator.service';
 import { Router } from '@angular/router';
-import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
+import { AVATAR_OPTIONS } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { MatIcon } from '@angular/material/icon';
 import { Creator } from '../../../models/creator.model';
@@ -23,7 +23,7 @@ export class RegistercreatorComponent implements OnInit {
   showPhotoOptions = false;
   visiblePassword: boolean = false; visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
-  photoOptions = PHOTO_OPTIONS;
+  photoOptions = AVATAR_OPTIONS;
   fields = FIELDS;
   isSubmitting = false;
 

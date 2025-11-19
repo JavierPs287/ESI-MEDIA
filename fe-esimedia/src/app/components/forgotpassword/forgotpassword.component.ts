@@ -22,7 +22,6 @@ export class ForgotpasswordComponent {
   isLoading = false;
 
   onSubmit(): void {
-    console.log('Form submitted:', this.loginForm.value);
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;

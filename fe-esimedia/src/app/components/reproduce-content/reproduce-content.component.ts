@@ -74,7 +74,7 @@ export class ReproduceContentComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error al cargar el audio:', error);
+        alert('Error al cargar el audio');
         this.errorMessage = 'Error al cargar el audio. Por favor, intenta de nuevo.';
         this.isLoading = false;
       }
@@ -90,7 +90,7 @@ export class ReproduceContentComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error al cargar el video:', error);
+        alert('Error al cargar el video.');
         this.errorMessage = 'Error al cargar el video. Por favor, intenta de nuevo.';
         this.isLoading = false;
       }

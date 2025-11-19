@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
-import { PHOTO_OPTIONS } from '../../../constants/avatar-constants';
+import { AVATAR_OPTIONS } from '../../../constants/avatar-constants';
 import { passwordStrengthValidator, passwordMatchValidator } from '../register-functions';
 import { AdminService } from '../../../services/admin.service';
 import { Admin } from '../../../models/admin.model';
@@ -20,7 +20,7 @@ export class RegisteradminComponent implements OnInit {
   showPhotoOptions = false;
   visiblePassword: boolean = false; visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
-  photoOptions = PHOTO_OPTIONS;
+  photoOptions = AVATAR_OPTIONS;
   departments = DEPARTMENTS;
 
   fb = inject(FormBuilder);

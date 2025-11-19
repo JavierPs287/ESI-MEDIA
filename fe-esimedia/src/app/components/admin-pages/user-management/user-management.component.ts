@@ -85,7 +85,6 @@ export class UserManagementComponent implements OnInit {
       if (result) {
         user.isBlocked = !user.isBlocked;
         this.applyFilters();
-        console.log(`Usuario ${user.name} ${user.isBlocked ? 'bloqueado' : 'desbloqueado'}`);
       }
     });
   }
@@ -113,7 +112,6 @@ export class UserManagementComponent implements OnInit {
         if (index !== -1) {
           this.users.splice(index, 1);
           this.applyFilters();
-          console.log(`Usuario ${user.name} eliminado`);
           // Aquí llamarías a tu API para eliminar el usuario del backend
         }
       }

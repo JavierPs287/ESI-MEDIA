@@ -30,15 +30,11 @@ export class NavbarComponent {
     // Llamar al backend para eliminar la cookie
     this.userService.logout().subscribe({
       next: () => {
-        console.log('Logout exitoso, cookie eliminada');
         this.authService.logout();
         this.router.navigate(['/']);
       },
-      error: (err) => {
-        console.error('Error en logout:', err);
-        // Aunque falle, limpiar el estado local
-        this.authService.logout();
-        this.router.navigate(['/']);
+      error: (err: any) => {
+        alert('Error al cerrar sesión');
       }
     });
   }

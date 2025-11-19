@@ -51,20 +51,17 @@ export class ShowContentComponent implements OnInit {
   }
 
   onContentClick(urlId: string) {
+    const selectedContent = this.contents.find(c => c.urlId === urlId);
     // Validar que urlId existe
     if (!urlId) {
-      console.error('URL ID no proporcionado');
+        alert('URL ID no proporcionado');
       return;
     }
-
-    const selectedContent = this.contents.find(c => c.urlId === urlId);
-    
     // Validar que se encontró el contenido
     if (!selectedContent) {
-      console.error('Contenido no encontrado para urlId:', urlId);
+      alert('Contenido no encontrado');
       return;
     }
-
     this.router.navigate(['/menu/user/reproduce', urlId], {
       state: { content: selectedContent }
     });

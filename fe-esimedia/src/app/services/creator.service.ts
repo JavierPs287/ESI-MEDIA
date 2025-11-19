@@ -22,12 +22,10 @@ export class CreatorService {
     return new Observable<Response>(observer => {
       this.http.post(`${this.baseUrl}/registerCreador`, creatorData, { responseType: 'text' }).subscribe({
         next: (response) => {
-          console.log('Respuesta del servidor:', response);
           observer.next({ message: response, error: undefined });
           observer.complete();
         },
         error: (error) => {
-          console.error('Error en el registro del creador:', error);
           const errorMessage = error?.error?.text || error?.error || error?.message || 'Error en el registro del creador';
           observer.error({ message: '', error: errorMessage });
           observer.complete();

@@ -19,7 +19,7 @@ export interface Admin extends User {
   department: string;
 }
 
-export interface Creador extends User {
+export interface Creator extends User {
   alias: string;
   description?: string;
   field: string;

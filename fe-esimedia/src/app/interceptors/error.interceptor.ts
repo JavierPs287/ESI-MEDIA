@@ -28,7 +28,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // 404 - No encontrado
       else if (error.status === 404 && !req.url.includes('/user/me')) {
         // No mostrar alert para /user/me (es esperado cuando no hay sesión)
-        console.error('Recurso no encontrado:', error.url);
+        console.error('Recurso no encontrado');
       }
       
       // Otros errores del servidor (500, etc.)
