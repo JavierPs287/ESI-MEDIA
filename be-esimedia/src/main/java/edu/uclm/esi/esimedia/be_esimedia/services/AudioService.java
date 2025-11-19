@@ -30,9 +30,11 @@ import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
+import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
@@ -54,37 +56,46 @@ public class AudioService {
 
     private final AudioRepository audioRepository;
     private final ContenidoRepository contenidoRepository;
+    private final CreadorRepository creadorRepository;
     private final UsuarioRepository usuarioRepository;
 
     private final JwtUtils jwtUtils;
 
     @Autowired
     public AudioService(ValidateService validateService, ContenidoService contenidoService, 
-            AudioRepository audioRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
+            AudioRepository audioRepository, ContenidoRepository contenidoRepository, 
+            CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
         this.validateService = validateService;
         this.contenidoService = contenidoService;
         this.audioRepository = audioRepository;
         this.contenidoRepository = contenidoRepository;
+        this.creadorRepository = creadorRepository;
         this.usuarioRepository = usuarioRepository;
         this.jwtUtils = jwtUtils;
     }
 
-    // TODO Recibir token para poner alias de creador
-    public void uploadAudio(AudioDTO audioDTO) {
+    public void uploadAudio(AudioDTO audioDTO, HttpServletRequest request) {
         // Validar primero que audioDTO no sea null
         if (audioDTO == null) {
             logger.error("El objeto AudioDTO es nulo");
             throw new AudioUploadException();
         }
+        
+        // Conseguir creador del token
+        String userId = jwtUtils.getUserIdFromRequest(request);
+        Creador creador = creadorRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Creador no autenticado"));
+
+        
+        if (creador.getAlias() == null || creador.getAlias().isEmpty()) {
+            logger.error("El creador no tiene un alias establecido");
+            audioDTO.setCreador("creador_mal_configurado");
+        } else {
+            audioDTO.setCreador(creador.getAlias());
+        }
 
         // Establecer fecha de cambio de visibilidad
         audioDTO.setVisibilityChangeDate(Instant.now());
-
-        // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
-        if (audioDTO.getCreador() == null || audioDTO.getCreador().isEmpty()) {
-            // TODO: Obtener del usuario autenticado
-            audioDTO.setCreador("creador_temporal");
-        }
 
         // Validación
         validateUploadAudio(audioDTO);

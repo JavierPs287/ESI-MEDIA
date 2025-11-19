@@ -1,5 +1,9 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREADOR_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +39,7 @@ public class ContenidoService {
     private final ContenidoRepository contenidoRepository;
     private final RatingUsuarioRepository ratingUsuarioRepository;
     private final MongoTemplate mongoTemplate;
-    
+
     private final JwtUtils jwtUtils;
 
     @Autowired
@@ -49,15 +53,28 @@ public class ContenidoService {
         this.jwtUtils = jwtUtils;
     }
 
-    // TODO Recibir token para mostrar contenido no visible a creadores
-    public List<ContenidoDTO> listContenidos(ContenidoFilterDTO filters) {
+    public List<ContenidoDTO> listContenidos(ContenidoFilterDTO filters, HttpServletRequest request) {
+        // Obtener rol del token de la solicitud
+        String role = jwtUtils.getRoleFromRequest(request);
+
         List<ContenidoDTO> result = new ArrayList<>();
         List<Contenido> contenidos;
         if (filters != null) {
             validateFilters(filters);
+            if (CREADOR_ROLE.equals(role) && ADMIN_ROLE.equals(role)) {
+                filters.setVisible(null);
+            }
             contenidos = applyFilters(filters);
         } else {
-            contenidos = contenidoRepository.findAll();
+            if (USUARIO_ROLE.equals(role)) {
+                // Si el rol es USUARIO y no hay filtros, solo mostrar contenidos visibles
+                filters = new ContenidoFilterDTO();
+                filters.setVisible(true);
+                contenidos = applyFilters(filters);
+            } else {
+                // Si no hay filtros, obtener todos los contenidos
+                contenidos = contenidoRepository.findAll();
+            }
         }
 
         if (contenidos.isEmpty()) {
@@ -76,7 +93,8 @@ public class ContenidoService {
             throw new RatingInvalidException();
         }
 
-        // Comprobar que no exista ya una valoración del mismo usuario para el mismo contenido
+        // Comprobar que no exista ya una valoración del mismo usuario para el mismo
+        // contenido
         if (ratingUsuarioRepository.existsByContenidoIdAndUserId(
                 ratingUsuarioDTO.getContenidoId(), ratingUsuarioDTO.getUserId())) {
             throw new RatingInvalidException("El usuario ya ha valorado este contenido");
@@ -99,7 +117,7 @@ public class ContenidoService {
         contenido.setRating(averageRating);
 
         // Guardar contenido actualizado
-        try{
+        try {
             contenidoRepository.save(contenido);
         } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al actualizar el rating del contenido en la base de datos: {}", e.getMessage());
