@@ -18,7 +18,6 @@ import { Observable } from 'rxjs';
   imports: [CommonModule, MatSidenavModule, MatButtonModule, MatIconModule, RouterOutlet],
   templateUrl: './main-menu-user.component.html',
   styleUrls: ['../menu.styles.css'],
-  providers: [UserService, AuthService]
 })
 export class MainMenuUserComponent {
   private readonly router = inject(Router);
@@ -43,16 +42,16 @@ ngOnInit() {
   logout() {
     this.userService.logout().subscribe({
       next: () => {
-        this.authService.logout();
+        this.authService.setAuthenticated(false);
         localStorage.clear();
         sessionStorage.clear();
         document.cookie.split(";").forEach(c => {
           document.cookie = c
           .replace(/^ +/, "")
           .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
-        this.authService.setAuthenticated(false);
-        this.router.navigate(['/']);}
-        );},
+        });
+        this.router.navigate(['/']);
+      },
       error: () => {
         alert('Error al cerrar sesión');
       }

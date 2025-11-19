@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-main-menu-admin',
@@ -19,6 +20,7 @@ export class MainMenuAdminComponent {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  public readonly isAuthenticated$: Observable<boolean> = this.authService.isAuthenticated();
 
   showFiller = false;
   username = 'UserName';
