@@ -21,3 +21,40 @@ p {
         color: white;
     }
 }
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center; /* centra los botones horizontalmente */
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.photo-current {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 6px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+}
+
+.photo-current img.current-photo {
+  width: 84px;
+  height: 84px;
+  max-width: 84px;
+  max-height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 2px solid var(--azul-oscuro);
+}
+
+.form-field > label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}

@@ -6,8 +6,8 @@
 
     <div class="profile-section">
       <img [src]="getAvatar()" alt="Foto de perfil" class="profile-photo">
-      <h3 class="username">{{ getUsername() }}</h3>
-      <p class="user-email">{{ getEmail() }}</p>
+      <h3 class="username">{{ currentUser.name }}</h3>
+      <p class="user-email">{{ currentUser.email }}</p>
     </div>
 
     <nav class="sidebar-nav">
@@ -43,7 +43,7 @@
       <button class="icon-topBar" mat-icon-button (click)="drawer.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
-      <h1>Bienvenido {{ username }}</h1>
+      <h1>Bienvenido {{ currentUser.name }}</h1>
     </div>
     <div class="content">
       <router-outlet></router-outlet>

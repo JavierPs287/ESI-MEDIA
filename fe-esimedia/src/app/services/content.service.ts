@@ -63,7 +63,7 @@ export class ContentService {
           },
           error: (error) => {
             const errorMessage = error?.error || error?.message || 'Error al subir el vídeo';
-            observer.next({ message: '', error: errorMessage });
+            observer.error({ message: '', error: errorMessage });
             observer.complete();
           }
         });

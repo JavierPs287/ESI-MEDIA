@@ -7,6 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
 import { Observable } from 'rxjs';
+import { Admin } from '../../../models/user.model';
+import { getAvatarUrlById } from '../../../services/image.service';
 
 @Component({
   selector: 'app-main-menu-admin',
@@ -23,29 +25,29 @@ export class MainMenuAdminComponent {
   public readonly isAuthenticated$: Observable<boolean> = this.authService.isAuthenticated();
 
   showFiller = false;
-  username = 'UserName';
-  userEmail = 'Email';
+  currentUser!: Admin;
+
+  ngOnInit() {
+      this.userService.getCurrentUser().subscribe({
+        next: user => {
+          if (user.role !== 'ADMIN') {
+            this.router.navigate(['/unauthorized']);
+            return;
+          }
+            this.currentUser = user as Admin;
+        },
+        error: err => {
+          alert('Error al cargar el usuario actual');
+        }
+      });
+    }
 
   navigateTo(route: string) {
     this.router.navigate([`/${route}`]);
   }
 
   getAvatar(): string {
-    const storedAvatar = localStorage.getItem('creatorAvatar');
-    //TO DO cambiar por email de la bbdd
-    return storedAvatar ?? 'assets/avatars/avatar1.PNG';
-  }
-
-  getUsername(): string {
-    const storedUsername = localStorage.getItem('creatorUsername');
-    //TO DO cambiar por email de la bbdd
-    return storedUsername ?? 'UserName';
-  }
-  
-  getEmail(): string {
-    const storedEmail = localStorage.getItem('creatorEmail');
-    //TO DO cambiar por email de la bbdd
-    return storedEmail ?? 'Email';
+    return getAvatarUrlById(this.currentUser.imageId || 0);
   }
 
   logout() {

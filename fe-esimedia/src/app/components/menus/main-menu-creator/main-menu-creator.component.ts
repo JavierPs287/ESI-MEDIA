@@ -5,8 +5,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../services/user.service';
+import { Creator } from '../../../models/user.model';
 import { AuthService } from '../../../services/auth.service';
 import { Observable } from 'rxjs';
+import { getAvatarUrlById } from '../../../services/image.service';
 
 
 interface MenuItem {
@@ -33,9 +35,22 @@ export class MainMenuCreatorComponent {
   public readonly isAuthenticated$: Observable<boolean> = this.authService.isAuthenticated();
   
   showFiller = false;
-  username = 'UserName';
-  userEmail = 'Email';
+  currentUser!: Creator;
 
+  ngOnInit() {
+    this.userService.getCurrentUser().subscribe({
+      next: user => {
+        if (user.role !== 'CREADOR') {
+          this.router.navigate(['/unauthorized']);
+          return;
+        }
+          this.currentUser = user as Creator;
+      },
+      error: err => {
+        alert('Error al cargar el usuario actual');
+      }
+    });
+  }
 
   navigateTo(route: string) {
     this.router.navigate([`/${route}`]);
@@ -55,22 +70,8 @@ export class MainMenuCreatorComponent {
   }  
 
   getAvatar(): string {
-    const storedAvatar = localStorage.getItem('creatorAvatar');
-    //TO DO cambiar por email de la bbdd
-    return storedAvatar ?? 'assets/avatars/avatar1.PNG';
-  }
-
-  getUsername(): string {
-    const storedUsername = localStorage.getItem('creatorUsername');
-    //TO DO cambiar por email de la bbdd
-    return storedUsername ?? 'UserName';
-  }
-
-  getEmail(): string {
-    const storedEmail = localStorage.getItem('creatorEmail');
-    //TO DO cambiar por email de la bbdd
-    return storedEmail ?? 'Email';
-  }
+      return getAvatarUrlById(this.currentUser.imageId || 0);
+    }
 
   logout() {
     this.userService.logout().subscribe({

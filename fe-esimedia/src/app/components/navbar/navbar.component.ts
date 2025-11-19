@@ -26,6 +26,24 @@ export class NavbarComponent {
     return !url.includes('/register/creator') && !url.includes('/register/admin');
   }
 
+  redirectToMenu(): void {
+    this.userService.getCookieData().subscribe({
+      next: (data) => {
+        const role = data.role;
+        if (role === 'USUARIO') {
+          this.router.navigate(['/menu/user']);
+        } else if (role === 'CREADOR') {
+          this.router.navigate(['/menu/creator']);
+        } else if (role === 'ADMIN') {
+          this.router.navigate(['/menu/admin']);
+        }
+      },
+      error: (err: any) => {
+        alert('Error al obtener los datos');
+      }
+    });
+  }
+
   logout(): void {
     // Llamar al backend para eliminar la cookie
     this.userService.logout().subscribe({

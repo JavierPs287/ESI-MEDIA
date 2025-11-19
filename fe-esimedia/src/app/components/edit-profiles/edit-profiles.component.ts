@@ -6,6 +6,10 @@ import { Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { FIELDS, DEPARTMENTS } from '../../constants/form-constants';
 import { AVATAR_OPTIONS } from '../../constants/avatar-constants';
 import { N } from '@angular/cdk/keycodes';
+import { Admin, Creator, Usuario } from '../../models/user.model';
+import { UserService } from '../../services/user.service';
+import { Router } from '@angular/router';
+import { getAvatarUrlById } from '../../services/image.service';
 
 @Component({
   selector: 'app-edit-profiles',
@@ -14,49 +18,95 @@ import { N } from '@angular/cdk/keycodes';
   styleUrl: './edit-profiles.component.css'
 })
 export class EditProfilesComponent {
-  editedUser: any = {
-    id: '123',
-    role: 'creator', // 'user'|'creator'|'admin'
-    nombre: 'Juan',
-    apellidos: 'Pérez',
-    email:'juan.perez@example.com',
-    alias: 'juanp',
-    fechaNacimiento: '1990-01-01',
-    descripcion: 'Descripción de ejemplo',
-    field: 'Tecnología',
-  };
-  role: string = this.editedUser.role;
-  isSelf: boolean = true; // si el usuario edita su propio perfil
-
-  editMode = false;
-  backup: any = {};
-  fields = FIELDS;
-  departments = DEPARTMENTS;
-  photoOptions = AVATAR_OPTIONS;
-  isVip = !!this.editedUser?.vip;
-  showPhotoOptions = false;
-  selectedPhoto: number | null = null;
+  private readonly userService = inject(UserService);
+  private readonly router = inject(Router);
+  editedUser!: Usuario | Creator | Admin | null;
 
   fb = inject(FormBuilder);
    editForm!: FormGroup;
 
-  ngOnInit() {
-    this.editForm = this.fb.group({
-      name: [this.editedUser?.nombre || ''],
-      lastName: [this.editedUser?.apellidos || ''],
-      alias: [this.editedUser?.alias || ''],
-      birthDate: [this.editedUser?.fechaNacimiento || '', this.minAgeValidator(4)],
-      vip: [!!this.editedUser?.vip],
-      description: [this.editedUser?.descripcion || ''],
-      field: [this.editedUser?.field || ''],
-      department: [this.editedUser?.departamento || ''],
-      foto: [this.editedUser?.fotoUrl || ''],
-    });
+  editMode = false;
+  backup: any = {};
+  fields = FIELDS;
+  // Datos comunes
+  name: string = '';
+  lastName: string = ''
+  email: string = '';
+  imageId: number | null = null;
+  // Datos usuario y creador
+  alias: string = '';
+  // Datos usuario
+  vip: boolean = false;
+  birthDate: string = '';
+  // Datos creador
+  description: string = '';
+  field: string = '';
+  type : string = '';
+  // Datos admin
+  department: string = '';
 
-    // arrancamos en modo lectura: deshabilitamos todos los controles
+  isVip = false;
+  role: string = '';
+  departments = DEPARTMENTS;
+  photoOptions = AVATAR_OPTIONS;
+  showPhotoOptions = false;
+  selectedPhoto: number | null = null;
+
+  ngOnInit(): void {
+    this.initUser();
+    console.log(this.editedUser);
+    this.initForm();
     this.setReadMode();
   }
 
+  private initUser(): void {
+    this.userService.getCurrentUser().subscribe({
+        next: user => {
+          this.name = user.name;
+          this.lastName = user.lastName;
+          this.email = user.email;
+          this.imageId = user.imageId || null;
+            if(user.role === 'USUARIO') {
+              this.editedUser = user as Usuario;
+              this.vip = (this.editedUser as Usuario).vip;
+              this.birthDate = this.getbirthDate();
+              this.alias = (this.editedUser as Usuario).alias || '';
+              console.log(this.birthDate);
+            } else if (user.role === 'CREADOR') {
+              this.editedUser = user as Creator;
+              this.alias = (this.editedUser as Creator).alias || '';
+              this.description = (this.editedUser as Creator).description || '';
+              this.field = (this.editedUser as Creator).field;
+              this.type = (this.editedUser as Creator).type;
+            } else if (user.role === 'ADMIN') {
+              this.editedUser = user as Admin;
+              this.department = (this.editedUser as Admin).department;
+            }else {
+              this.router.navigate(['/unauthorized']);
+              return;
+            }
+            this.role = user.role;
+        },
+        error: err => {
+          alert('Error al cargar el usuario actual');
+        }
+      });
+  }
+
+  private initForm(): void {
+    this.editForm = this.fb.group({
+      name: [ this.editedUser?.name || '' ],
+      lastName: [ this.editedUser?.lastName || ''],
+      alias: [ (this.editedUser as any)?.alias || ''],
+      birthDate: [ (this.editedUser as any)?.birthDate || '' ],
+      vip: [ !!(this.editedUser as any)?.vip ],
+      description: [ (this.editedUser as any)?.description || '' ],
+      field: [ (this.editedUser as any)?.field || '' ],
+      department: [ (this.editedUser as any)?.department || '' ],
+      imageId: [ this.selectedPhoto || null ],
+    });
+  }
+//VALIDATORS
 minAgeValidator(minAge: number) {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) {
@@ -74,12 +124,20 @@ minAgeValidator(minAge: number) {
     };
   }
 
-  //MANEJO ERRORES
+// CONTROL
 getControl(controlName: string): AbstractControl | null {
   return this.editForm.get(controlName);
 }
 
-//metodos toggles
+getAvatar(): string {
+      return getAvatarUrlById(this.editedUser?.imageId || 0);
+}
+getbirthDate(): string {
+  const date = (this.editedUser as Usuario)?.birthDate
+  const formatted = date.toString().split('T')[0];
+  return formatted;
+}
+//TOGGLE
   toggleVip(): void {
     this.isVip = !this.isVip;
     this.editForm.get('vip')?.setValue(this.isVip);
@@ -95,54 +153,17 @@ getControl(controlName: string): AbstractControl | null {
     this.showPhotoOptions = false;
   }
 
-  // DESHABILITAR TODO para modo lectura
-  private setReadMode() {
-    this.editMode = false;
-    this.backup = { ...this.editForm.getRawValue() }; // copia por si cancela
-    Object.keys(this.editForm.controls).forEach(k => {
-      this.editForm.get(k)!.disable({ emitEvent: false });
-      this.editForm.get(k)!.clearValidators();
-      this.editForm.get(k)!.updateValueAndValidity({ emitEvent: false });
-    });
-  }
-
-  // INICIAR EDICIÓN: habilitar solo controles permitidos y añadir validadores dinámicos
-  startEdit() {
-    this.editMode = true;
-
-    // primero deshabilitamos todo (estado limpio)
+  // RESET controles: deshabilitar y quitar validadores
+  private resetControls() {
     Object.keys(this.editForm.controls).forEach(k => {
       const c = this.editForm.get(k)!;
       c.disable({ emitEvent: false });
       c.clearValidators();
       c.updateValueAndValidity({ emitEvent: false });
     });
-
-    // campos comunes
-    this.enable('name', [Validators.required, Validators.maxLength(50)]);
-    this.enable('lastName', [Validators.required, Validators.maxLength(100)]);
-    this.enable('alias', [Validators.minLength(3), Validators.maxLength(20)]);
-    this.enable('foto');
-
-    if (this.role === 'user') {
-      this.enable('birthDate', [Validators.required, this.minAgeValidator(4)]);
-      if (this.isSelf) this.enable('vip'); // VIP editable solo por sí mismo
-    }
-
-    if (this.role === 'creator') {
-      this.enable('description', [Validators.maxLength(500)]);
-      this.enable('especialidad', [Validators.required]);
-      if (this.isSelf) this.enable('contraseña', [Validators.minLength(8)]);
-    }
-
-    if (this.role === 'admin') {
-      this.enable('department', [Validators.required]);
-      if (this.isSelf) this.enable('contraseña', [Validators.minLength(8)]);
-    }
-
-    // opción: también podrías pre-focar el primer input
   }
 
+  // HABILITAR control que queramos con sus validadores
   private enable(name: string, validators: any[] = []) {
     const c = this.editForm.get(name);
     if (!c) return;
@@ -151,8 +172,44 @@ getControl(controlName: string): AbstractControl | null {
     c.updateValueAndValidity({ emitEvent: false });
   }
 
+  // DESHABILITAR TODO para modo lectura
+  private setReadMode() {
+    this.editMode = false;
+    this.backup = { ...this.editForm.getRawValue() };
+    this.resetControls();
+  }
+
+  // INICIAR EDICIÓN: habilitar solo controles permitidos y añadir validadores dinámicos
+  startEdit() {
+    this.editMode = true;
+    this.resetControls();
+
+    // ENABLE campos comunes a los 3 roles
+    this.enable('name', [Validators.required, Validators.maxLength(50)]);
+    this.editForm.patchValue({ name: this.editedUser?.name || '' }, { emitEvent: false });
+    this.enable('lastName', [Validators.required, Validators.maxLength(100)]);
+    this.editForm.patchValue({ lastName: this.editedUser?.lastName || '' }, { emitEvent: false });
+    this.enable('alias', [Validators.minLength(3), Validators.maxLength(20)]);
+    this.editForm.patchValue({ alias: (this.editedUser as any)?.alias || '' }, { emitEvent: false });
+    this.enable('imageId');
+    this.editForm.patchValue({ imageId: this.editedUser?.imageId || null }, { emitEvent: false });
+
+    if (this.role === 'USUARIO') {
+      this.enable('birthDate', [Validators.required, this.minAgeValidator(4)]);
+      this.enable('vip');
+    }
+
+    if (this.role === 'CREADOR') {
+      this.enable('description', [Validators.maxLength(500)]);
+      this.enable('field', [Validators.required]);
+    }
+
+    if (this.role === 'ADMIN') {
+      this.enable('department', [Validators.required]);
+    }
+  }
+
   cancelEdit() {
-    // restaurar valores a los anteriores (backup)
     this.editForm.reset({ ...this.backup, contraseña: '' }, { emitEvent: false });
     this.setReadMode();
   }
@@ -165,21 +222,6 @@ getControl(controlName: string): AbstractControl | null {
     });
 
     if (this.editForm.invalid) return;
-
-    // CONSTRUIR PAYLOAD: solo controles habilitados
-    const payload: any = { id: this.editedUser.id };
-    Object.entries(this.editForm.controls).forEach(([k, ctrl]: any) => {
-      if (!ctrl.disabled) payload[k] = ctrl.value;
-    });
-
-    // quitar contraseña vacía
-    if (!payload.contraseña) delete payload.contraseña;
-    // this.userService.update(payload).subscribe(...)
-
-    // actualizar vista local y volver a lectura
-    this.editedUser = { ...this.editedUser, ...payload };
-    // parchar el form con los valores guardados
-    this.editForm.patchValue(this.editedUser);
     this.setReadMode();
   }
 

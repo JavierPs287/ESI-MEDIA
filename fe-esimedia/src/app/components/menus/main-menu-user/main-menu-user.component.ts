@@ -31,6 +31,10 @@ export class MainMenuUserComponent {
 ngOnInit() {
   this.userService.getCurrentUser().subscribe({
     next: user => {
+      if (user.role !== 'USUARIO') {
+        this.router.navigate(['/unauthorized']);
+        return;
+      } 
         this.currentUser = user as Usuario;
     },
     error: err => {
