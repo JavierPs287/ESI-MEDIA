@@ -86,6 +86,11 @@ public class AudioService {
         Creador creador = creadorRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Creador no autenticado"));
 
+        // Comprobar que el creador es un creador de audios
+        if (creador.getType() == null || !creador.getType().equals(AUDIO_TYPE)) {
+            logger.error("El creador autenticado no es un creador de audios");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El creador no tiene permisos para subir audios");
+        }
         
         if (creador.getAlias() == null || creador.getAlias().isEmpty()) {
             logger.error("El creador no tiene un alias establecido");
