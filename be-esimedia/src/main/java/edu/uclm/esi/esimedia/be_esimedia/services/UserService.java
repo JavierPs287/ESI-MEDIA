@@ -39,8 +39,6 @@ public class UserService {
     private final ValidateService validateService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
-    
-    private static final String MASKED_PASSWORD = "XXXXXXXXX";
 
     public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, JwtUtils jwtUtils, AdminRepository adminRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository) {
         this.userRepository = userRepository;
@@ -61,6 +59,56 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public UsuarioDTO updateProfile(UsuarioDTO usuarioDTO, HttpServletRequest request) {
+        String token = extractTokenFromCookie(request);
+
+        if (token == null || token.isEmpty()) {
+            throw new InvalidTokenException("Token no proporcionado");
+        }
+
+        String email = jwtUtils.getEmailFromToken(token);
+        User user = findByEmail(email);
+
+        if (user == null) {
+            throw new InvalidTokenException(Constants.USER_ERROR_MESSAGE);
+        }
+
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
+        if (usuarioOpt.isEmpty()) {
+            throw new InvalidTokenException(Constants.USER_ERROR_MESSAGE);
+        }
+
+        Usuario usuario = usuarioOpt.get();
+
+        // Actualizar los campos permitidos
+        if (usuarioDTO.getAlias() != null) {
+            usuario.setAlias(usuarioDTO.getAlias());
+        }
+        if (usuarioDTO.getBirthDate() != null) {
+            usuario.setBirthDate(usuarioDTO.getBirthDate());
+        }
+        if (usuarioDTO.isVip() != usuario.isVip()) {
+            usuario.setVip(usuarioDTO.isVip());
+        }
+
+        usuarioRepository.save(usuario);
+
+        // Devolver el DTO actualizado
+        UsuarioDTO updatedDTO = new UsuarioDTO();
+        updatedDTO.setEmail(user.getEmail());
+        updatedDTO.setName(user.getName());
+        updatedDTO.setLastName(user.getLastName());
+        updatedDTO.setPassword(Constants.MASKED_PASSWORD);
+        updatedDTO.setImageId(user.getImageId());
+        updatedDTO.setBlocked(user.isBlocked());
+        updatedDTO.setActive(user.isActive());
+        updatedDTO.setAlias(usuario.getAlias());
+        updatedDTO.setBirthDate(usuario.getBirthDate());
+        updatedDTO.setVip(usuario.isVip());
+
+        return updatedDTO;
+    }
+
     public List<UserDTO> findAll() {
         List<User> users = userRepository.findAll();
         List<UserDTO> result = new ArrayList<>();
@@ -73,7 +121,7 @@ public class UserService {
                 dto.setEmail(user.getEmail());
                 dto.setName(user.getName());
                 dto.setLastName(user.getLastName());
-                dto.setPassword(MASKED_PASSWORD);
+                dto.setPassword(Constants.MASKED_PASSWORD);
                 dto.setImageId(user.getImageId());
                 dto.setBlocked(user.isBlocked());
                 dto.setActive(user.isActive());
@@ -87,7 +135,7 @@ public class UserService {
                 dto.setEmail(user.getEmail());
                 dto.setName(user.getName());
                 dto.setLastName(user.getLastName());
-                dto.setPassword(MASKED_PASSWORD);
+                dto.setPassword(Constants.MASKED_PASSWORD);
                 dto.setImageId(user.getImageId());
                 dto.setBlocked(user.isBlocked());
                 dto.setActive(user.isActive());
@@ -106,7 +154,7 @@ public class UserService {
                 dto.setEmail(user.getEmail());
                 dto.setName(user.getName());
                 dto.setLastName(user.getLastName());
-                dto.setPassword(MASKED_PASSWORD);
+                dto.setPassword(Constants.MASKED_PASSWORD);
                 dto.setImageId(user.getImageId());
                 dto.setBlocked(user.isBlocked());
                 dto.setActive(user.isActive());
@@ -153,7 +201,7 @@ public class UserService {
                 usuarioDTO.setEmail(user.getEmail());
                 usuarioDTO.setName(user.getName());
                 usuarioDTO.setLastName(user.getLastName());
-                usuarioDTO.setPassword(MASKED_PASSWORD);
+                usuarioDTO.setPassword(Constants.MASKED_PASSWORD);
                 usuarioDTO.setImageId(user.getImageId());
                 usuarioDTO.setBlocked(user.isBlocked());
                 usuarioDTO.setActive(user.isActive());
@@ -176,7 +224,7 @@ public class UserService {
                 adminDto.setEmail(user.getEmail());
                 adminDto.setName(user.getName());
                 adminDto.setLastName(user.getLastName());
-                adminDto.setPassword(MASKED_PASSWORD);
+                adminDto.setPassword(Constants.MASKED_PASSWORD);
                 adminDto.setImageId(user.getImageId());
                 adminDto.setBlocked(user.isBlocked());
                 adminDto.setActive(user.isActive());
@@ -198,7 +246,7 @@ public class UserService {
                 creadorDto.setEmail(user.getEmail());
                 creadorDto.setName(user.getName());
                 creadorDto.setLastName(user.getLastName());
-                creadorDto.setPassword(MASKED_PASSWORD);
+                creadorDto.setPassword(Constants.MASKED_PASSWORD);
                 creadorDto.setImageId(user.getImageId());
                 creadorDto.setBlocked(user.isBlocked());
                 creadorDto.setActive(user.isActive());

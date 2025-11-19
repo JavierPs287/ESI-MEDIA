@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +22,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
-
-// TODO: Corregir errores del sonar relacinados con las constantes de Strings
+import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
 
 @RestController
 @RequestMapping("user")
@@ -80,14 +80,16 @@ public class UserController {
                     
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Map.of(Constants.ERROR_KEY, e.getMessage()));
         }
     }
 
-    /**
-     * Endpoint para obtener la información del usuario actual desde el token
-     * Requiere estar autenticado (cookie con token válido)
-     */
+    @PatchMapping("/profile")
+    public ResponseEntity<UsuarioDTO> updateProfile(@RequestBody UsuarioDTO usuarioDTO, jakarta.servlet.http.HttpServletRequest request) {
+        UsuarioDTO updatedUsuario = userService.updateProfile(usuarioDTO, request);
+        return ResponseEntity.ok(updatedUsuario);
+    }
+
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getCurrentUser(jakarta.servlet.http.HttpServletRequest request) {
         UserDTO userDTO = userService.getCurrentUser(request);
@@ -100,9 +102,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    /**
-     * Endpoint para cerrar sesión (eliminar cookie)
-     */
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout() {
         // Crear cookie con maxAge 0 para eliminarla
@@ -119,12 +118,6 @@ public class UserController {
                 .body(Map.of("message", "Logout exitoso"));
     }
 
-    // TODO llevar lógica a un servicio
-    /**
-     * Endpoint temporal para verificar el contenido del token JWT
-     * @param token Token JWT a decodificar
-     * @return Información contenida en el token
-     */
     @PostMapping("/verify-token")
     public ResponseEntity<Map<String, String>> verifyToken(@RequestBody Map<String, String> body) {
         try {

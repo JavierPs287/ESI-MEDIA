@@ -10,6 +10,10 @@ public final class Constants {
     public static final int MIN_AGE = 4;
     public static final int MAX_AGE = 150;
 
+    // Usuarios
+    public static final String MASKED_PASSWORD = "XXXXXXXXX";
+    public static final String USER_ERROR_MESSAGE = "Usuario no encontrado";
+
     // Seguridad
     public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     public static final Pattern URL_PATTERN = Pattern.compile("^https?://.*$");
