@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../services/user.service';
+import { AuthService } from '../../../services/auth.service';
 
 
 interface MenuItem {
@@ -27,6 +28,7 @@ interface MenuItem {
 export class MainMenuCreatorComponent {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
   
   showFiller = false;
   username = 'UserName';
@@ -70,12 +72,17 @@ export class MainMenuCreatorComponent {
 
   logout() {
     this.userService.logout().subscribe({
-      next: (response: { message: string }) => {
+      next: () => {
+        this.authService.logout();
         localStorage.clear();
         sessionStorage.clear();
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
+        document.cookie.split(";").forEach(c => {
+          document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
+          this.router.navigate(['/login']);}
+        );},
+      error: () => {
         alert('Error al cerrar sesión');
       }
     });

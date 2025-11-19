@@ -22,6 +22,11 @@
     </div>
 
     <div class="form-field">
+      <label for="email">Correo electrónico *</label>
+      <p class="email">{{ editedUser.email }}</p>
+    </div>
+
+    <div class="form-field">
       <label for="alias">Alias</label>
       <input id="alias" type="text" placeholder="Alias" formControlName="alias">
       <div class="error-container" *ngIf="getControl('alias')?.invalid && (getControl('alias')?.touched || getControl('alias')?.dirty)">
@@ -116,8 +121,8 @@
     </div>
 
      <div class="actions">
-      <button type="button" (click)="startEdit()" *ngIf="!editMode">Modificar datos</button>
-      <button type="submit" *ngIf="editMode">Guardar</button>
-      <button type="button" (click)="cancelEdit()" *ngIf="editMode">Cancelar</button>
+      <button class="btn" type="button" (click)="startEdit()" *ngIf="!editMode">Modificar datos</button>
+      <button class="btn" type="submit" *ngIf="editMode">Guardar</button>
+      <button class="btn" type="button" (click)="cancelEdit()" *ngIf="editMode">Cancelar</button>
     </div>
   </form>

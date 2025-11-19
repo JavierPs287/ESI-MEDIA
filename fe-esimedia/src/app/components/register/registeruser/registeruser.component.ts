@@ -24,7 +24,7 @@ export class RegisteruserComponent implements  OnInit {
   is2FAEnabled = false;
   showPhotoOptions = false;
   visiblePassword: boolean = false; 
-  visibleRepetePassword: boolean = false;
+  visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
   registrationResponse: Response | null = null;
   avatarOptions = PHOTO_OPTIONS;
@@ -119,8 +119,8 @@ export class RegisteruserComponent implements  OnInit {
     this.visiblePassword = !this.visiblePassword;
   }
   
-  toggleRepetePasswordVisibility(): void {
-    this.visibleRepetePassword = !this.visibleRepetePassword;
+  toggleRepeatePasswordVisibility(): void {
+    this.visibleRepeatePassword = !this.visibleRepeatePassword;
   }
 
   getControl(controlName: string): AbstractControl | null {

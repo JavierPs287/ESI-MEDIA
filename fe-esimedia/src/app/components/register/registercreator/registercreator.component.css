@@ -22,16 +22,6 @@
     font-weight: 500;
 }
 
-.area-descripcion {
-    width: 100%;
-    font-size: 14px;
-    padding: 10px;
-    margin: 5px 0 5px;
-    border-radius: 5px;
-    border: 1px solid var(--gris);
-    box-sizing: border-box;
-}
-
 .content-btn {
     width: 30%;
     font-size: 14px;

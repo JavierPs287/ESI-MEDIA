@@ -20,30 +20,26 @@ import { Router, RouterOutlet } from '@angular/router';
 export class MainMenuUserComponent {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
 
   showFiller = false;
   username = 'UserName';
   userEmail = 'Email';
 
-  constructor(
-    private readonly router: Router,
-    private readonly userService: UserService,
-    private readonly authService: AuthService
-  ) {}
-
   logout() {
     this.userService.logout().subscribe({
       next: () => {
         this.authService.logout();
-        document.cookie = 'esi_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        document.cookie = 'esi_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        this.router.navigate(['/login']);
-      },
+        localStorage.clear();
+        sessionStorage.clear();
+        document.cookie.split(";").forEach(c => {
+          document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
+          this.router.navigate(['/login']);}
+        );},
       error: () => {
-        this.authService.logout();
-        document.cookie = 'esi_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        document.cookie = 'esi_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        this.router.navigate(['/login']);
+        alert('Error al cerrar sesión');
       }
     });
   }
@@ -65,19 +61,6 @@ export class MainMenuUserComponent {
   getEmail(): string {
     const storedEmail = localStorage.getItem('creatorEmail');
     return storedEmail ?? 'Email';
-  }
-
-  logout() {
-    this.userService.logout().subscribe({
-      next: (response: { message: string }) => {
-        localStorage.clear();
-        sessionStorage.clear();
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        alert('Error al cerrar sesión');
-      }
-    });
   }
 
 }

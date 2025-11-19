@@ -19,8 +19,11 @@ export class EditProfilesComponent {
     role: 'creator', // 'user'|'creator'|'admin'
     nombre: 'Juan',
     apellidos: 'Pérez',
+    email:'juan.perez@example.com',
     alias: 'juanp',
     fechaNacimiento: '1990-01-01',
+    descripcion: 'Descripción de ejemplo',
+    field: 'Tecnología',
   };
   role: string = this.editedUser.role;
   isSelf: boolean = true; // si el usuario edita su propio perfil
@@ -45,7 +48,7 @@ export class EditProfilesComponent {
       birthDate: [this.editedUser?.fechaNacimiento || '', this.minAgeValidator(4)],
       vip: [!!this.editedUser?.vip],
       description: [this.editedUser?.descripcion || ''],
-      especialidad: [this.editedUser?.especialidad || ''],
+      field: [this.editedUser?.field || ''],
       department: [this.editedUser?.departamento || ''],
       foto: [this.editedUser?.fotoUrl || ''],
     });

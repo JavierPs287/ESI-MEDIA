@@ -1,0 +1,23 @@
+@import '../register/form-styles.css';
+
+p {
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.btn{
+    font-size: 16px;
+    padding: 10px 15px;
+    margin: 5px 10px 5px 0;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    background-color: var(--azul);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    &:hover {
+        background-color: var(--azul-oscuro);
+        transform: translateY(-2px);
+        color: white;
+    }
+}

@@ -5,6 +5,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { UserService } from '../../../services/user.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-main-menu-admin',
@@ -17,6 +18,7 @@ import { UserService } from '../../../services/user.service';
 export class MainMenuAdminComponent {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   showFiller = false;
   username = 'UserName';
@@ -46,12 +48,17 @@ export class MainMenuAdminComponent {
 
   logout() {
     this.userService.logout().subscribe({
-      next: (response: { message: string }) => {
+      next: () => {
+        this.authService.logout();
         localStorage.clear();
         sessionStorage.clear();
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
+        document.cookie.split(";").forEach(c => {
+          document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
+          this.router.navigate(['/login']);}
+        );},
+      error: () => {
         alert('Error al cerrar sesión');
       }
     });
