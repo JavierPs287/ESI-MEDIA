@@ -47,7 +47,7 @@ export class LoginuserComponent {
 
       // La cookie ya está establecida por el backend
       // Solo actualizamos el estado de autenticación
-      console.log('[Login] Éxito. Rol:', result.role, 'UserID:', result.userId);
+      console.log('[Login] Éxito');
       this.authService.setAuthenticated(true, result.role, result.userId);
       this.authService.markAsInitialized();
       
@@ -59,6 +59,7 @@ export class LoginuserComponent {
       } else if (result.role === 'USUARIO') {
         this.router.navigate(['/menu/user']);
       } else {
+        console.log('[Login] Redirigido');
         this.router.navigate(['/']);
       }
     });
