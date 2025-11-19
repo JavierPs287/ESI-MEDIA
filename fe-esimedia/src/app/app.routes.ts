@@ -23,12 +23,6 @@ import { VerifyTotpComponent } from './components/verify-totp/verify-totp.compon
 export const routes: Routes = [
 
     {
-        path: '',
-        redirectTo: '/home',
-        pathMatch: 'full'
-    },
-
-    {
         path: 'home',
         component: HomeComponent
     },
@@ -127,5 +121,10 @@ export const routes: Routes = [
     {
         path: 'verify-totp',
         component: VerifyTotpComponent
+    },
+    {
+        path: '**',
+        redirectTo: 'home',
+        pathMatch: 'full'
     },
 ];

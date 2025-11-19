@@ -1,4 +1,3 @@
-
 package edu.uclm.esi.esimedia.be_esimedia.http;
 
 import java.util.HashMap;
@@ -9,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.JWT_COOKIE_NAME;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
@@ -24,7 +25,6 @@ import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
-import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
 
 @RestController
 @RequestMapping("user")
@@ -144,23 +144,37 @@ public class UserController {
     }
 
     @PostMapping("/verify-token")
-    public ResponseEntity<Map<String, String>> verifyToken(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, String>> verifyToken(
+        @CookieValue(name = JWT_COOKIE_NAME, required = false) String token) {
+    
+        Map<String, String> tokenInfo = new HashMap<>();
+    
+        // Si no hay cookie, devolver inválido
+        if (token == null || token.isEmpty()) {
+            tokenInfo.put("valid", "false");
+            return ResponseEntity.status(HttpStatus.OK).body(tokenInfo);
+        }
+    
         try {
-            String token = body.get("token");
-            if (token == null || token.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Token no proporcionado"));
+            // Validar el token
+            boolean isValid = jwtUtils.validateToken(token);
+            tokenInfo.put("valid", String.valueOf(isValid));
+            
+            if (isValid) {
+                // Extraer información del token
+                String email = jwtUtils.getEmailFromToken(token);
+                String role = jwtUtils.getRoleFromToken(token);
+                String userId = jwtUtils.getUserIdFromToken(token);
+                
+                tokenInfo.put("email", email);
+                tokenInfo.put("role", role);
+                tokenInfo.put("userId", userId);
             }
-
-            Map<String, String> tokenInfo = new HashMap<>();
-            tokenInfo.put("email", jwtUtils.getEmailFromToken(token));
-            tokenInfo.put("role", jwtUtils.getRoleFromToken(token));
-            tokenInfo.put("userId", jwtUtils.getUserIdFromToken(token));
-            tokenInfo.put("valid", String.valueOf(jwtUtils.validateToken(token)));
-
-            return ResponseEntity.ok(tokenInfo);
+            
+            return ResponseEntity.status(HttpStatus.OK).body(tokenInfo);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Token inválido: " + e.getMessage()));
+            tokenInfo.put("valid", "false");
+            return ResponseEntity.status(HttpStatus.OK).body(tokenInfo);
         }
     }        /**
          * Endpoint para emitir el token tras verificación TOTP
