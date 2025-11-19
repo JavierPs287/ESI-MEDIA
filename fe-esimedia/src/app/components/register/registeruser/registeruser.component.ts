@@ -45,6 +45,7 @@ export class RegisteruserComponent implements  OnInit {
     alias: ['', [Validators.minLength(2), Validators.maxLength(20)]],
     vip: [false],
     enable2FA: [false],
+    enable3FA: [false],
     imageId: [this.avatarOptions[0].id],
     birthDate: ['', [Validators.required, this.minAgeValidator(4)]],
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
