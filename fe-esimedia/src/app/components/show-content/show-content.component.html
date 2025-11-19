@@ -10,17 +10,22 @@
   <mat-card *ngFor="let content of contents" 
             class="content-card" 
             [class.vip-content]="content.vip"
+            [class.hidden-content]="!content.visible"
             (click)="onContentClick(content.urlId!)"
             (keypress)="onContentClick(content.urlId!)"
             tabindex="0">
     <div class="thumbnail-container">
-      <img mat-card-image [src]="getImageUrl(content.imageId)" [alt]="content.title">
+      <img mat-card-image [src]="getImageUrl(content.imageId)" [alt]="content.title"
+            [class.hidden-thumbnail]="!content.visible">
       <div class="duration" *ngIf="content.duration">{{ formatDuration(content.duration) }}</div>
       <span class="vip-badge" *ngIf="content.vip">
         <mat-icon>stars</mat-icon> VIP
       </span>
       <span class="age-badge" *ngIf="content.minAge && content.minAge > 4">
         +{{ content.minAge }}
+      </span>
+      <span class="visibility-badge" *ngIf="!content.visible">
+        <mat-icon>visibility_off</mat-icon> Oculto
       </span>
     </div>
     <mat-card-content>
