@@ -28,6 +28,7 @@ import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.http.AudioController;
 import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
 import edu.uclm.esi.esimedia.be_esimedia.services.AudioService;
+import jakarta.servlet.http.HttpServletRequest;
 
 @WebMvcTest(
     controllers = AudioController.class,
@@ -75,7 +76,7 @@ class AudioControllerTest {
     @DisplayName("Debe subir audio exitosamente con datos válidos")
     void testUploadAudioSuccess() throws Exception {
         // Arrange
-        doNothing().when(audioService).uploadAudio(any(AudioDTO.class));
+        doNothing().when(audioService).uploadAudio(any(AudioDTO.class), any(HttpServletRequest.class));
 
         // Act & Assert
         mockMvc.perform(multipart("/creador/uploadAudio")
@@ -91,7 +92,7 @@ class AudioControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Audio subido exitosamente"));
 
-        verify(audioService, times(1)).uploadAudio(any(AudioDTO.class));
+        verify(audioService, times(1)).uploadAudio(any(AudioDTO.class), any(HttpServletRequest.class));
     }
 
     @Test
@@ -99,7 +100,7 @@ class AudioControllerTest {
     void testUploadAudioWithoutFile() throws Exception {
         // Arrange
         doThrow(new AudioUploadException("Campos obligatorios incorrectos"))
-            .when(audioService).uploadAudio(any(AudioDTO.class));
+            .when(audioService).uploadAudio(any(AudioDTO.class), any(HttpServletRequest.class));
 
         // Act & Assert
         mockMvc.perform(multipart("/creador/uploadAudio")
