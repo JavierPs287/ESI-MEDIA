@@ -31,9 +31,9 @@ public class ContenidoController {
     }
 
     @PostMapping("/user/listContenidos")
-    public ResponseEntity<List<ContenidoDTO>> listContenidos(@RequestBody(required = false) ContenidoFilterDTO filters) {
-        List<ContenidoDTO> contenidos;
-        contenidos = contenidoService.listContenidos(filters);
+    public ResponseEntity<List<ContenidoDTO>> listContenidos(
+                @RequestBody(required = false) ContenidoFilterDTO filters, HttpServletRequest request) {
+        List<ContenidoDTO> contenidos = contenidoService.listContenidos(filters, request);
         return ResponseEntity.status(HttpStatus.OK).body(contenidos);
     }
 
@@ -45,8 +45,8 @@ public class ContenidoController {
     }
 
     @GetMapping("/usuario/contenido/{urlId}/metadata")
-    public ResponseEntity<ReproductionMetadataDTO> getReproductionMetadata
-            (@PathVariable String urlId, HttpServletRequest request) {
+    public ResponseEntity<ReproductionMetadataDTO> getReproductionMetadata(
+                @PathVariable String urlId, HttpServletRequest request) {
         ReproductionMetadataDTO metadata = contenidoService.getReproductionMetadata(urlId, request);
         return ResponseEntity.status(HttpStatus.OK).body(metadata);
             }

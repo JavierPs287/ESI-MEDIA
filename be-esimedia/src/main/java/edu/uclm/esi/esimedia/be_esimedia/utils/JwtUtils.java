@@ -46,6 +46,14 @@ public class JwtUtils {
         return getClaims(token).get("role", String.class);
     }
 
+    public String getRoleFromRequest(HttpServletRequest request) {
+        String token = extractTokenFromCookie(request);
+        if (token == null || !validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
+        }
+        return getRoleFromToken(token);
+    }
+
     // Extrae el ID del usuario del token
     public String getUserIdFromToken(String token) {
         return getClaims(token).get("userId", String.class);
@@ -53,12 +61,12 @@ public class JwtUtils {
 
     // Extrae el ID del usuario del token presente en la solicitud HTTP
     public String getUserIdFromRequest(HttpServletRequest request) {
-    String token = extractTokenFromCookie(request);
-    if (token == null || !validateToken(token)) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
+        String token = extractTokenFromCookie(request);
+        if (token == null || !validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
+        }
+        return getUserIdFromToken(token);
     }
-    return getUserIdFromToken(token);
-}
 
     // Valida si el token es válido (firma correcta y no expirado)
     public boolean validateToken(String token) {
