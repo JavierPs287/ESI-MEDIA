@@ -2,33 +2,60 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ForgotPasswordTokenDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidPasswordException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
+import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
+import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.ForgotPasswordToken;
 import edu.uclm.esi.esimedia.be_esimedia.model.PasswordHistory;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
+import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.TokenRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
+import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
+
+import jakarta.servlet.http.HttpServletRequest;
 import edu.uclm.esi.esimedia.be_esimedia.repository.PasswordHistoryRepository;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final AdminRepository adminRepository;
+    private final CreadorRepository creadorRepository;
     private final TokenRepository tokenRepository;
     private final ValidateService validateService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthService authService;
 
     public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, AuthService authService) {
+    private final JwtUtils jwtUtils;
+    
+    private static final String MASKED_PASSWORD = "XXXXXXXXX";
+
+    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, JwtUtils jwtUtils, AdminRepository adminRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository) {
         this.userRepository = userRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.adminRepository = adminRepository;
+        this.creadorRepository = creadorRepository;
         this.tokenRepository = tokenRepository;
         this.validateService = validateService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtils = jwtUtils;
         this.authService = authService;
     }
 
@@ -40,8 +67,161 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserDTO> findAll() {
+        List<User> users = userRepository.findAll();
+        List<UserDTO> result = new ArrayList<>();
+
+        for (User user : users) {
+            // prefer role-specific entity if exists
+            if (adminRepository.existsById(user.getId())) {
+                Optional<Admin> adminOpt = adminRepository.findById(user.getId());
+                AdminDTO dto = new AdminDTO();
+                dto.setEmail(user.getEmail());
+                dto.setName(user.getName());
+                dto.setLastName(user.getLastName());
+                dto.setPassword(MASKED_PASSWORD);
+                dto.setImageId(user.getImageId());
+                dto.setBlocked(user.isBlocked());
+                dto.setActive(user.isActive());
+                adminOpt.ifPresent(a -> dto.setDepartment(a.getDepartment()));
+                result.add(dto);
+            }
+
+            if (creadorRepository.existsById(user.getId())) {
+                Optional<Creador> creadorOpt = creadorRepository.findById(user.getId());
+                CreadorDTO dto = new CreadorDTO();
+                dto.setEmail(user.getEmail());
+                dto.setName(user.getName());
+                dto.setLastName(user.getLastName());
+                dto.setPassword(MASKED_PASSWORD);
+                dto.setImageId(user.getImageId());
+                dto.setBlocked(user.isBlocked());
+                dto.setActive(user.isActive());
+                creadorOpt.ifPresent(c -> {
+                    dto.setAlias(c.getAlias());
+                    dto.setDescription(c.getDescription());
+                    dto.setField(c.getField());
+                    dto.setType(c.getType());
+                });
+                result.add(dto);
+            }
+
+            if (usuarioRepository.existsById(user.getId())) {
+                Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
+                UsuarioDTO dto = new UsuarioDTO();
+                dto.setEmail(user.getEmail());
+                dto.setName(user.getName());
+                dto.setLastName(user.getLastName());
+                dto.setPassword(MASKED_PASSWORD);
+                dto.setImageId(user.getImageId());
+                dto.setBlocked(user.isBlocked());
+                dto.setActive(user.isActive());
+                usuarioOpt.ifPresent(u -> {
+                    dto.setAlias(u.getAlias());
+                    dto.setBirthDate(u.getBirthDate());
+                    dto.setVip(u.isVip());
+                });
+                result.add(dto);
+            }
+
+        }
+
+        return result;
+    }
+
+    public UserDTO getCurrentUser(HttpServletRequest request) {
+
+        String token = extractTokenFromCookie(request);
+        if (token == null || token.isEmpty()) {
+            throw new InvalidTokenException("Token no proporcionado");
+        }
+
+        String email = jwtUtils.getEmailFromToken(token);
+        User user = findByEmail(email);
+
+        if (user == null) {
+            throw new InvalidTokenException("Usuario no encontrado");
+        }
+        String role = jwtUtils.getRoleFromToken(token);
+        UserDTO userDTO;
+
+        switch(role) {
+            case Constants.USUARIO_ROLE:
+                Optional<Usuario> usuarioRepo = usuarioRepository.findById(user.getId());
+
+                if (usuarioRepo.isEmpty()) {
+                    throw new InvalidTokenException("Usuario no encontrado");
+                }
+
+                Usuario usuario = usuarioRepo.get();
+                UsuarioDTO usuarioDTO = new UsuarioDTO();
+
+                usuarioDTO.setEmail(user.getEmail());
+                usuarioDTO.setName(user.getName());
+                usuarioDTO.setLastName(user.getLastName());
+                usuarioDTO.setPassword(MASKED_PASSWORD);
+                usuarioDTO.setImageId(user.getImageId());
+                usuarioDTO.setBlocked(user.isBlocked());
+                usuarioDTO.setActive(user.isActive());
+                usuarioDTO.setAlias(usuario.getAlias());
+                usuarioDTO.setBirthDate(usuario.getBirthDate());
+
+                userDTO = usuarioDTO;
+            break;
+            
+            case Constants.ADMIN_ROLE: {
+                Optional<Admin> adminRepo = adminRepository.findById(user.getId());
+
+                if (adminRepo.isEmpty()) {
+                    throw new InvalidTokenException("Admin no encontrado");
+                }
+
+                Admin admin = adminRepo.get();
+                AdminDTO adminDto = new AdminDTO();
+
+                adminDto.setEmail(user.getEmail());
+                adminDto.setName(user.getName());
+                adminDto.setLastName(user.getLastName());
+                adminDto.setPassword(MASKED_PASSWORD);
+                adminDto.setImageId(user.getImageId());
+                adminDto.setBlocked(user.isBlocked());
+                adminDto.setActive(user.isActive());
+                adminDto.setDepartment(admin.getDepartment());
+
+                userDTO = adminDto;
+            }
+            break;
+
+            case Constants.CREADOR_ROLE: {
+                Optional<Creador> creadorRepoOpt = creadorRepository.findById(user.getId());
+
+                if (creadorRepoOpt.isEmpty()) {
+                    throw new InvalidTokenException("Creador no encontrado");
+                }
+
+                Creador creador = creadorRepoOpt.get();
+                CreadorDTO creadorDto = new CreadorDTO();
+                creadorDto.setEmail(user.getEmail());
+                creadorDto.setName(user.getName());
+                creadorDto.setLastName(user.getLastName());
+                creadorDto.setPassword(MASKED_PASSWORD);
+                creadorDto.setImageId(user.getImageId());
+                creadorDto.setBlocked(user.isBlocked());
+                creadorDto.setActive(user.isActive());
+                creadorDto.setAlias(creador.getAlias());
+                creadorDto.setDescription(creador.getDescription());
+                creadorDto.setField(creador.getField());
+                creadorDto.setType(creador.getType());
+
+                userDTO = creadorDto;
+            }
+            break;
+
+            default:
+                throw new InvalidTokenException("Rol de usuario no reconocido");
+        }
+
+        return userDTO;
     }
 
     public void startPasswordReset(String email, TokenService tokenService, EmailService emailService, TokenRepository tokenRepository) {
@@ -111,4 +291,17 @@ public class UserService {
         tokenRepository.save(resetToken);
     }
     
+    /**
+     * Método auxiliar para extraer el token de la cookie
+     */
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("esi_token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
 }
