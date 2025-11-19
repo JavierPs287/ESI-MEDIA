@@ -79,13 +79,6 @@ public class UserService {
             throw new InvalidTokenException(Constants.USER_ERROR_MESSAGE);
         }
 
-        Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
-        if (usuarioOpt.isEmpty()) {
-            throw new InvalidTokenException(Constants.USER_ERROR_MESSAGE);
-        }
-
-        Usuario usuario = usuarioOpt.get();
-
         // Validar campos usando ValidateService
         if (validateService.isRequiredFieldEmpty(usuarioDTO.getName(), 2, 50)) {
             throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
@@ -109,26 +102,24 @@ public class UserService {
             throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
         }
 
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
+
+        if (usuarioOpt.isEmpty()) {
+            throw new InvalidTokenException(Constants.USER_ERROR_MESSAGE);
+        }
+
+        Usuario usuario = usuarioOpt.get();
+
         if (usuarioDTO.isVip() != usuario.isVip()) {
             usuario.setVip(usuarioDTO.isVip());
         }
 
+        Usuario newUsuario = new Usuario(usuarioDTO);
+        usuario = newUsuario;
+
         usuarioRepository.save(usuario);
 
-        // Devolver el DTO actualizado
-        UsuarioDTO updatedDTO = new UsuarioDTO();
-        updatedDTO.setEmail(user.getEmail());
-        updatedDTO.setName(user.getName());
-        updatedDTO.setLastName(user.getLastName());
-        updatedDTO.setPassword(Constants.MASKED_PASSWORD);
-        updatedDTO.setImageId(user.getImageId());
-        updatedDTO.setBlocked(user.isBlocked());
-        updatedDTO.setActive(user.isActive());
-        updatedDTO.setAlias(usuario.getAlias());
-        updatedDTO.setBirthDate(usuario.getBirthDate());
-        updatedDTO.setVip(usuario.isVip());
-
-        return updatedDTO;
+        return usuarioDTO;
     }
 
     public List<UserDTO> findAll() {
@@ -136,55 +127,42 @@ public class UserService {
         List<UserDTO> result = new ArrayList<>();
 
         for (User user : users) {
-            // prefer role-specific entity if exists
             if (adminRepository.existsById(user.getId())) {
                 Optional<Admin> adminOpt = adminRepository.findById(user.getId());
-                AdminDTO dto = new AdminDTO();
-                dto.setEmail(user.getEmail());
-                dto.setName(user.getName());
-                dto.setLastName(user.getLastName());
-                dto.setPassword(Constants.MASKED_PASSWORD);
-                dto.setImageId(user.getImageId());
-                dto.setBlocked(user.isBlocked());
-                dto.setActive(user.isActive());
-                adminOpt.ifPresent(a -> dto.setDepartment(a.getDepartment()));
+
+                if (adminOpt.isEmpty()) {
+                    throw new IllegalStateException("Usuario con rol ADMIN no encontrado");
+                }
+
+                Admin admin = adminOpt.get();
+                AdminDTO dto = new AdminDTO(user, admin);
+                
                 result.add(dto);
             }
 
             if (creadorRepository.existsById(user.getId())) {
                 Optional<Creador> creadorOpt = creadorRepository.findById(user.getId());
-                CreadorDTO dto = new CreadorDTO();
-                dto.setEmail(user.getEmail());
-                dto.setName(user.getName());
-                dto.setLastName(user.getLastName());
-                dto.setPassword(Constants.MASKED_PASSWORD);
-                dto.setImageId(user.getImageId());
-                dto.setBlocked(user.isBlocked());
-                dto.setActive(user.isActive());
-                creadorOpt.ifPresent(c -> {
-                    dto.setAlias(c.getAlias());
-                    dto.setDescription(c.getDescription());
-                    dto.setField(c.getField());
-                    dto.setType(c.getType());
-                });
+        
+                if (creadorOpt.isEmpty()) {
+                    throw new IllegalStateException("Usuario con rol CREADOR no encontrado");
+                }
+
+                Creador creador = creadorOpt.get();
+                CreadorDTO dto = new CreadorDTO(user, creador);
+
                 result.add(dto);
             }
 
             if (usuarioRepository.existsById(user.getId())) {
                 Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
-                UsuarioDTO dto = new UsuarioDTO();
-                dto.setEmail(user.getEmail());
-                dto.setName(user.getName());
-                dto.setLastName(user.getLastName());
-                dto.setPassword(Constants.MASKED_PASSWORD);
-                dto.setImageId(user.getImageId());
-                dto.setBlocked(user.isBlocked());
-                dto.setActive(user.isActive());
-                usuarioOpt.ifPresent(u -> {
-                    dto.setAlias(u.getAlias());
-                    dto.setBirthDate(u.getBirthDate());
-                    dto.setVip(u.isVip());
-                });
+
+                if (usuarioOpt.isEmpty()) {
+                    throw new IllegalStateException("Usuario con rol USUARIO no encontrado");
+                }
+
+                Usuario usuario = usuarioOpt.get();
+                UsuarioDTO dto = new UsuarioDTO(user, usuario);
+                
                 result.add(dto);
             }
 

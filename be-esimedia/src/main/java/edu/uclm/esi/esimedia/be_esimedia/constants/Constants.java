@@ -6,7 +6,10 @@ public final class Constants {
 
     // General
     public static final String ERROR_KEY = "error";
+    public static final String SUCCESS_KEY = "success";
     public static final String MESSAGE_KEY = "message";
+    public static final String USER_KEY = "userId";
+    public static final String EMAIL_KEY = "email";
     public static final int MIN_AGE = 4;
     public static final int MAX_AGE = 150;
 
