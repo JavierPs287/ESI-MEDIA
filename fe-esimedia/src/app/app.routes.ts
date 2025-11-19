@@ -17,6 +17,7 @@ import { ResetpasswordComponent } from './components/resetpassword/resetpassword
 import { MainMenuUserComponent } from './components/menus/main-menu-user/main-menu-user.component';
 import { ShowContentComponent } from './components/show-content/show-content.component';
 import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
+import { EditProfilesComponent } from './components/edit-profiles/edit-profiles.component';
 
 export const routes: Routes = [
 
@@ -73,6 +74,10 @@ export const routes: Routes = [
             {
                 path: 'uploadContent/video',
                 component: UploadVideoComponent
+            },
+            {
+                path: 'editProfile',
+                component: EditProfilesComponent
             }
         ]
     },
@@ -99,6 +104,10 @@ export const routes: Routes = [
                 path: 'register/creator',
                 component: RegistercreatorComponent
             },
+            {
+                path: 'editProfile',
+                component: EditProfilesComponent
+            }
         ]
     },
 
@@ -115,6 +124,10 @@ export const routes: Routes = [
             {
                 path: 'reproduce/:urlId',
                 component: ReproduceContentComponent
+            },
+            {
+                path: 'editProfile',
+                component: EditProfilesComponent
             }
         ]
     },

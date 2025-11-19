@@ -37,6 +37,10 @@
     <div class="form-field">
       <label for="alias">Alias</label>
       <input id="alias" type="text" placeholder="Alias" formControlName="alias">
+      <div class="error-container" *ngIf="getControl('alias')?.invalid && (getControl('alias')?.touched || getControl('alias')?.dirty)">
+        <p class="error-message" *ngIf="getControl('alias')?.hasError('maxlength')"> Máximo 20 caracteres. </p>
+        <p class="error-message" *ngIf="getControl('alias')?.hasError('minlength')"> Mínimo 3 caracteres. </p>
+      </div>
     </div>
 
     <div class="form-field">

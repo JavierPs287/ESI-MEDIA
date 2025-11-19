@@ -19,11 +19,11 @@
         <mat-icon class="icon-sideBar">video_library</mat-icon>
         <span class="info-sideBar">Subir Contenido</span>
       </button>
-      <button mat-button class="item-sideBar">
+      <button mat-button class="item-sideBar" (click)="navigateTo('/menu/creator/editProfile')">
         <mat-icon class="icon-sideBar">settings</mat-icon>
-        <span class="info-sideBar">Configuración</span>
+        <span class="info-sideBar">Editar perfil</span>
       </button>
-      <button mat-button class="item-sideBar">
+      <button mat-button class="item-sideBar" (click)="logout()">
         <mat-icon class="icon-sideBar">logout</mat-icon>
         <span class="info-sideBar">Cerrar sesión</span>
       </button>

@@ -9,6 +9,7 @@ import { MatIcon } from '@angular/material/icon';
 import { Creator } from '../../../models/creator.model';
 import { Response } from '../../../models/response.model';
 import { finalize } from 'rxjs/internal/operators/finalize';
+import { FIELDS } from '../../../constants/form-constants';
 
 
 @Component({
@@ -23,20 +24,8 @@ export class RegistercreatorComponent implements OnInit {
   visiblePassword: boolean = false; visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
+  fields = FIELDS;
   isSubmitting = false;
-
-  fields: string[] = [
-    'Música',
-    'Podcast',
-    'Educación',
-    'Deportes',
-    'Gaming',
-    'Tecnología',
-    'Arte',
-    'Comedia',
-    'Documentales',
-    'Otros'
-  ];
 
   fb = inject(FormBuilder);
   registerForm!: FormGroup;

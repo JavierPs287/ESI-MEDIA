@@ -1,0 +1,123 @@
+<div class="user-card">
+
+  <!-- MODO EDICIÓN -->
+  <form [formGroup]="editForm" (ngSubmit)="save()" class="edit-mode">
+
+    <div class="form-field">
+      <label for="name">Nombre *</label>
+      <input id="name" type="text" placeholder="Nombre" formControlName="name">
+      <div class="error-container" *ngIf="getControl('name')?.invalid && (getControl('name')?.touched || getControl('name')?.dirty)">
+        <p class="error-message" *ngIf="getControl('name')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('name')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="lastName">Apellidos *</label>
+      <input id="lastName" type="text" placeholder="Apellidos" formControlName="lastName">
+      <div class="error-container" *ngIf="getControl('lastName')?.invalid && (getControl('lastName')?.touched || getControl('lastName')?.dirty)">
+        <p class="error-message" *ngIf="getControl('lastName')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('lastName')?.hasError('maxlength')"> Máximo 100 caracteres. </p>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="alias">Alias</label>
+      <input id="alias" type="text" placeholder="Alias" formControlName="alias">
+      <div class="error-container" *ngIf="getControl('alias')?.invalid && (getControl('alias')?.touched || getControl('alias')?.dirty)">
+        <p class="error-message" *ngIf="getControl('alias')?.hasError('maxlength')"> Máximo 20 caracteres. </p>
+        <p class="error-message" *ngIf="getControl('alias')?.hasError('minlength')"> Mínimo 3 caracteres. </p>
+      </div>
+    </div>
+
+    <div *ngIf="role === 'user'">
+    
+      <div class="form-field">
+      <label for="birthDate">Fecha de nacimiento *</label>
+      <input id="birthDate" type="date" placeholder="DD/MM/AAAA" formControlName="birthDate">
+      <div class="error-container" *ngIf="getControl('birthDate')?.invalid && (getControl('birthDate')?.touched || getControl('birthDate')?.dirty)">
+        <p class="error-message" *ngIf="getControl('birthDate')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class="error-message" *ngIf="getControl('birthDate')?.hasError('minAge')"> Debes tener al menos 4 años para registrarte. </p>
+      </div>
+        </div>
+    
+        <div class="form-field">
+        <label for="vip">VIP</label>
+            <div class="btn-container">
+            <button
+            type="button" class="btn-vip" (click)="toggleVip()"
+            [ngClass]="{'vip-active': isVip, 'vip-inactive': !isVip}">
+            {{ isVip ? 'VIP' : 'No eres VIP' }}</button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="role === 'creator'">
+      <div class="form-field">
+      <label for="description">Descripción</label>
+      <textarea class="area-descripcion" placeholder="Descripción" formControlName="description"></textarea>
+      <div class="error-container" *ngIf="getControl('description')?.invalid && (getControl('description')?.touched || getControl('description')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('description')?.hasError('maxlength')"> Máximo 500 caracteres. </p>
+      </div>
+    </div>
+
+      <div class="form-field">
+        <label for="field">Especialidad *</label>
+        <select class="form-select" id="field" formControlName="field">
+        <option value="">Seleccionar especialidad</option>
+        <option *ngFor="let esp of fields" [value]="esp">
+            {{ esp }}
+        </option>
+        </select>
+        <div class="error-container" *ngIf="getControl('especialidad')?.invalid && (getControl('especialidad')?.touched || getControl('especialidad')?.dirty)">
+            <p class ="error-message" *ngIf="getControl('especialidad')?.hasError('required')"> El campo es obligatorio. </p>
+        </div>
+    </div>
+    </div>
+
+    <div *ngIf="role === 'admin'">
+      <div class="form-field">
+      <label for="departamento">Departamento *</label>
+      <select class="form-select" id="departamento" formControlName="department">
+        <option value="">Seleccionar departamento</option>
+        <option *ngFor="let dept of departments" [value]="dept">
+          {{ dept }}
+        </option>
+      </select>
+      <div class="error-container" *ngIf="getControl('department')?.invalid && (getControl('department')?.touched || getControl('department')?.dirty)">
+        <p class="error-message" *ngIf="getControl('department')?.hasError('required')">El departamento es obligatorio.</p>
+      </div>
+    </div>
+    </div>
+
+    <div class="form-field">
+      <label for="foto">Foto de perfil </label>
+      <button type="button" class="photo-selector-btn" (click)="togglePhotoOptions()">
+        {{ selectedPhoto ? 'Cambiar foto' : 'Seleccionar foto' }}
+      </button>
+
+      <div class="photo-options" *ngIf="showPhotoOptions">
+        <div class="photo-grid">
+          <img *ngFor="let avatar of photoOptions.slice(1)" 
+               [src]="avatar.url" 
+               [alt]="avatar.id"
+               class="photo-option"
+               [class.selected]="selectedPhoto === avatar.id"
+               (click)="selectPhoto(avatar.id)"
+               (keydown.enter)="selectPhoto(avatar.id)">
+        </div>
+      <a class="link" href="http://www.freepik.com">Designed by studiogstock / Freepik</a>
+      </div>
+    </div>
+
+    <div *ngIf="editForm.get('contraseña')?.enabled">
+      <label>Contraseña (dejar vacío = sin cambio)</label>
+      <input formControlName="contraseña" type="password" />
+    </div>
+
+     <div class="actions">
+      <button type="button" (click)="startEdit()" *ngIf="!editMode">Modificar datos</button>
+      <button type="submit" *ngIf="editMode">Guardar</button>
+      <button type="button" (click)="cancelEdit()" *ngIf="editMode">Cancelar</button>
+    </div>
+  </form>

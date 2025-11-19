@@ -7,6 +7,7 @@ import { AdminService } from '../../../services/admin.service';
 import { Admin } from '../../../models/admin.model';
 import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
+import { DEPARTMENTS } from '../../../constants/form-constants';
 
 @Component({
   selector: 'app-registeradmin',
@@ -20,15 +21,7 @@ export class RegisteradminComponent implements OnInit {
   visiblePassword: boolean = false; visibleRepeatePassword: boolean = false;
   selectedPhoto: number | null = null;
   photoOptions = PHOTO_OPTIONS;
-  departments: string[] = [
-  'Recursos Humanos',
-  'Finanzas',
-  'Tecnología',
-  'Marketing',
-  'Ventas',
-  'Operaciones',
-  'Legal'
-];
+  departments = DEPARTMENTS;
 
   fb = inject(FormBuilder);
   registerForm!: FormGroup;
