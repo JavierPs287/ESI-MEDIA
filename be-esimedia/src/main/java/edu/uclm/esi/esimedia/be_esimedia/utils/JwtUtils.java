@@ -4,7 +4,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.JWT_COOKIE_NAME;
 import io.jsonwebtoken.Claims;
@@ -49,12 +51,21 @@ public class JwtUtils {
         return getClaims(token).get("userId", String.class);
     }
 
+    // Extrae el ID del usuario del token presente en la solicitud HTTP
+    public String getUserIdFromRequest(HttpServletRequest request) {
+    String token = extractTokenFromCookie(request);
+    if (token == null || !validateToken(token)) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
+    }
+    return getUserIdFromToken(token);
+}
+
     // Valida si el token es válido (firma correcta y no expirado)
     public boolean validateToken(String token) {
         try {
             getClaims(token);
             return true;
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | io.jsonwebtoken.JwtException e) {
             return false;
         }
     }
