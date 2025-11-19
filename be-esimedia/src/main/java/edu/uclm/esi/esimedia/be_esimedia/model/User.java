@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
+import java.time.Instant;
 
 @Document(collection = "USERS")
 public class User {
@@ -17,6 +18,15 @@ public class User {
     private String password;
     private int imageId = 0;
     private boolean blocked = false;
+    
+    // Bloqueo progresivo por intentos fallidos
+    private int failedAttempts = 0;
+    private Instant blockedUntil;
+    
+    // Rate Limiting - Control de intentos por ventana de tiempo
+    private Instant lastLoginAttemptTime;
+    private int loginAttemptsInWindow = 0;
+    
     private boolean active = true;
     private String role;
 
@@ -51,6 +61,7 @@ public class User {
     public String getName() {
         return name;
     }
+    
     public void setName(String name) {
         this.name = name;
     }
@@ -58,6 +69,7 @@ public class User {
     public String getLastName() {
         return lastName;
     }
+    
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -65,6 +77,7 @@ public class User {
     public String getEmail() {
         return email;
     }
+    
     public void setEmail(String email) {
         this.email = email;
     }
@@ -91,6 +104,39 @@ public class User {
 
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
+    }
+
+    public int getFailedAttempts() {
+        return failedAttempts;
+    }
+
+    public void setFailedAttempts(int failedAttempts) {
+        this.failedAttempts = failedAttempts;
+    }
+
+    public Instant getBlockedUntil() {
+        return blockedUntil;
+    }
+
+    public void setBlockedUntil(Instant blockedUntil) {
+        this.blockedUntil = blockedUntil;
+    }
+
+    // Getters y Setters para Rate Limiting
+    public Instant getLastLoginAttemptTime() {
+        return lastLoginAttemptTime;
+    }
+
+    public void setLastLoginAttemptTime(Instant lastLoginAttemptTime) {
+        this.lastLoginAttemptTime = lastLoginAttemptTime;
+    }
+
+    public int getLoginAttemptsInWindow() {
+        return loginAttemptsInWindow;
+    }
+
+    public void setLoginAttemptsInWindow(int loginAttemptsInWindow) {
+        this.loginAttemptsInWindow = loginAttemptsInWindow;
     }
 
     public boolean isActive() {

@@ -53,7 +53,12 @@ public class AdminService {
 
         // Validar datos
         validateAdminCreation(user, admin);
-        
+
+        // Comprobar que la contraseña no esté en la blacklist
+        if (authService.isPasswordBlacklisted(adminDTO.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
+
         // Asignar rol de administrador
         user.setRole(ADMIN_ROLE);
 
@@ -80,6 +85,11 @@ public class AdminService {
 
         // Validar datos
         validateCreadorCreation(user, creador);
+
+        // Comprobar que la contraseña no esté en la blacklist
+        if (authService.isPasswordBlacklisted(creadorDTO.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
 
         // Asignar rol de creador
         user.setRole(CREADOR_ROLE);
