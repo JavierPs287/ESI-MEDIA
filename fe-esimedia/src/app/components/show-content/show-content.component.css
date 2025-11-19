@@ -1,0 +1,171 @@
+.loading-container {
+  color: var(--gris);
+  font-size: 18px;
+  text-align: center;
+}
+
+.error-container {
+  color: var(--rojo);
+  font-size: 18px;
+  text-align: center;
+}
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.content-card {
+  cursor: pointer;
+  position: relative;
+}
+
+.content-card:hover {
+  box-shadow: 0 4px 12px var(--gris);
+  transform: scale(1.01);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.vip-content {
+  border: 2.5px solid var(--oro);
+}
+
+.thumbnail-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.thumbnail-container img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px 10px 0 0;
+
+}
+
+.duration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.vip-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--oro);
+  color: var(--negro);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vip-badge mat-icon {
+  font-size: 14px;
+  width: 15px;
+  height: 14px;
+}
+
+.age-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--rojo);
+  color: var(--blanco);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.content-title {
+  font-size: 22px;
+  font-weight: 500;
+  margin: 12px 0 8px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+}
+
+.content-creator {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #606060;
+}
+
+.content-stats {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin: 8px 0;
+  font-size: 13px;
+  color: #606060;
+}
+
+.rating, .views {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-icon, .view-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.star-icon {
+  color: var(--oro);
+}
+
+.content-tags {
+  margin: 8px 0;
+}
+
+.content-tags mat-chip {
+  font-size: 11px;
+  min-height: 24px;
+}
+
+.content-description {
+  color: #606060;
+  font-size: 13px;
+  margin: 8px 0 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.no-content {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.no-content mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+}
+
+.no-content p {
+  font-size: 18px;
+}
+

@@ -1,0 +1,56 @@
+<div *ngIf="isLoading" class="loading-container">
+  <p><mat-icon>refresh</mat-icon> Cargando contenidos...</p>
+</div>
+
+<div *ngIf="errorMessage" class="error-container">
+  <p> <mat-icon>error</mat-icon> {{ errorMessage }} </p>
+</div>
+
+<div class="content-grid" *ngIf="!isLoading && !errorMessage">
+  <mat-card *ngFor="let content of contents" 
+            class="content-card" 
+            [class.vip-content]="content.vip"
+            (click)="onContentClick(content.urlId!)"
+            (keypress)="onContentClick(content.urlId!)"
+            tabindex="0">
+    <div class="thumbnail-container">
+      <img mat-card-image [src]="getImageUrl(content.imageId)" [alt]="content.title">
+      <div class="duration" *ngIf="content.duration">{{ formatDuration(content.duration) }}</div>
+      <span class="vip-badge" *ngIf="content.vip">
+        <mat-icon>stars</mat-icon> VIP
+      </span>
+      <span class="age-badge" *ngIf="content.minAge && content.minAge > 4">
+        +{{ content.minAge }}
+      </span>
+    </div>
+    <mat-card-content>
+      <h3 class="content-title" [title]="content.title">{{ content.title }}</h3>
+      <p class="content-creator">{{ content.creador }}</p>
+      
+      <div class="content-stats">
+        <div class="rating">
+          <mat-icon class="star-icon">star</mat-icon>
+          {{ content.rating ?? 0 }}
+        </div>
+        <div class="views">
+          <mat-icon class="view-icon">play_arrow</mat-icon>
+          {{ (content.views ?? 0) | number }} plays
+        </div>
+      </div>
+
+      <div class="content-tags" *ngIf="content.tags && content.tags.length > 0">
+        <mat-chip-set>
+          <mat-chip *ngFor="let tag of content.tags">{{ tag }}</mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <p class="content-description" *ngIf="content.description">
+        {{ content.description }}
+      </p>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div *ngIf="!isLoading && !errorMessage && contents.length === 0" class="no-content">
+  <p> <mat-icon>video_library</mat-icon> No hay contenidos disponibles</p>
+</div>

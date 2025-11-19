@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -23,20 +24,21 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_UPLOAD_DIR;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
-
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
+import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
+import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class AudioService {
@@ -46,37 +48,59 @@ public class AudioService {
 
     private final Logger logger = LoggerFactory.getLogger(AudioService.class);
 
+    @Value("${audio.upload.dir}")
+    private String audioUploadDir;
+
     private final ValidateService validateService;
     private final ContenidoService contenidoService;
 
     private final AudioRepository audioRepository;
     private final ContenidoRepository contenidoRepository;
+    private final CreadorRepository creadorRepository;
     private final UsuarioRepository usuarioRepository;
+
+    private final JwtUtils jwtUtils;
 
     @Autowired
     public AudioService(ValidateService validateService, ContenidoService contenidoService, 
-            AudioRepository audioRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository) {
+            AudioRepository audioRepository, ContenidoRepository contenidoRepository, 
+            CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
         this.validateService = validateService;
         this.contenidoService = contenidoService;
         this.audioRepository = audioRepository;
         this.contenidoRepository = contenidoRepository;
+        this.creadorRepository = creadorRepository;
         this.usuarioRepository = usuarioRepository;
+        this.jwtUtils = jwtUtils;
     }
 
-    public void uploadAudio(AudioDTO audioDTO) {
+    public void uploadAudio(AudioDTO audioDTO, HttpServletRequest request) {
         // Validar primero que audioDTO no sea null
         if (audioDTO == null) {
             logger.error("El objeto AudioDTO es nulo");
             throw new AudioUploadException();
         }
+        
+        // Conseguir creador del token
+        String userId = jwtUtils.getUserIdFromRequest(request);
+        Creador creador = creadorRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Creador no autenticado"));
 
-        audioDTO.setVisibilityChangeDate(Instant.now());
-
-        // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
-        if (audioDTO.getCreador() == null || audioDTO.getCreador().isEmpty()) {
-            // TODO: Obtener del usuario autenticado
-            audioDTO.setCreador("creador_temporal");
+        // Comprobar que el creador es un creador de audios
+        if (creador.getType() == null || !creador.getType().equals(AUDIO_TYPE)) {
+            logger.error("El creador autenticado no es un creador de audios");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El creador no tiene permisos para subir audios");
         }
+        
+        if (creador.getAlias() == null || creador.getAlias().isEmpty()) {
+            logger.error("El creador no tiene un alias establecido");
+            audioDTO.setCreador("creador_mal_configurado");
+        } else {
+            audioDTO.setCreador(creador.getAlias());
+        }
+
+        // Establecer fecha de cambio de visibilidad
+        audioDTO.setVisibilityChangeDate(Instant.now());
 
         // Validación
         validateUploadAudio(audioDTO);
@@ -120,14 +144,9 @@ public class AudioService {
         }
     }
 
-    public ResponseEntity<Resource> getAudio(String urlId, HttpSession session) {
-        // TODO mover a método común si tenemos mucha duplicidad
-        // Conseguir usuario de la sesión
-        String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
-        }
-
+    public ResponseEntity<Resource> getAudio(String urlId, HttpServletRequest request) {
+        // Conseguir usuario del token
+        String userId = jwtUtils.getUserIdFromRequest(request);
         Usuario usuario = usuarioRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
 
@@ -197,7 +216,7 @@ public class AudioService {
     // Public para permitir mockearlo en pruebas unitarias
     public String saveFile(MultipartFile file, String fileName) throws IOException {
         try {
-            Path uploadPath = Path.of(AUDIO_UPLOAD_DIR);
+            Path uploadPath = Path.of(audioUploadDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
@@ -232,6 +251,10 @@ public class AudioService {
                 audioDTO.getVisibilityDeadline())) {
             logger.warn("La fecha límite de visibilidad debe ser posterior a la fecha de cambio de visibilidad.");
             throw new AudioUploadException("Fecha límite de visibilidad inválida");
+        }
+
+        if (!validateService.isImageIdValid(audioDTO.getImageId())){
+            audioDTO.setImageId(0); // ID de la imagen por defecto
         }
     }
 

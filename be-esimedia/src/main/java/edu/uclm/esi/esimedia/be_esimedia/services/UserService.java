@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ForgotPasswordTokenDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
@@ -17,10 +18,12 @@ import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.ForgotPasswordToken;
+import edu.uclm.esi.esimedia.be_esimedia.model.PasswordHistory;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.PasswordHistoryRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.TokenRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
@@ -39,8 +42,10 @@ public class UserService {
     private final ValidateService validateService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final AuthService authService;
 
-    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, JwtUtils jwtUtils, AdminRepository adminRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository) {
+    @Autowired
+    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService, BCryptPasswordEncoder passwordEncoder, JwtUtils jwtUtils, AdminRepository adminRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, AuthService authService) {
         this.userRepository = userRepository;
         this.usuarioRepository = usuarioRepository;
         this.adminRepository = adminRepository;
@@ -49,6 +54,7 @@ public class UserService {
         this.validateService = validateService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
+        this.authService = authService;
     }
 
     public boolean existsEmail(String email) {
@@ -297,7 +303,11 @@ public class UserService {
         emailService.sendPasswordResetEmail(user, token);
     }
 
-    public void resetPassword(String token, String newPassword, TokenService tokenService) throws InvalidTokenException {
+    public void resetPassword(String token, String newPassword, TokenService tokenService, PasswordHistoryRepository passwordHistoryRepository) throws InvalidTokenException {
+        // Verificar que la contraseña no esté en la blacklist usando AuthService
+        if (authService.isPasswordBlacklisted(newPassword)) {
+            throw new InvalidPasswordException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
         // Primero validamos el JWT
         tokenService.validatePasswordResetToken(token);
         
@@ -320,13 +330,42 @@ public class UserService {
             throw new InvalidPasswordException("La contraseña no puede estar vacía");
         }
 
-        // Actualizamos la contraseña del usuario
+        if (passwordEncoder.matches(newPassword, resetToken.getUser().getPassword())) {
+            throw new InvalidPasswordException("La nueva contraseña no puede ser igual a la anterior.");
+        }
+
         User user = resetToken.getUser();
+
+        List<PasswordHistory> lastFivePasswords = passwordHistoryRepository.findTop5ByUserIdOrderByCreatedAtDesc(user.getId());
+        for (PasswordHistory history : lastFivePasswords) {
+            if (passwordEncoder.matches(newPassword, history.getPasswordHash())) {
+                throw new InvalidPasswordException("No puedes reutilizar ninguna de tus últimas 5 contraseñas. Por favor, elige una contraseña diferente.");
+            }
+        }
+
+        // Guardar la contraseña antigua antes de actualizar
+        PasswordHistory oldPasswordHistory = new PasswordHistory(user.getId(), user.getPassword());
+        passwordHistoryRepository.save(oldPasswordHistory);
+
+        // Actualizar la contraseña del usuario
         user.setPassword(passwordEncoder.encode(newPassword));
 
         userRepository.save(user);
         resetToken.setUsed(true);
         tokenRepository.save(resetToken);
+    }
+        /**
+     * Actualiza el estado de 2FA del usuario (totpSecret)
+     */
+    public boolean update2FA(String email, boolean enable2FA) {
+        User user = findByEmail(email);
+        if (user == null) return false;
+        user.setTwoFaEnabled(enable2FA);
+        if (!enable2FA) {
+            user.setTotpSecret("");
+        }
+        userRepository.save(user);
+        return true;
     }
     
     /**

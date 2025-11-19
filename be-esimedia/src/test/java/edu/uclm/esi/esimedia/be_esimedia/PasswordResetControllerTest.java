@@ -118,7 +118,7 @@ class PasswordResetControllerTest {
     @Test
     @DisplayName("Debe resetear contraseña exitosamente")
     void testResetPassword_success() throws Exception {
-        doNothing().when(userService).resetPassword(anyString(), anyString(), any());
+        doNothing().when(userService).resetPassword(anyString(), anyString(), any(), any());
 
         mockMvc.perform(post("/auth/resetPassword")
                 .contentType("application/json")
@@ -130,7 +130,7 @@ class PasswordResetControllerTest {
     @Test
     @DisplayName("Debe retornar BadRequest cuando resetPassword falla")
     void testResetPassword_failure() throws Exception {
-        doThrow(new RuntimeException("Token inválido")).when(userService).resetPassword(anyString(), anyString(), any());
+        doThrow(new RuntimeException("Token inválido")).when(userService).resetPassword(anyString(), anyString(), any(), any());
 
         mockMvc.perform(post("/auth/resetPassword")
                 .contentType("application/json")
@@ -142,7 +142,7 @@ class PasswordResetControllerTest {
     @Test
     @DisplayName("Debe retornar error cuando nueva contraseña está vacía")
     void testResetPassword_passwordVacia() throws Exception {
-        doThrow(new RuntimeException("Contraseña vacía")).when(userService).resetPassword(anyString(), anyString(), any());
+        doThrow(new RuntimeException("Contraseña vacía")).when(userService).resetPassword(anyString(), anyString(), any(), any());
 
         mockMvc.perform(post("/auth/resetPassword")
                 .contentType("application/json")
@@ -180,7 +180,7 @@ class PasswordResetControllerTest {
     @Test
     @DisplayName("Debe manejar contraseña débil en resetPassword")
     void testResetPassword_passwordDebil() throws Exception {
-        doThrow(new RuntimeException("Contraseña muy débil")).when(userService).resetPassword(anyString(), anyString(), any());
+        doThrow(new RuntimeException("Contraseña muy débil")).when(userService).resetPassword(anyString(), anyString(), any(), any());
 
         mockMvc.perform(post("/auth/resetPassword")
                 .contentType("application/json")

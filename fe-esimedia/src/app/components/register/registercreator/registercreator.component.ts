@@ -25,7 +25,7 @@ export class RegistercreatorComponent implements OnInit {
   photoOptions = PHOTO_OPTIONS;
   isSubmitting = false;
 
-  especialidades: string[] = [
+  fields: string[] = [
     'Música',
     'Podcast',
     'Educación',
@@ -54,7 +54,7 @@ export class RegistercreatorComponent implements OnInit {
     field: ['', [Validators.required]],
     type: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetirContrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repetePassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   }, { validators: passwordMatchValidator() });
   }
 
@@ -71,7 +71,8 @@ export class RegistercreatorComponent implements OnInit {
         description: formValue.description,
         field: formValue.field,
         type: formValue.type,
-        password: formValue.password
+        password: formValue.password,
+        twoFaEnabled: true
       };
 
       this.creatorService.registerCreator(creator)
@@ -79,6 +80,11 @@ export class RegistercreatorComponent implements OnInit {
       .subscribe({
         next: (response: Response) => {
           alert('Registro del creador exitoso.');
+          // Guardar cookie con el email del creador recién creado
+          const encodedEmail = btoa(formValue.email);
+          document.cookie = `esi_email=${encodedEmail}; path=/; SameSite=Lax`;
+          // Usar el email del creador recién creado
+          this.router.navigate(['/activar2FA'], { state: { email: formValue.email } });
           this.registerForm.reset();
         },
         error: (error) => {

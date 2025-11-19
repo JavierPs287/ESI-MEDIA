@@ -20,6 +20,7 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
+        //TODO
         // Permitir orígenes del frontend (NOTA: modificar antes de meter a producción)
         configuration.setAllowedOrigins(List.of(
             "http://localhost:4200",

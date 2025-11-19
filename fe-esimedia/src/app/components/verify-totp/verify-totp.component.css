@@ -1,0 +1,44 @@
+@import '../register/form-styles.css';
+.totp-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+.totp-card {
+  background-color: var(--blanco);
+  border-radius: 10px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+.totp-card h2 {
+  color: var(--azul-oscuro);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+.form-field {
+  margin-bottom: 1.5rem;
+}
+.create-btn {
+  background-color: var(--azul-oscuro);
+  color: var(--blanco);
+  padding: 12px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  margin: 15px 0 0 0;
+}
+.error-message {
+  color: var(--rojo);
+  font-size: 14px;
+  margin-top: 1rem;
+}

@@ -13,7 +13,7 @@
       <select class="filter-dropdown" [(ngModel)]="selectedRole" (change)="onFilterChange()">
         <option value="">All Roles</option>
         <option value="admin">Admin</option>
-        <option value="moderator">Moderator</option>
+        <option value="creator">Creador</option>
         <option value="usuario">Usuario</option>
       </select>
 
@@ -53,6 +53,13 @@
           <span class="badge vip" *ngIf="user.isVip">VIP</span>
         </div>
         <div class="action-icons">
+          <button 
+            class="icon-btn block" 
+            [class.unblock]="user.isBlocked"
+            [title]="user.isBlocked ? 'Desbloquear Usuario' : 'Bloquear Usuario'" 
+            (click)="toggleBlockUser(user.id)">
+            <mat-icon>{{ user.isBlocked ? 'lock_open' : 'block' }}</mat-icon>
+          </button>
           <button class="icon-btn edit" title="Edit User" (click)="editUser(user.id)">
             <mat-icon>edit</mat-icon>
           </button>

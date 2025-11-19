@@ -7,22 +7,22 @@
     <!-- Campo: Nombre -->
     <div class="form-field">
     <label for="nombre">Nombre *</label>
-    <input type="text" placeholder="Nombre" formControlName="nombre">
-      <div class="error-container" *ngIf="getControl('nombre')?.invalid && (getControl('nombre')?.touched || getControl('nombre')?.dirty)">
-        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('required')"> El campo es obligatorio. </p>
-        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
-        <p class ="error-message" *ngIf="getControl('nombre')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
+    <input type="text" placeholder="Nombre" formControlName="name">
+      <div class="error-container" *ngIf="getControl('name')?.invalid && (getControl('name')?.touched || getControl('name')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('name')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('name')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('name')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
       </div>
     </div>
 
     <!-- Campo: Apellido -->
     <div class="form-field">
       <label for="apellidos">Apellido *</label>
-      <input type="text" placeholder="Apellido" formControlName="apellidos">
-        <div class="error-container" *ngIf="getControl('apellidos')?.invalid && (getControl('apellidos')?.touched || getControl('apellidos')?.dirty)">
-        <p class ="error-message" *ngIf="getControl('apellidos')?.hasError('required')"> El campo es obligatorio. </p>
-        <p class ="error-message" *ngIf="getControl('apellidos')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
-        <p class ="error-message" *ngIf="getControl('apellidos')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
+      <input type="text" placeholder="Apellido" formControlName="lastName">
+        <div class="error-container" *ngIf="getControl('lastName')?.invalid && (getControl('lastName')?.touched || getControl('lastName')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('lastName')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('lastName')?.hasError('minlength')"> Mínimo 2 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('lastName')?.hasError('maxlength')"> Máximo 50 caracteres. </p>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
 
     <!-- Campo: Foto de perfil -->
     <div class="form-field">
-      <label for="foto">Foto de perfil *</label>
+      <label for="imageId">Foto de perfil *</label>
       <button 
         type="button" class="photo-selector-btn" 
         (click)="togglePhotoOptions()">
@@ -75,19 +75,19 @@
 
     <!-- Campo: Descripción -->
     <div class="form-field">
-      <label for="descripcion">Descripción</label>
-      <textarea class="area-descripcion" placeholder="Descripción" formControlName="descripcion"></textarea>
-      <div class="error-container" *ngIf="getControl('descripcion')?.invalid && (getControl('descripcion')?.touched || getControl('descripcion')?.dirty)">
-        <p class ="error-message" *ngIf="getControl('descripcion')?.hasError('maxlength')"> Máximo 500 caracteres. </p>
+      <label for="description">Descripción</label>
+      <textarea class="area-descripcion" placeholder="Descripción" formControlName="description"></textarea>
+      <div class="error-container" *ngIf="getControl('description')?.invalid && (getControl('description')?.touched || getControl('description')?.dirty)">
+        <p class ="error-message" *ngIf="getControl('description')?.hasError('maxlength')"> Máximo 500 caracteres. </p>
       </div>
     </div>
 
     <!-- Campo: Especialidad -->
     <div class="form-field">
-    <label for="especialidad">Especialidad *</label>
-    <select class="form-select" id="especialidad" formControlName="especialidad">
+    <label for="field">Especialidad *</label>
+    <select class="form-select" id="field" formControlName="field">
       <option value="">Seleccionar especialidad</option>
-      <option *ngFor="let esp of especialidades" [value]="esp">
+      <option *ngFor="let esp of fields" [value]="esp">
         {{ esp }}
       </option>
     </select>
@@ -102,12 +102,12 @@
     <div class="content-type-buttons">
     <button 
         type="button" class="content-btn"
-        [class.active]="getControl('tipoContenido')?.value === 'Audio'"
+        [class.active]="getControl('type')?.value === 'Audio'"
         (click)="selectContentType('Audio')">🎵 Audio
     </button>
     <button 
         type="button" class="content-btn"
-        [class.active]="getControl('tipoContenido')?.value === 'Video'"
+        [class.active]="getControl('type')?.value === 'Video'"
         (click)="selectContentType('Video')">🎬 Vídeo
     </button>
     </div>
@@ -118,9 +118,9 @@
 
     <!-- Campo: Contraseña -->
   <div class="form-field">
-    <label for="contrasena">Contraseña *</label>
+    <label for="password">Contraseña *</label>
       <div class="password-field">
-      <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="contrasena">
+      <input [type]="!visiblePassword?'password':'text'" placeholder="Contraseña" formControlName="password">
       <button type ="button" class="eyeicon" (click)="togglePasswordVisibility()">
         <mat-icon *ngIf="visiblePassword">visibility</mat-icon>
         <mat-icon *ngIf="!visiblePassword">visibility_off</mat-icon>
@@ -139,19 +139,19 @@
 
     <!-- Campo: Repetir Contraseña -->
     <div class="form-field">
-      <label for="repetirContrasena">Repetir Contraseña *</label>
+      <label for="repetePassword">Repetir Contraseña *</label>
       <div class="password-field">
-      <input [type]="!visibleRepetePassword?'password':'text'" placeholder="Repetir contraseña" formControlName="repetirContrasena">
+      <input [type]="!visibleRepetePassword?'password':'text'" placeholder="Repetir contraseña" formControlName="repetePassword">
       <button type="button" class="eyeicon" (click)="toggleRepetePasswordVisibility()">
         <mat-icon *ngIf="visibleRepetePassword">visibility</mat-icon>
         <mat-icon *ngIf="!visibleRepetePassword">visibility_off</mat-icon>
       </button>
     </div>
-      <div class="error-container" *ngIf="(getControl('repetirContrasena')?.invalid && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)) || (registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty))">
-        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('required')"> El campo es obligatorio. </p>
-        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
-        <p class ="error-message" *ngIf="getControl('repetirContrasena')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
-        <p class ="error-message" *ngIf="registerForm.errors?.['passwordMismatch'] && (getControl('repetirContrasena')?.touched || getControl('repetirContrasena')?.dirty)"> Las contraseñas no coinciden. </p>
+      <div class="error-container" *ngIf="(getControl('repetePassword')?.invalid && (getControl('repetePassword')?.touched || getControl('repetePassword')?.dirty)) || (registerForm.errors?.['passwordMismatch'] && (getControl('repetePassword')?.touched || getControl('repetePassword')?.dirty))">
+        <p class ="error-message" *ngIf="getControl('repetePassword')?.hasError('required')"> El campo es obligatorio. </p>
+        <p class ="error-message" *ngIf="getControl('repetePassword')?.hasError('minlength')"> Mínimo 8 caracteres. </p>
+        <p class ="error-message" *ngIf="getControl('repetePassword')?.hasError('maxlength')"> Máximo 128 caracteres. </p>
+        <p class ="error-message" *ngIf="registerForm.errors?.['passwordMismatch'] && (getControl('repetePassword')?.touched || getControl('repetePassword')?.dirty)"> Las contraseñas no coinciden. </p>
       </div>
     </div>
 

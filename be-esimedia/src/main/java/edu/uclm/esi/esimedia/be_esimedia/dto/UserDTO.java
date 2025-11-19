@@ -9,7 +9,7 @@ public class UserDTO {
     private String password;
     private int imageId;
     private boolean blocked;
-    private boolean active;
+    private boolean active = true;
 
     public UserDTO() { /* Constructor vacío (para @ModelAttribute) */ }
 

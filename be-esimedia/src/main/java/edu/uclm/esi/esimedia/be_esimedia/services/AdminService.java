@@ -1,10 +1,15 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREADOR_ROLE;
+
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,15 +37,18 @@ public class AdminService {
     private final CreadorRepository creadorRepository;
     private final UsuarioRepository usuarioRepository;
     private final ValidateService validateService;
+    private final AuthService authService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AdminService(UserRepository userRepository, AdminRepository adminRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, ValidateService validateService) {
+    @Autowired
+    public AdminService(UserRepository userRepository, AdminRepository adminRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, ValidateService validateService, AuthService authService) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.creadorRepository = creadorRepository;
         this.usuarioRepository = usuarioRepository;
         this.validateService = validateService;
+        this.authService = authService;
     }
 
     public void registerAdmin(AdminDTO adminDTO) {
@@ -53,8 +61,26 @@ public class AdminService {
         User user = new User(adminDTO);
         Admin admin = new Admin(adminDTO);
 
-        validateUserCreation(user);
-        validateAdminCreation(user, admin);   
+        // Validar datos
+        validateAdminCreation(user, admin);
+
+        // Comprobar que la contraseña no esté en la blacklist
+        if (authService.isPasswordBlacklisted(adminDTO.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
+        }
+
+        // Asignar rol de administrador
+        user.setRole(ADMIN_ROLE);
+
+        // Guardar user y administrador
+        try {
+            user = userRepository.save(user);
+            admin.setId(user.getId());
+            adminRepository.save(admin);
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al guardar el administrador en la base de datos: {}", e.getMessage(), e);
+            throw new RegisterException();
+        }
     }
 
     public void registerCreador(CreadorDTO creadorDTO) {
@@ -67,28 +93,12 @@ public class AdminService {
         User user = new User(creadorDTO);
         Creador creador = new Creador(creadorDTO);
 
-        validateUserCreation(user);
+        // Validar datos
         validateCreadorCreation(user, creador);
-    }
 
-    private void validateUserCreation(User user) {
-        if (validateService.isRequiredFieldEmpty(user.getName(), 2, 50)) {
-            throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
-        }
-        if (validateService.isRequiredFieldEmpty(user.getLastName(), 2, 100)) {
-            throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
-        }
-        if (validateService.isRequiredFieldEmpty(user.getEmail(), 5, 100)) {
-            throw new IllegalArgumentException("El email es obligatorio y debe tener entre 5 y 100 caracteres");
-        }
-        if (!validateService.isEmailValid(user.getEmail())) {
-            throw new IllegalArgumentException("El formato del email no es válido");
-        }
-        if (validateService.isRequiredFieldEmpty(user.getPassword(),8, 128)) {
-            throw new IllegalArgumentException("La contraseña es obligatoria y debe tener entre 8 y 128 caracteres");
-        }
-        if (!validateService.isPasswordSecure(user.getPassword())) {
-            throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
+        // Comprobar que la contraseña no esté en la blacklist
+        if (authService.isPasswordBlacklisted(creadorDTO.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
         }
 
         // Verificar email duplicado en users
@@ -107,16 +117,12 @@ public class AdminService {
     }
 
     private void validateAdminCreation(User user, Admin admin) {
-        if (!validateService.isAdminDepartmentValid(admin.getDepartment())) {
-            throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
-        }
-
         // Guardar user y administrador
         try {
             user = userRepository.save(user);
             admin.setId(user.getId());
             adminRepository.save(admin);
-        } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al guardar el administrador en la base de datos: {}", e.getMessage(), e);
             throw new RegisterException();
         }
@@ -142,10 +148,10 @@ public class AdminService {
         }
 
         // Validar campo y tipo
-        if (!validateService.isCreatorFieldValid(creador.getField())) {
+        if (!validateService.isRequiredFieldEmpty(creador.getField(), 0, 1000)) {
             throw new IllegalArgumentException("El campo es obligatorio y debe ser un valor válido (PELICULA, SERIE, LIBRO, VIDEOJUEGO, MUSICA)");
         }
-        if (!validateService.isCreatorTypeValid(creador.getType())) {
+        if (!validateService.isRequiredFieldEmpty(creador.getType(), 0, 1000)) {
             throw new IllegalArgumentException("El tipo es obligatorio y debe ser un valor válido (AUDIO, VIDEO)");
         }
 
@@ -154,7 +160,7 @@ public class AdminService {
             user = userRepository.save(user);
             creador.setId(user.getId());
             creadorRepository.save(creador);
-        } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al guardar el creador en la base de datos: {}", e.getMessage(), e);
             throw new RegisterException();
         }
@@ -201,7 +207,7 @@ public class AdminService {
         try {
             user.setBlocked(blocked);
             userRepository.save(user);
-        } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al actualizar el estado de bloqueo del usuario en la base de datos: {}", e.getMessage(), e);
             throw new UpdatingException();
         }

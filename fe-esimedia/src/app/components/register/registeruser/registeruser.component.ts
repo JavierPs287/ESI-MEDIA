@@ -10,6 +10,7 @@ import { passwordStrengthValidator, passwordMatchValidator } from '../register-f
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/internal/operators/finalize';
+import { ConnectTotpService } from '../../../services/connect-totp.service';
 
 @Component({
   selector: 'app-registeruser',
@@ -20,8 +21,10 @@ import { finalize } from 'rxjs/internal/operators/finalize';
 })
 export class RegisteruserComponent implements  OnInit {
   isVip = false;
+  is2FAEnabled = false;
   showPhotoOptions = false;
-  visiblePassword: boolean = false; visibleRepetePassword: boolean = false;
+  visiblePassword: boolean = false; 
+  visibleRepetePassword: boolean = false;
   selectedPhoto: number | null = null;
   registrationResponse: Response | null = null;
   avatarOptions = PHOTO_OPTIONS;
@@ -31,6 +34,7 @@ export class RegisteruserComponent implements  OnInit {
   registerForm!: FormGroup;
   userService = inject(UserService);
   router = inject(Router);
+  connectTotpService = inject(ConnectTotpService);
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
@@ -39,10 +43,11 @@ export class RegisteruserComponent implements  OnInit {
     email: ['', [Validators.required, Validators.email]],
     alias: ['', [Validators.minLength(2), Validators.maxLength(20)]],
     vip: [false],
+    enable2FA: [false],
     imageId: [this.avatarOptions[0].id],
     birthDate: ['', [Validators.required, this.minAgeValidator(4)]],
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetirContrasena: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repetePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     }, { validators: passwordMatchValidator() });
   }
 
@@ -61,16 +66,41 @@ export class RegisteruserComponent implements  OnInit {
         birthDate: birthDate.toISOString(),
         password: formValue.password,
       };
+      
       this.userService.register(userData)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
         next: (response) => {
-          alert('Registro usuario exitoso.');
-          this.router.navigate(['/login']);
+          const encodedEmail = btoa(userData.email);
+          document.cookie = `esi_email=${encodedEmail}; path=/; SameSite=Lax`;
+
+          if (this.is2FAEnabled) {
+            // Si la casilla está marcada, redirigir directamente a activar2FA
+            this.router.navigate(['/activar2FA'], { state: { email: userData.email } });
+          } else {
+            // Si no está marcada, mostrar el popup
+            const wantsToActivate2FA = confirm('¿Deseas activar la verificación en dos pasos (2FA) ahora?');
+            if (wantsToActivate2FA) {
+              // Actualizar el usuario en la base de datos con 2FA activado
+              this.userService.update2FA(userData.email, true).subscribe({
+                next: () => {
+                  this.router.navigate(['/activar2FA'], { state: { email: userData.email } });
+                },
+                error: () => {
+                  alert('Error al activar 2FA.');
+                  this.router.navigate(['/home']);
+                }
+              });
+            } else {
+              alert('Registro exitoso. Puedes activar 2FA más tarde desde tu perfil.');
+              this.router.navigate(['/home']);
+            }
+          }
+
           this.registerForm.reset();
         },
         error: (error) => {
-          alert('Credenciales inválidas');
+          alert('Error en el registro. Por favor, intenta de nuevo.');
         },
       });
     } else {
@@ -80,7 +110,6 @@ export class RegisteruserComponent implements  OnInit {
     }
   }
 
- //VALIDADORES PERSONALIZADOS
   minAgeValidator(minAge: number) {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) {
@@ -91,9 +120,6 @@ export class RegisteruserComponent implements  OnInit {
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
 
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
       return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
     };
   }
@@ -101,21 +127,23 @@ export class RegisteruserComponent implements  OnInit {
   togglePasswordVisibility(): void {
     this.visiblePassword = !this.visiblePassword;
   }
+  
   toggleRepetePasswordVisibility(): void {
     this.visibleRepetePassword = !this.visibleRepetePassword;
   }
 
-//MANEJO ERRORES
-getControl(controlName: string): AbstractControl | null {
-  return this.registerForm.get(controlName);
-}
+  getControl(controlName: string): AbstractControl | null {
+    return this.registerForm.get(controlName);
+  }
 
-
-
-//metodos toggles
   toggleVip(): void {
     this.isVip = !this.isVip;
     this.registerForm.get('vip')?.setValue(this.isVip);
+  }
+
+  toggle2FA(): void {
+    this.is2FAEnabled = !this.is2FAEnabled;
+    this.registerForm.get('enable2FA')?.setValue(this.is2FAEnabled);
   }
 
   togglePhotoOptions(): void {

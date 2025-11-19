@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatSidenavModule, MatButtonModule, MatIconModule,
     RouterOutlet],
   templateUrl: './main-menu-admin.component.html',
-  styleUrl: './main-menu-admin.component.css'
+  styleUrls: ['../menu.styles.css']
 })
 export class MainMenuAdminComponent {
   showFiller = false;
