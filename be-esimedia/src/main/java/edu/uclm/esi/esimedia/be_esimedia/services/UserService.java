@@ -197,6 +197,7 @@ public class UserService {
     }
 
     public UserDTO getCurrentUser(HttpServletRequest request) {
+
         String token = jwtUtils.extractTokenFromCookie(request);
         if (token == null || token.isEmpty()) {
             throw new InvalidTokenException("Token no proporcionado");

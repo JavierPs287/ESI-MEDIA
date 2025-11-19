@@ -23,6 +23,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.BlacklistPasswordRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.ThreeFactorCodeRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -40,13 +41,18 @@ public class AuthService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final BlacklistPasswordRepository blacklistPasswordRepository;
+    private final ThreeFactorCodeRepository threeFactorCodeRepository;
+    private final EmailService emailService;
 
     public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, 
-                       UserRepository userRepository, BlacklistPasswordRepository blacklistPasswordRepository) {
+                       UserRepository userRepository, BlacklistPasswordRepository blacklistPasswordRepository,
+                       ThreeFactorCodeRepository threeFactorCodeRepository, EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.userRepository = userRepository;
         this.validateService = validateService;
         this.blacklistPasswordRepository = blacklistPasswordRepository;
+        this.threeFactorCodeRepository = threeFactorCodeRepository;
+        this.emailService = emailService;
     }
     // TOTP
     public Map<String, String> activar2FA(String email) {
@@ -386,5 +392,35 @@ public class AuthService {
                      (hash[offset + 3] & 0xFF);
         int otp = binary % 1000000;
         return String.format("%06d", otp);
+    }
+
+    
+    /**
+     * Envía un código de un solo uso por email para 3FA
+     */
+    public void sendThreeFactorCode(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return;
+        // Elimina códigos previos
+        threeFactorCodeRepository.deleteByUserId(user.getId());
+        String code = String.format("%06d", new java.util.Random().nextInt(999999));
+        String codeHash = passwordEncoder.encode(code);
+        java.time.Instant expiry = java.time.Instant.now().plusSeconds(600); // 10 min
+        edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode entry = new edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode(user.getId(), codeHash, expiry);
+        threeFactorCodeRepository.save(entry);
+        emailService.sendThreeFactorCodeEmail(email, code);
+    }
+
+    /**
+     * Verifica el código de 3FA
+     */
+    public boolean verifyThreeFactorCode(String email, String code) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return false;
+        java.util.Optional<edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode> entryOpt = threeFactorCodeRepository.findByUserId(user.getId());
+        if (entryOpt.isEmpty()) return false;
+        edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode entry = entryOpt.get();
+        if (entry.getExpiry().isBefore(java.time.Instant.now())) return false;
+        return passwordEncoder.matches(code, entry.getCodeHash());
     }
 }

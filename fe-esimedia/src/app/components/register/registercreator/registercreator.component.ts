@@ -72,7 +72,8 @@ export class RegistercreatorComponent implements OnInit {
         field: formValue.field,
         type: formValue.type,
         password: formValue.password,
-        twoFaEnabled: true
+        twoFaEnabled: true,
+        threeFaEnabled: true
       };
 
       this.creatorService.registerCreator(creator)

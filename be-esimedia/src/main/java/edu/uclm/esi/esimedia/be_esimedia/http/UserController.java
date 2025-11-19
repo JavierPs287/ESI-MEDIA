@@ -29,28 +29,7 @@ import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 @RestController
 @RequestMapping("user")
 public class UserController {
-    //TODO eliminar lógica de los controllers y moverla a servicios
-    /**
-     * Endpoint para activar 2FA TOTP y devolver QR y secreto
-     */
-    @PostMapping("/2fa/activate")
-    public ResponseEntity<Map<String, String>> activar2FA(@RequestBody Map<String, String> body) {
-        try {
-            String email = body.get("userId");
-            if (email == null || email.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Email no proporcionado"));
-            }
-            Map<String, String> result = authService.activar2FA(email);
-            if (result == null || result.isEmpty() || !result.containsKey("qrUrl")) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "No se pudo generar el QR de 2FA"));
-            }
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Error al activar 2FA: " + e.getMessage()));
-        }
-    }
-
+    
     private final AuthService authService;
     private final UserService userService;
     private final JwtUtils jwtUtils;
@@ -78,7 +57,7 @@ public class UserController {
             }
             // Validar contraseña y bloqueo
             authService.login(loginRequest.getEmail(), loginRequest.getPassword());
-            boolean has2FA = user.getTotpSecret() != null && !user.getTotpSecret().isEmpty();
+            boolean has2FA = user.isTwoFaEnabled();
             Map<String, Object> response = new HashMap<>();
             response.put("role", user.getRole());
             response.put("userId", user.getId());
@@ -218,6 +197,18 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Email y código requeridos"));
         }
         boolean valid = authService.verifyTotpCode(email, code);
+        User user = userService.findByEmail(email);
+        boolean has3FA = user.isThreeFaEnabled();
+        Map<String, Object> response = new HashMap<>();
+        response.put("role", user.getRole());
+        response.put("userId", user.getId());
+        response.put("email", user.getEmail());
+        if (has3FA){
+            response.put("3faRequired", true);
+            response.put("message", "2FA requerido");
+                // No enviar token ni cookie
+            return ResponseEntity.ok(response);
+        }
         if (valid) {
             return ResponseEntity.ok(Map.of("success", true));
         } else {
@@ -241,4 +232,102 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "No se pudo actualizar 2FA"));
         }
     }
+    //TODO eliminar lógica de los controllers y moverla a servicios
+    /**
+     * Endpoint para activar 2FA TOTP y devolver QR y secreto
+     */
+    @PostMapping("/2fa/activate")
+    public ResponseEntity<Map<String, String>> activar2FA(@RequestBody Map<String, String> body) {
+        try {
+            String email = body.get("userId");
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Email no proporcionado"));
+            }
+            Map<String, String> result = authService.activar2FA(email);
+            if (result == null || result.isEmpty() || !result.containsKey("qrUrl")) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "No se pudo generar el QR de 2FA"));
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Error al activar 2FA: " + e.getMessage()));
+        }
+    }
+        /**
+         * Endpoint para enviar el código de 3FA por email
+         */
+        @PostMapping("/send-3fa-code")
+        public ResponseEntity<Map<String, String>> sendThreeFactorCode(@RequestBody Map<String, String> body) {
+            String email = body.get("email");
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Email requerido"));
+            }
+            authService.sendThreeFactorCode(email);
+            return ResponseEntity.ok(Map.of("message", "Código enviado por email"));
+        }
+
+        /**
+         * Endpoint para verificar el código de 3FA
+         */
+        @PostMapping("/verify-3fa-code")
+        public ResponseEntity<Map<String, Object>> verifyThreeFactorCode(@RequestBody Map<String, String> body) {
+            String email = body.get("email");
+            String code = body.get("code");
+            if (email == null || code == null || email.isEmpty() || code.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Email y código requeridos"));
+            }
+            boolean valid = authService.verifyThreeFactorCode(email, code);
+            if (valid) {
+                User user = userService.findByEmail(email);
+                String token = authService.generateJwtToken(user);
+                ResponseCookie cookie = ResponseCookie.from(Constants.JWT_COOKIE_NAME, token)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(24L * 60 * 60)
+                        .sameSite("Lax")
+                        .build();
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("role", user.getRole());
+                response.put("userId", user.getId());
+                response.put("email", user.getEmail());
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                        .body(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "error", "Código incorrecto o expirado"));
+            }
+        }
+    
+            /**
+             * Endpoint para emitir el token tras verificación 3FA
+             */
+            @PostMapping("/3fa/token")
+            public ResponseEntity<Map<String, Object>> issueTokenAfterThreeFa(@RequestBody Map<String, String> body) {
+                String email = body.get("email");
+                if (email == null) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Email requerido"));
+                }
+                User user = userService.findByEmail(email);
+                if (user == null) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Usuario no encontrado"));
+                }
+                String token = authService.generateJwtToken(user);
+                ResponseCookie cookie = ResponseCookie.from(Constants.JWT_COOKIE_NAME, token)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(24L * 60 * 60)
+                        .sameSite("Lax")
+                        .build();
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Token emitido tras 3FA");
+                response.put("role", user.getRole());
+                response.put("userId", user.getId());
+                response.put("email", user.getEmail());
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                        .body(response);
+            }
 }
