@@ -45,21 +45,29 @@ export class LoginuserComponent {
         return; // template will show loginResponse.error
       }
 
-      // La cookie ya está establecida por el backend
-      // Solo actualizamos el estado de autenticación
-      console.log('[Login] Éxito. Rol:', result.role, 'UserID:', result.userId);
-      this.authService.setAuthenticated(true, result.role, result.userId);
-      this.authService.markAsInitialized();
-      
-      // Navegar según el rol
-      if (result.role === 'ADMIN') {
-        this.router.navigate(['/menu/admin']);
-      } else if (result.role === 'CREADOR') {
-        this.router.navigate(['/menu/creator']);
-      } else if (result.role === 'USUARIO') {
-        this.router.navigate(['/menu/user']);
+      if ('2faRequired' in result && result['2faRequired']) {
+        // Setear cookie esi_email para 2FA
+        document.cookie = `esi_email=${encodeURIComponent(btoa(this.loginForm.value.email))}; path=/; SameSite=Lax`;
+        // Redirigir a verify-totp si requiere 2FA
+        this.router.navigate(['/verify-totp'], { state: { email: this.loginForm.value.email } });
       } else {
-        this.router.navigate(['/']);
+        // Setear cookie esi_email para sesión normal
+        document.cookie = `esi_email=${encodeURIComponent(btoa(this.loginForm.value.email))}; path=/; SameSite=Lax`;
+        // La cookie ya está establecida por el backend
+        // Solo actualizamos el estado de autenticación
+        console.log('[Login] Éxito. Rol:', result.role, 'UserID:', result.userId);
+        this.authService.setAuthenticated(true, result.role, result.userId);
+        this.authService.markAsInitialized();
+        // Navegar según el rol
+        if (result.role === 'ADMIN') {
+          this.router.navigate(['/menu/admin']);
+        } else if (result.role === 'CREADOR') {
+          this.router.navigate(['/menu/creator']);
+        } else if (result.role === 'USUARIO') {
+          this.router.navigate(['/menu/user']);
+        } else {
+          this.router.navigate(['/']);
+        }
       }
     });
   }

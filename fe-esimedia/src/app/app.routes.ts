@@ -18,6 +18,7 @@ import { MainMenuUserComponent } from './components/menus/main-menu-user/main-me
 import { ShowContentComponent } from './components/show-content/show-content.component';
 import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
 import { ConnectTotpComponent } from './components/connect-totp/connect-totp.component';
+import { VerifyTotpComponent } from './components/verify-totp/verify-totp.component';
 
 export const routes: Routes = [
 
@@ -122,5 +123,9 @@ export const routes: Routes = [
     {
         path: 'activar2FA',
         component: ConnectTotpComponent
+    },
+    {
+        path: 'verify-totp',
+        component: VerifyTotpComponent
     },
 ];

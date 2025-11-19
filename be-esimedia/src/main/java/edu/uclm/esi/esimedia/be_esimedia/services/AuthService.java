@@ -309,4 +309,81 @@ public class AuthService {
                 .signWith(key)
                 .compact();
     }
+            // Generar JWT token para usuario ya validado
+        public String generateJwtToken(User user) {
+            Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+            long expirationTime = 28800000; // 8 horas en milisegundos
+            Instant now = Instant.now();
+            Instant expiryDate = now.plusMillis(expirationTime);
+            return Jwts.builder()
+                    .subject(user.getEmail())
+                    .claim("role", user.getRole())
+                    .claim("userId", user.getId())
+                    .issuedAt(Date.from(now))
+                    .expiration(Date.from(expiryDate))
+                    .signWith(key)
+                    .compact();
+        }
+    // Verificar código TOTP
+    public boolean verifyTotpCode(String email, String code) {
+        User user = userRepository.findByEmail(email);
+        if (user == null || user.getTotpSecret() == null || user.getTotpSecret().isEmpty()) {
+            return false;
+        }
+        try {
+            // Usar TimeBasedOneTimePasswordGenerator o lógica propia
+            // Aquí implementamos verificación básica RFC 6238
+            byte[] secretBytes = decodeBase32(user.getTotpSecret());
+            long timeIndex = System.currentTimeMillis() / 30000;
+            for (int i = -1; i <= 1; i++) { // tolerancia de 1 paso
+                String expected = generateTotp(secretBytes, timeIndex + i);
+                if (expected.equals(code)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
+    // Decodificar base32
+    private byte[] decodeBase32(String base32) {
+        base32 = base32.replace("=", "").toUpperCase();
+        int length = base32.length() * 5 / 8;
+        byte[] bytes = new byte[length];
+        int buffer = 0, bitsLeft = 0, count = 0;
+        for (char c : base32.toCharArray()) {
+            int val = BASE32_CHARS.indexOf(c);
+            if (val < 0) continue;
+            buffer <<= 5;
+            buffer |= val;
+            bitsLeft += 5;
+            if (bitsLeft >= 8) {
+                bytes[count++] = (byte) ((buffer >> (bitsLeft - 8)) & 0xFF);
+                bitsLeft -= 8;
+            }
+        }
+        return bytes;
+    }
+
+    // Generar TOTP (RFC 6238, 6 dígitos, SHA1)
+    private String generateTotp(byte[] key, long timeIndex) throws Exception {
+        javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA1");
+        javax.crypto.spec.SecretKeySpec signKey = new javax.crypto.spec.SecretKeySpec(key, "HmacSHA1");
+        mac.init(signKey);
+        byte[] value = new byte[8];
+        for (int i = 7; i >= 0; i--) {
+            value[i] = (byte) (timeIndex & 0xFF);
+            timeIndex >>= 8;
+        }
+        byte[] hash = mac.doFinal(value);
+        int offset = hash[hash.length - 1] & 0xF;
+        int binary = ((hash[offset] & 0x7F) << 24) |
+                     ((hash[offset + 1] & 0xFF) << 16) |
+                     ((hash[offset + 2] & 0xFF) << 8) |
+                     (hash[offset + 3] & 0xFF);
+        int otp = binary % 1000000;
+        return String.format("%06d", otp);
+    }
 }

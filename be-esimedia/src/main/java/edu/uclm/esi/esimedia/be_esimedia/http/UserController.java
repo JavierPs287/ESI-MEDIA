@@ -65,34 +65,40 @@ public class UserController {
 
     // TODO Quitar toda lógica de Controller
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUsuario(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<Map<String, Object>> loginUsuario(@RequestBody LoginRequest loginRequest){
         try {
-            String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
-            
-            // Extraer información del token para enviarla en la respuesta
-            String role = jwtUtils.getRoleFromToken(token);
-            String userId = jwtUtils.getUserIdFromToken(token);
-            
-            // Crear cookie HTTP-Only con el token
-            ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
-                    .httpOnly(true)  // No accesible desde JavaScript
-                    .secure(false)   //TODO Cambiar a true en producción con HTTPS
-                    .path("/")
-                    .maxAge(24L * 60 * 60) // 24 horas
-                    .sameSite("Lax")
-                    .build();
-            
-            // Preparar respuesta con información del usuario
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Login exitoso");
-            response.put("role", role);
-            response.put("userId", userId);
-            response.put("email", loginRequest.getEmail());
-            
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(response);
-                    
+            User user = userService.findByEmail(loginRequest.getEmail());
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Credenciales inválidas"));
+            }
+            // Validar contraseña y bloqueo
+            authService.login(loginRequest.getEmail(), loginRequest.getPassword());
+            boolean has2FA = user.getTotpSecret() != null && !user.getTotpSecret().isEmpty();
+            Map<String, Object> response = new HashMap<>();
+            response.put("role", user.getRole());
+            response.put("userId", user.getId());
+            response.put("email", user.getEmail());
+            if (has2FA) {
+                response.put("2faRequired", true);
+                response.put("message", "2FA requerido");
+                // No enviar token ni cookie
+                return ResponseEntity.ok(response);
+            } else {
+                // Generar token y cookie normalmente
+                String token = authService.generateJwtToken(user);
+                ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(24L * 60 * 60)
+                        .sameSite("Lax")
+                        .build();
+                response.put("message", "Login exitoso");
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                        .body(response);
+            }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", e.getMessage()));
@@ -180,6 +186,52 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Token inválido: " + e.getMessage()));
+        }
+    }        /**
+         * Endpoint para emitir el token tras verificación TOTP
+         */
+        @PostMapping("/2fa/token")
+        public ResponseEntity<Map<String, Object>> issueTokenAfterTotp(@RequestBody Map<String, String> body) {
+            String email = body.get("email");
+            if (email == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Email requerido"));
+            }
+            User user = userService.findByEmail(email);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Usuario no encontrado"));
+            }
+            String token = authService.generateJwtToken(user);
+            ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(24L * 60 * 60)
+                    .sameSite("Lax")
+                    .build();
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Token emitido tras 2FA");
+            response.put("role", user.getRole());
+            response.put("userId", user.getId());
+            response.put("email", user.getEmail());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(response);
+        }
+    /**
+     * Endpoint para verificar código TOTP
+     */
+    @PostMapping("/2fa/verify")
+    public ResponseEntity<Map<String, Object>> verifyTotp(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String code = body.get("code");
+        if (email == null || code == null) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Email y código requeridos"));
+        }
+        boolean valid = authService.verifyTotpCode(email, code);
+        if (valid) {
+            return ResponseEntity.ok(Map.of("success", true));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "error", "Código TOTP incorrecto"));
         }
     }
 }
