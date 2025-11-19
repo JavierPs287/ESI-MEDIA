@@ -127,45 +127,8 @@ public class UserService {
         List<UserDTO> result = new ArrayList<>();
 
         for (User user : users) {
-            if (adminRepository.existsById(user.getId())) {
-                Optional<Admin> adminOpt = adminRepository.findById(user.getId());
-
-                if (adminOpt.isEmpty()) {
-                    throw new IllegalStateException("Usuario con rol ADMIN no encontrado");
-                }
-
-                Admin admin = adminOpt.get();
-                AdminDTO dto = new AdminDTO(user, admin);
-                
-                result.add(dto);
-            }
-
-            if (creadorRepository.existsById(user.getId())) {
-                Optional<Creador> creadorOpt = creadorRepository.findById(user.getId());
-        
-                if (creadorOpt.isEmpty()) {
-                    throw new IllegalStateException("Usuario con rol CREADOR no encontrado");
-                }
-
-                Creador creador = creadorOpt.get();
-                CreadorDTO dto = new CreadorDTO(user, creador);
-
-                result.add(dto);
-            }
-
-            if (usuarioRepository.existsById(user.getId())) {
-                Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
-
-                if (usuarioOpt.isEmpty()) {
-                    throw new IllegalStateException("Usuario con rol USUARIO no encontrado");
-                }
-
-                Usuario usuario = usuarioOpt.get();
-                UsuarioDTO dto = new UsuarioDTO(user, usuario);
-                
-                result.add(dto);
-            }
-
+            UserDTO dto = getUserTyped(user);
+            result.add(dto);
         }
 
         return result;
@@ -358,5 +321,44 @@ public class UserService {
             }
         }
         return null;
+    }
+
+    private UserDTO getUserTyped(User user) {
+        UserDTO dto = null;
+
+        if (adminRepository.existsById(user.getId())) {
+                Optional<Admin> adminOpt = adminRepository.findById(user.getId());
+
+                if (adminOpt.isEmpty()) {
+                    throw new IllegalStateException("Usuario con rol ADMIN no encontrado");
+                }
+
+                Admin admin = adminOpt.get();
+                dto = new AdminDTO(user, admin);
+            }
+
+            if (creadorRepository.existsById(user.getId())) {
+                Optional<Creador> creadorOpt = creadorRepository.findById(user.getId());
+        
+                if (creadorOpt.isEmpty()) {
+                    throw new IllegalStateException("Usuario con rol CREADOR no encontrado");
+                }
+
+                Creador creador = creadorOpt.get();
+                dto = new CreadorDTO(user, creador);
+            }
+
+            if (usuarioRepository.existsById(user.getId())) {
+                Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
+
+                if (usuarioOpt.isEmpty()) {
+                    throw new IllegalStateException("Usuario con rol USUARIO no encontrado");
+                }
+
+                Usuario usuario = usuarioOpt.get();
+                dto = new UsuarioDTO(user, usuario);
+            }
+
+        return dto;
     }
 }
