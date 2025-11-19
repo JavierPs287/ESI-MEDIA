@@ -1,6 +1,8 @@
 package edu.uclm.esi.esimedia.be_esimedia.dto;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 
 public class UserDTO {
+    private String role;
     private String name;
     private String lastName;
     private String email;
@@ -9,7 +11,31 @@ public class UserDTO {
     private boolean blocked;
     private boolean active;
 
+    public UserDTO() { /* Constructor vacío (para @ModelAttribute) */ }
+
+    public UserDTO(User user) {
+        initializeFromModel(user);
+    }
+
+    protected final void initializeFromModel(User user) {
+        this.name = user.getName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.imageId = user.getImageId();
+        this.blocked = user.isBlocked();            
+        this.active = user.isActive();
+    }
+
     // Getters and Setters
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public String getName() {
         return name;
     }

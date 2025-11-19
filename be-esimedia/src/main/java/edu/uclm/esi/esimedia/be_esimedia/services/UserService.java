@@ -80,13 +80,29 @@ public class UserService {
 
         Usuario usuario = usuarioOpt.get();
 
-        // Actualizar los campos permitidos
-        if (usuarioDTO.getAlias() != null) {
-            usuario.setAlias(usuarioDTO.getAlias());
+        // Validar campos usando ValidateService
+        if (validateService.isRequiredFieldEmpty(usuarioDTO.getName(), 2, 50)) {
+            throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
         }
-        if (usuarioDTO.getBirthDate() != null) {
-            usuario.setBirthDate(usuarioDTO.getBirthDate());
+        if (validateService.isRequiredFieldEmpty(usuarioDTO.getLastName(), 2, 100)) {
+            throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
         }
+        if (validateService.isRequiredFieldEmpty(email, 5, 100)) {
+            throw new IllegalArgumentException("El email es obligatorio y debe tener entre 5 y 100 caracteres");
+        }
+        if (!validateService.isEmailValid(email)) {
+            throw new IllegalArgumentException("El formato del email no es válido");
+        }
+        if (validateService.isRequiredFieldEmpty(String.valueOf(usuarioDTO.getImageId()), 1, 10)) {
+            throw new IllegalArgumentException("El ID de la imagen no puede estar vacío y debe tener entre 1 y 10 caracteres.");
+        }
+        if (validateService.isRequiredFieldEmpty(usuarioDTO.getAlias(), 1, 50)) {
+            throw new IllegalArgumentException("El alias no puede estar vacío y debe tener entre 1 y 50 caracteres.");
+        }
+        if (validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
+            throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
+        }
+
         if (usuarioDTO.isVip() != usuario.isVip()) {
             usuario.setVip(usuarioDTO.isVip());
         }
