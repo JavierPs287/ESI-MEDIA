@@ -190,6 +190,7 @@ public class UserController {
     }        /**
          * Endpoint para emitir el token tras verificación TOTP
          */
+        //TODO eliminar codigo duplicado con login y mover a service
         @PostMapping("/2fa/token")
         public ResponseEntity<Map<String, Object>> issueTokenAfterTotp(@RequestBody Map<String, String> body) {
             String email = body.get("email");
