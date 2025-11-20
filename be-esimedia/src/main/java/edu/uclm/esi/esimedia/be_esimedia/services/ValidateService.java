@@ -26,6 +26,7 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 
 @Service
 public class ValidateService {
@@ -445,5 +446,45 @@ public class ValidateService {
 
     public boolean isEnumValid(Enum<?> enumValue) {
         return enumValue != null;
+    }
+
+    /**
+     * Valida los campos necesarios para el registro de un usuario común.
+     * Lanza IllegalArgumentException con mensajes compatibles con la lógica previa.
+     * @param user usuario a validar (puede ser modificado, p.ej. default imageId)
+     * @param emailExists resultado de la comprobación en BD si el email ya está registrado
+     */
+    public void validateUserForRegistration(edu.uclm.esi.esimedia.be_esimedia.model.User user, boolean emailExists) {
+        if (user == null) {
+            throw new IllegalArgumentException("User es nulo");
+        }
+
+        if (isRequiredFieldEmpty(user.getName(), 2, 50)) {
+            throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
+        }
+        if (isRequiredFieldEmpty(user.getLastName(), 2, 100)) {
+            throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
+        }
+        if (isRequiredFieldEmpty(user.getEmail(), 5, 100)) {
+            throw new IllegalArgumentException("El email es obligatorio y debe tener entre 5 y 100 caracteres");
+        }
+        if (!isEmailValid(user.getEmail())) {
+            throw new IllegalArgumentException("El formato del email no es válido");
+        }
+        if (isRequiredFieldEmpty(user.getPassword(),8, 128)) {
+            throw new IllegalArgumentException("La contraseña es obligatoria y debe tener entre 8 y 128 caracteres");
+        }
+        if (!isPasswordSecure(user.getPassword())) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
+        }
+
+        if (emailExists) {
+            throw new IllegalArgumentException("El email ya está registrado");
+        }
+
+        // Establecer foto por defecto si no se proporciona (se sigue la lógica previa)
+        if (isRequiredFieldEmpty(String.valueOf(user.getImageId()), 1, 10)) {
+            user.setImageId(0);
+        }
     }
 }
