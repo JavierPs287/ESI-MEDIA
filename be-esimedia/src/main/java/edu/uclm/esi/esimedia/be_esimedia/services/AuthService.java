@@ -1,12 +1,12 @@
 package edu.uclm.esi.esimedia.be_esimedia.services;
 
-import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
-
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,17 +14,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Map;
-import java.util.HashMap;
 
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
-import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
-import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.BlacklistPasswordRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ThreeFactorCodeRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -261,12 +260,7 @@ public class AuthService {
         // BLOQUEO PROGRESIVO
         // ========================================
         if (user.getBlockedUntil() != null && user.getBlockedUntil().isAfter(now)) {
-            java.time.ZoneId zoneMadrid = java.time.ZoneId.of("Europe/Madrid");
-            java.time.ZonedDateTime blockedMadrid = user.getBlockedUntil().atZone(zoneMadrid);
-            String fechaFormateada = blockedMadrid.format(
-                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-            );
-            throw new IllegalArgumentException("Usuario bloqueado hasta " + fechaFormateada);
+            throw new IllegalArgumentException("Usuario bloqueado hasta " + user.getBlockedUntil());
         }
         user.setBlocked(false);
 
