@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ERROR_KEY;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_ERROR_MESSAGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_UPDATE_MESSAGE;
+
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
@@ -39,7 +42,6 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Creador registrado correctamente");
     }
 
-    // TODO Quitar toda lógica de Controller
     @PatchMapping("/users/{email}/blocked")
     public ResponseEntity<Object> setUserBlocked(@PathVariable("email") String emailPath, @RequestBody Map<String, Boolean> body) {
         String email = java.net.URLDecoder.decode(emailPath, java.nio.charset.StandardCharsets.UTF_8);
@@ -49,28 +51,27 @@ public class AdminController {
             adminService.setUserBlocked(email, blocked);
             return ResponseEntity.ok(Map.of("ok", true));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_KEY, "Usuario no encontrado"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_KEY, USER_ERROR_MESSAGE));
         } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "Error interno"));
         }
     }
 
-    // TODO Cambiar endpoint a otra cosa que no coja el email
-    // TODO Como el usuario puede cambiar cosas que no puede el admin (contraseña, vip), hay dos opciones:
-    // Hacer 2 endpoints de actualizar diferentes (uno aquí y otro en UsuarioController)
-    // O hacer uno solo y comprobar el rol del usuario de la cookie/token (se puede ver un ejemplo en uploadVideo o listContenidos)
-    // TODO En cualquier caso, coger el email es inútil porque ya está en el DTO, quitar de parámetro
-    @PatchMapping("/users/{email}")
-    public ResponseEntity<String> updateUser(@PathVariable("email") String emailPath, @RequestBody UsuarioDTO usuarioDTO) {
-        String email = java.net.URLDecoder.decode(emailPath, java.nio.charset.StandardCharsets.UTF_8);
+    @PatchMapping("/users/updateUsuario")
+    public ResponseEntity<String> updateUsuario(@RequestBody UsuarioDTO usuarioDTO) {
+        adminService.updateUsuario(usuarioDTO);
+        return ResponseEntity.ok(USER_UPDATE_MESSAGE);
+    }
 
-        try {
-            adminService.updateUser(email, usuarioDTO);
-            return ResponseEntity.ok("Usuario actualizado correctamente");
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
-        } catch (IllegalArgumentException | org.springframework.dao.OptimisticLockingFailureException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    @PatchMapping("/users/updateCreador")
+    public ResponseEntity<String> updateCreador(@RequestBody CreadorDTO creadorDTO) {
+        adminService.updateCreador(creadorDTO);
+        return ResponseEntity.ok(USER_UPDATE_MESSAGE);
+    }
+
+        @PatchMapping("/users/updateAdmin")
+    public ResponseEntity<String> updateAdmin(@RequestBody AdminDTO adminDTO) {
+        adminService.updateAdmin(adminDTO);
+        return ResponseEntity.ok(USER_UPDATE_MESSAGE);
     }
 }

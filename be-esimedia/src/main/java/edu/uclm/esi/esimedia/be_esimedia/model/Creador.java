@@ -23,7 +23,7 @@ public class Creador {
         initializeFromDTO(dto);
     }
 
-    private void initializeFromDTO(CreadorDTO dto) {
+    public void initializeFromDTO(CreadorDTO dto) {
         this.setAlias(dto.getAlias());
         this.setDescription(dto.getDescription());
         this.setField(dto.getField());

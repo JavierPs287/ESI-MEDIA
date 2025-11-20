@@ -9,23 +9,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
-import edu.uclm.esi.esimedia.be_esimedia.services.UsuarioService;
+import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.services.CreadorService;
 
 @RestController
-@RequestMapping("usuario")
-public class UsuarioController {
+@RequestMapping("creador")
+public class CreadorController {
 
-    private final UsuarioService usuarioService;
+    private final CreadorService creadorService;
     
     @Autowired
-    public UsuarioController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
+    public CreadorController(CreadorService creadorService) {
+        this.creadorService = creadorService;
     }
 
     @PatchMapping("/profile")
-    public ResponseEntity<String> updateProfile(@RequestBody UsuarioDTO usuarioDTO) {
-        usuarioService.update(usuarioDTO);
+    public ResponseEntity<String> updateProfile(@RequestBody CreadorDTO creadorDTO) {
+        creadorService.update(creadorDTO);
         return ResponseEntity.ok(USER_UPDATE_MESSAGE);
     }
 }
