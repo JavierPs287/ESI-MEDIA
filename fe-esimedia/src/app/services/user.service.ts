@@ -123,7 +123,7 @@ export class UserService {
             case 'CREADOR':
                 return user as Creator;
             default:
-                return user as User;
+                return user;
             }
         }),
         catchError(err => {
