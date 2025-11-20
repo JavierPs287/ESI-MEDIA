@@ -17,9 +17,7 @@ import { TAGS } from '../../constants/form-constants';
 @Component({
   selector: 'app-show-content',
   imports: [CommonModule,
-    MatIcon, MatCard, MatCardContent, MatChipsModule,
-    MatFormFieldModule, MatSelectModule, MatInputModule, 
-    MatButtonModule, FormsModule],
+    MatIcon, MatCard, MatCardContent, MatChipsModule, FormsModule],
   templateUrl: './show-content.component.html',
   styleUrls: ['./show-content.component.css']
 })
@@ -38,7 +36,7 @@ export class ShowContentComponent implements OnInit {
   contentTypes: string[] = ['AUDIO', 'VIDEO'];
 
   filters = {
-    tags: [] as string[],
+    tag: '',
     type: '',
     maxAge: null as number | null,
     search: ''
@@ -130,9 +128,9 @@ export class ShowContentComponent implements OnInit {
         if (minAge > this.filters.maxAge) return false;
       }
       // tags: exigir que el contenido tenga todos los tags seleccionados (cambia a any si prefieres)
-      if (this.filters.tags && this.filters.tags.length > 0) {
+      if (this.filters.tag && this.filters.tag.length > 0) {
         const contentTags = c.tags ?? [];
-        if (!this.filters.tags.every(t => contentTags.includes(t))) return false;
+        if (!contentTags.includes(this.filters.tag)) return false;
       }
 
       return true;
@@ -140,7 +138,7 @@ export class ShowContentComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.filters = { tags: [], type: '', maxAge: null, search: '' };
+    this.filters = { tag: '', type: '', maxAge: null, search: '' };
     this.applyFilters();
   }
 

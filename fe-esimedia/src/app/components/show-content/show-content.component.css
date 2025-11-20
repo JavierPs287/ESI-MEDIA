@@ -9,6 +9,21 @@
   font-size: 18px;
   text-align: center;
 }
+
+.clear-filters-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: var(--gris);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: var(--azul-oscuro);
+  }
+}
+
 .content-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -243,3 +258,4 @@
 .filter-dropdown::placeholder {
   color: #fff;
 }
+

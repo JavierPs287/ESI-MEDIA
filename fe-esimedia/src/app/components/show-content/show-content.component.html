@@ -10,15 +10,17 @@
     <input 
       type="text" class="search-input" placeholder="Search by title, creador ..."
       [(ngModel)]="filters.search" (input)="onSearch()">
+      
 
 <!-- Dropdowns -->
     <div class="filters-row">
-      <select class="filter-dropdown" [(ngModel)]="filters.tags" (selectionChange)="onFilterChange()">
-        <option value="">All Tags</option>
+      <select class="filter-dropdown" [(ngModel)]="filters.tag" (ngModelChange)="onFilterChange()">
+        <option value="" disabled>All Tags</option>
         <option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</option>
       </select>
 
-      <select class="filter-dropdown" [(ngModel)]="filters.type" (selectionChange)="onFilterChange()">
+      <!-- tipo: select normal -->
+      <select class="filter-dropdown" [(ngModel)]="filters.type" (ngModelChange)="onFilterChange()">
         <option value="">Tipo contenido</option>
         <option *ngFor="let t of contentTypes" [value]="t">{{ t }}</option>
       </select>
@@ -28,6 +30,10 @@
         [(ngModel)]="filters.maxAge"
         (ngModelChange)="onFilterChange()"/>
     </div>
+<!-- Clear Filters Button -->
+    <button class="clear-filters-button" (click)="clearFilters()">Limpiar filtros</button>
+    
+    
 
 <div class="content-grid" *ngIf="!isLoading && !errorMessage">
   <mat-card *ngFor="let content of filteredContents" 
