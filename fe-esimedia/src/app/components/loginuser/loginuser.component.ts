@@ -45,13 +45,25 @@ export class LoginuserComponent {
         return; // template will show loginResponse.error
       }
 
-      // La cookie ya está establecida por el backend
-      // Solo actualizamos el estado de autenticación
+      // 2FA: Si requiere 2FA, redirigir a verify-totp
+      if (result.twoFaEnabled === true || ('2faRequired' in result && result['2faRequired'])) {
+        document.cookie = `esi_email=${encodeURIComponent(btoa(this.loginForm.value.email))}; path=/; SameSite=Lax`;
+        this.router.navigate(['/verify-totp'], { state: { email: this.loginForm.value.email } });
+        return;
+      }
+
+      // 3FA: Si requiere 3FA, redirigir a verify-email-code (esto debe llegar tras pasar el 2FA)
+        if ('3faRequired' in result && result['3faRequired']) {
+        document.cookie = `esi_email=${encodeURIComponent(btoa(this.loginForm.value.email))}; path=/; SameSite=Lax`;
+        this.router.navigate(['/verify-email-code'], { state: { email: this.loginForm.value.email } });
+        return;
+      }
+
+      // Login normal
+      document.cookie = `esi_email=${encodeURIComponent(btoa(this.loginForm.value.email))}; path=/; SameSite=Lax`;
       console.log('[Login] Éxito. Rol:', result.role, 'UserID:', result.userId);
       this.authService.setAuthenticated(true, result.role, result.userId);
       this.authService.markAsInitialized();
-      
-      // Navegar según el rol
       if (result.role === 'ADMIN') {
         this.router.navigate(['/menu/admin']);
       } else if (result.role === 'CREADOR') {

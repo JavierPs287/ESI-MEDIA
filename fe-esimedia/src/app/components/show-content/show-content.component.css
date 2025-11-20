@@ -89,6 +89,36 @@
   font-weight: 600;
 }
 
+.visibility-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(128, 128, 128, 0.9);
+  color: var(--blanco);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.visibility-badge mat-icon {
+  font-size: 14px;
+  width: 15px;
+  height: 14px;
+}
+
+.hidden-thumbnail {
+  opacity: 0.5;
+  filter: grayscale(30%);
+}
+
+.hidden-content {
+  opacity: 0.85;
+}
+
 .content-title {
   font-size: 22px;
   font-weight: 500;

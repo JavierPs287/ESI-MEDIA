@@ -62,20 +62,26 @@ export class RegisteradminComponent implements OnInit {
         department: formValue.department,
         imageId: formValue.imageId,
         password: formValue.password,
+        twoFaEnabled: true,
+        threeFaEnabled: true
       };
 
       this.adminService.registerAdmin(admin).subscribe({
         next: (response) => {
-            alert('Registro del administrador exitoso.');
-            this.registerForm.reset({
-              imageId: null});
-            this.selectedPhoto = null;
-          },
+          alert('Registro del administrador exitoso.');
+          // Guardar cookie con el email del admin recién creado
+          const encodedEmail = btoa(formValue.email);
+          document.cookie = `esi_email=${encodedEmail}; path=/; SameSite=Lax`;
+          // Usar el email del admin recién creado (formValue.email)
+          this.router.navigate(['/activar2FA'], { state: { email: formValue.email } });
+          this.registerForm.reset({ imageId: null });
+          this.selectedPhoto = null;
+        },
         error: (error) => {
           alert('Credenciales inválidas');
         },
         complete: () => {
-            this.isSubmitting = false;
+          this.isSubmitting = false;
         }
       });
     } else {

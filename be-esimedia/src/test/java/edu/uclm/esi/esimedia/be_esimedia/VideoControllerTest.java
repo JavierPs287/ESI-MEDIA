@@ -21,12 +21,13 @@
 // import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 // import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// import edu.uclm.esi.esimedia.be_esimedia.config.SecurityConfig;
-// import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
-// import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
-// import edu.uclm.esi.esimedia.be_esimedia.http.VideoController;
-// import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
-// import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
+import edu.uclm.esi.esimedia.be_esimedia.config.SecurityConfig;
+import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
+import edu.uclm.esi.esimedia.be_esimedia.http.VideoController;
+import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
+import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
+import jakarta.servlet.http.HttpServletRequest;
 
 // @WebMvcTest(
 //     controllers = VideoController.class,
@@ -63,11 +64,11 @@
 //         validVideoDTO.setResolution(1080);
 //     }
 
-//     @Test
-//     @DisplayName("Debe subir video exitosamente con datos válidos")
-//     void testUploadVideoSuccess() throws Exception {
-//         // Arrange
-//         doNothing().when(videoService).uploadVideo(any(VideoDTO.class));
+    @Test
+    @DisplayName("Debe subir video exitosamente con datos válidos")
+    void testUploadVideoSuccess() throws Exception {
+        // Arrange
+        doNothing().when(videoService).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
 
 //         // Act & Assert
 //         mockMvc.perform(multipart("/creador/uploadVideo")
@@ -84,15 +85,15 @@
 //                 .andExpect(status().isCreated())
 //                 .andExpect(jsonPath("$.message").value("Vídeo subido exitosamente"));
 
-//         verify(videoService, times(1)).uploadVideo(any(VideoDTO.class));
-//     }
+        verify(videoService, times(1)).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
+    }
 
-//     @Test
-//     @DisplayName("Debe retornar BadRequest cuando faltan campos obligatorios")
-//     void testUploadVideoWithoutUrl() throws Exception {
-//         // Arrange
-//         doThrow(new VideoUploadException("Campos obligatorios incorrectos"))
-//             .when(videoService).uploadVideo(any(VideoDTO.class));
+    @Test
+    @DisplayName("Debe retornar BadRequest cuando faltan campos obligatorios")
+    void testUploadVideoWithoutUrl() throws Exception {
+        // Arrange
+        doThrow(new VideoUploadException("Campos obligatorios incorrectos"))
+            .when(videoService).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
 
 //         // Act & Assert
 //         mockMvc.perform(multipart("/creador/uploadVideo")

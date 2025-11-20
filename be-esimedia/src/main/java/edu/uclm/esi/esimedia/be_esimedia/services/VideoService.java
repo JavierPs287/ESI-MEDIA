@@ -17,9 +17,11 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
+import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.VideoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
@@ -36,37 +38,50 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final ContenidoRepository contenidoRepository;
+    private final CreadorRepository creadorRepository;
     private final UsuarioRepository usuarioRepository;
 
     private final JwtUtils jwtUtils;
 
     @Autowired
     public VideoService(ValidateService validateService, ContenidoService contenidoService, 
-            VideoRepository videoRepository, ContenidoRepository contenidoRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
+            VideoRepository videoRepository, ContenidoRepository contenidoRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
         this.validateService = validateService;
         this.contenidoService = contenidoService;
         this.videoRepository = videoRepository;
         this.contenidoRepository = contenidoRepository;
+        this.creadorRepository = creadorRepository;
         this.usuarioRepository = usuarioRepository;
         this.jwtUtils = jwtUtils;
     }
 
-    // TODO Recibir token para poner alias de creador
-    public void uploadVideo(VideoDTO videoDTO) {
+    public void uploadVideo(VideoDTO videoDTO, HttpServletRequest request) {
         // Validar primero que videoDTO no sea null
         if (videoDTO == null) {
             logger.error("El objeto VideoDTO es nulo");
             throw new VideoUploadException();
         }
 
+        // Conseguir creador del token
+        String userId = jwtUtils.getUserIdFromRequest(request);
+        Creador creador = creadorRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Creador no autenticado"));
+
+        // Comprobar que el creador es un creador de vídeos
+        if (creador.getType() == null || !creador.getType().equals(VIDEO_TYPE)) {
+            logger.error("El creador autenticado no es un creador de vídeos");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El creador no tiene permisos para subir vídeos");
+        }
+        
+        if (creador.getAlias() == null || creador.getAlias().isEmpty()) {
+            logger.error("El creador no tiene un alias establecido");
+            videoDTO.setCreador("creador_mal_configurado");
+        } else {
+            videoDTO.setCreador(creador.getAlias());
+        }
+
         // Establecer fecha de cambio de visibilidad
         videoDTO.setVisibilityChangeDate(Instant.now());
-
-        // Si no hay creador establecido, obtenerlo del contexto de seguridad o sesión
-        if (videoDTO.getCreador() == null || videoDTO.getCreador().isEmpty()) {
-            // TODO: Obtener del usuario autenticado
-            videoDTO.setCreador("creador_temporal");
-        }
 
         // Validación
         validateUploadVideo(videoDTO);
@@ -95,15 +110,8 @@ public class VideoService {
     }
 
     public ResponseEntity<String> getVideo(String urlId, HttpServletRequest request) {
-        // TODO mover a método común si tenemos mucha duplicidad
         // Conseguir usuario del token
-        String token = jwtUtils.extractTokenFromCookie(request);
-        if (token == null || !jwtUtils.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
-        }
-    
-        String userId = jwtUtils.getUserIdFromToken(token);
-
+        String userId = jwtUtils.getUserIdFromRequest(request);
         Usuario usuario = usuarioRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
 

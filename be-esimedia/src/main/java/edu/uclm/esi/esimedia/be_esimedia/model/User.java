@@ -1,9 +1,11 @@
+
 package edu.uclm.esi.esimedia.be_esimedia.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
+import java.time.Instant;
 
 @Document(collection = "USERS")
 public class User {
@@ -17,8 +19,24 @@ public class User {
     private String password;
     private int imageId = 0;
     private boolean blocked = false;
+    
+    // Bloqueo progresivo por intentos fallidos
+    private int failedAttempts = 0;
+    private Instant blockedUntil;
+    
+    // Rate Limiting - Control de intentos por ventana de tiempo
+    private Instant lastLoginAttemptTime;
+    private int loginAttemptsInWindow = 0;
+    
     private boolean active = true;
     private String role;
+
+    // Secreto TOTP para 2FA
+    private boolean twoFaEnabled;
+    private String totpSecret;
+
+    // 3FA
+    private boolean threeFaEnabled;
 
     // Constructor vacío requerido por Spring Data MongoDB
     public User() {
@@ -40,6 +58,14 @@ public class User {
     }
     
     // Getters and Setters
+    public String getTotpSecret() {
+        return totpSecret;
+    }
+
+    public void setTotpSecret(String totpSecret) {
+        this.totpSecret = totpSecret;
+    }
+    
     public String getId() {
         return id;
     }
@@ -51,6 +77,7 @@ public class User {
     public String getName() {
         return name;
     }
+    
     public void setName(String name) {
         this.name = name;
     }
@@ -58,6 +85,7 @@ public class User {
     public String getLastName() {
         return lastName;
     }
+    
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -65,6 +93,7 @@ public class User {
     public String getEmail() {
         return email;
     }
+    
     public void setEmail(String email) {
         this.email = email;
     }
@@ -93,6 +122,39 @@ public class User {
         this.blocked = blocked;
     }
 
+    public int getFailedAttempts() {
+        return failedAttempts;
+    }
+
+    public void setFailedAttempts(int failedAttempts) {
+        this.failedAttempts = failedAttempts;
+    }
+
+    public Instant getBlockedUntil() {
+        return blockedUntil;
+    }
+
+    public void setBlockedUntil(Instant blockedUntil) {
+        this.blockedUntil = blockedUntil;
+    }
+
+    // Getters y Setters para Rate Limiting
+    public Instant getLastLoginAttemptTime() {
+        return lastLoginAttemptTime;
+    }
+
+    public void setLastLoginAttemptTime(Instant lastLoginAttemptTime) {
+        this.lastLoginAttemptTime = lastLoginAttemptTime;
+    }
+
+    public int getLoginAttemptsInWindow() {
+        return loginAttemptsInWindow;
+    }
+
+    public void setLoginAttemptsInWindow(int loginAttemptsInWindow) {
+        this.loginAttemptsInWindow = loginAttemptsInWindow;
+    }
+
     public boolean isActive() {
         return active;
     }
@@ -107,5 +169,21 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }    
+    
+    public boolean isTwoFaEnabled() {
+        return twoFaEnabled;
+    }
+
+    public void setTwoFaEnabled(boolean twoFaEnabled) {
+        this.twoFaEnabled = twoFaEnabled;
+    }
+
+    public boolean isThreeFaEnabled() {
+        return threeFaEnabled;
+    }
+
+    public void setThreeFaEnabled(boolean threeFaEnabled) {
+        this.threeFaEnabled = threeFaEnabled;
     }
 }

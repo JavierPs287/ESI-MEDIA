@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Map;
+import java.util.HashMap;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
@@ -21,6 +23,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.BlacklistPasswordRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.ThreeFactorCodeRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -38,13 +41,74 @@ public class AuthService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final BlacklistPasswordRepository blacklistPasswordRepository;
+    private final ThreeFactorCodeRepository threeFactorCodeRepository;
+    private final EmailService emailService;
 
     public AuthService(UsuarioRepository usuarioRepository, ValidateService validateService, 
-                       UserRepository userRepository, BlacklistPasswordRepository blacklistPasswordRepository) {
+                       UserRepository userRepository, BlacklistPasswordRepository blacklistPasswordRepository,
+                       ThreeFactorCodeRepository threeFactorCodeRepository, EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.userRepository = userRepository;
         this.validateService = validateService;
         this.blacklistPasswordRepository = blacklistPasswordRepository;
+        this.threeFactorCodeRepository = threeFactorCodeRepository;
+        this.emailService = emailService;
+    }
+    // TOTP
+    public Map<String, String> activar2FA(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return Map.of();
+
+        try {
+            javax.crypto.KeyGenerator keyGen = javax.crypto.KeyGenerator.getInstance("HmacSHA1");
+            keyGen.init(160);
+            javax.crypto.SecretKey secretKey = keyGen.generateKey();
+            byte[] secretBytes = secretKey.getEncoded();
+            // Convertir a base32
+            String base32Secret = toBase32(secretBytes);
+            user.setTotpSecret(base32Secret);
+            user.setTwoFaEnabled(true);
+            userRepository.save(user);
+
+            String otpauthUrl = "otpauth://totp/ESIMEDIA:" + user.getEmail() + "?secret=" + base32Secret + "&issuer=ESIMEDIA";
+            String qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=" + java.net.URLEncoder.encode(otpauthUrl, java.nio.charset.StandardCharsets.UTF_8);
+
+            Map<String, String> result = new HashMap<>();
+            result.put("qrUrl", qrUrl);
+            result.put("secret", base32Secret);
+            return result;
+        } catch (Exception e) {
+            return Map.of();
+        }
+    }
+
+    // Utilidad para convertir a base32 (RFC 4648, sin padding)
+    private static final String BASE32_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    private String toBase32(byte[] bytes) {
+        StringBuilder base32 = new StringBuilder();
+        int i = 0, index = 0, digit = 0;
+        int currByte, nextByte;
+        while (i < bytes.length) {
+            currByte = bytes[i] >= 0 ? bytes[i] : bytes[i] + 256;
+            if (index > 3) {
+                if ((i + 1) < bytes.length) {
+                    nextByte = bytes[i + 1] >= 0 ? bytes[i + 1] : bytes[i + 1] + 256;
+                } else {
+                    nextByte = 0;
+                }
+                digit = currByte & (0xFF >> index);
+                index = (index + 5) % 8;
+                digit <<= index;
+                digit |= nextByte >> (8 - index);
+                i++;
+            } else {
+                digit = (currByte >> (8 - (index + 5))) & 0x1F;
+                index = (index + 5) % 8;
+                if (index == 0) i++;
+            }
+            base32.append(BASE32_CHARS.charAt(digit));
+        }
+        return base32.toString();
     }
 
     public void register(UsuarioDTO usuarioDTO) {
@@ -59,11 +123,6 @@ public class AuthService {
 
         // Validar datos
         validateUsuarioCreation(user, usuario);
-
-        // Comprobar que la contraseña no esté en la blacklist
-        if (isPasswordBlacklisted(usuarioDTO.getPassword())) {
-            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
-        }
 
         // Asignar rol de usuario
         user.setRole(USUARIO_ROLE);
@@ -80,8 +139,7 @@ public class AuthService {
     }
         // Verifica si la contraseña está en la blacklist
         public boolean isPasswordBlacklisted(String password) {
-            return blacklistPasswordRepository.findAll().stream()
-                .anyMatch(blacklist -> passwordEncoder.matches(password, blacklist.getPasswordHash()));
+            return blacklistPasswordRepository.existsByPassword(password);
         }
 
     public void validateUserCreation(User user) {
@@ -111,6 +169,10 @@ public class AuthService {
 
         if (!validateService.isPasswordSecure(user.getPassword())) {
             throw new RegisterException("La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales");
+        }
+
+        if (blacklistPasswordRepository.existsByPassword(user.getPassword())) {
+            throw new RegisterException("La contraseña está en la lista negra de contraseñas comunes.");
         }
 
         // Verificar email duplicado en users
@@ -149,23 +211,100 @@ public class AuthService {
         }
 
         User user = userRepository.findByEmail(email);
-        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+        if (user == null) {
             throw new IllegalArgumentException("Credenciales inválidas");
         }
 
-        // Comprobar si el usuario esta bloqueado
+        Instant now = Instant.now();
+        
+        // ========================================
+        // RATE LIMITING - Ventana de 1 minuto
+        // ========================================
+        if (user.getLastLoginAttemptTime() != null) {
+            long secondsSinceLastAttempt = now.getEpochSecond() - user.getLastLoginAttemptTime().getEpochSecond();
+            
+            // Si pasó más de 1 minuto (60 segundos), resetear contador
+            if (secondsSinceLastAttempt >= 10) {
+                user.setLoginAttemptsInWindow(0);
+                logger.info("Ventana de rate limiting reseteada para usuario: {}", email);
+            }
+            
+            // Si ya tiene 5 intentos en la ventana actual (10 segundos)
+            if (user.getLoginAttemptsInWindow() >= 5) {
+                long remainingSeconds = 60 - secondsSinceLastAttempt;
+                logger.warn("Rate limit excedido para usuario: {}. Debe esperar {} segundos", 
+                        email, remainingSeconds);
+                throw new IllegalArgumentException(
+                    "Demasiados intentos de inicio de sesión. Por favor, espera " + 
+                    remainingSeconds + " segundos antes de intentar nuevamente."
+                );
+            }
+        }
+        
+        // Incrementar contador de rate limiting (ANTES de validar contraseña)
+        user.setLoginAttemptsInWindow(user.getLoginAttemptsInWindow() + 1);
+        user.setLastLoginAttemptTime(now);
+        
+        // ========================================
+        // BLOQUEO PROGRESIVO
+        // ========================================
+        if (user.getBlockedUntil() != null && user.getBlockedUntil().isAfter(now)) {
+            java.time.ZoneId zoneMadrid = java.time.ZoneId.of("Europe/Madrid");
+            java.time.ZonedDateTime blockedMadrid = user.getBlockedUntil().atZone(zoneMadrid);
+            String fechaFormateada = blockedMadrid.format(
+                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+            );
+            throw new IllegalArgumentException("Usuario bloqueado hasta " + fechaFormateada);
+        }
+        user.setBlocked(false);
+
+        // ========================================
+        // VALIDACIÓN DE CONTRASEÑA
+        // ========================================
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            int attempts = user.getFailedAttempts() + 1;
+            user.setFailedAttempts(attempts);
+            
+            // Bloqueo progresivo por intentos fallidos
+            if (attempts >= 10) {
+                user.setBlockedUntil(now.plusSeconds(3600)); // 1 hora
+                logger.warn("Usuario {} bloqueado por 1 hora (10+ intentos fallidos)", email);
+            } else if (attempts >= 5) {
+                user.setBlockedUntil(now.plusSeconds(600)); // 10 minutos
+                logger.warn("Usuario {} bloqueado por 10 minutos (5+ intentos fallidos)", email);
+            } else if (attempts >= 3) {
+                user.setBlockedUntil(now.plusSeconds(60)); // 1 minuto
+                logger.warn("Usuario {} bloqueado por 1 minuto (3+ intentos fallidos)", email);
+            }
+            
+            userRepository.save(user);
+            throw new IllegalArgumentException("Credenciales inválidas");
+        }
+        
+        // ========================================
+        // LOGIN EXITOSO
+        // ========================================
+        // Resetear contadores en login exitoso
+        user.setFailedAttempts(0);
+        user.setBlockedUntil(null);
+        user.setLoginAttemptsInWindow(0); // Resetear rate limiting también
+        user.setLastLoginAttemptTime(null);
+        userRepository.save(user);
+
+        // Comprobar si el usuario está bloqueado (flag manual de admin)
         if (user.isBlocked()) {
             throw new IllegalArgumentException("Este usuario está bloqueado");
         }
-        
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
-        // Generar token de autenticación JWT con expiración de 8 horas
-        //TODO Reducir Tiempo de inactividad a 15 min (usuario) y 20 min (admin y creador)
+        // ========================================
+        // GENERAR JWT TOKEN
+        // ========================================
+        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         long expirationTime = 28800000; // 8 horas en milisegundos
-        Instant now = Instant.now();
         Instant expiryDate = now.plusMillis(expirationTime);
 
+        logger.info("Login exitoso para usuario: {}", email);
+        
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("role", user.getRole())
@@ -174,6 +313,112 @@ public class AuthService {
                 .expiration(Date.from(expiryDate))
                 .signWith(key)
                 .compact();
+    }
+            // Generar JWT token para usuario ya validado
+        public String generateJwtToken(User user) {
+            Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+            long expirationTime = 28800000; // 8 horas en milisegundos
+            Instant now = Instant.now();
+            Instant expiryDate = now.plusMillis(expirationTime);
+            return Jwts.builder()
+                    .subject(user.getEmail())
+                    .claim("role", user.getRole())
+                    .claim("userId", user.getId())
+                    .issuedAt(Date.from(now))
+                    .expiration(Date.from(expiryDate))
+                    .signWith(key)
+                    .compact();
+        }
+    // Verificar código TOTP
+    public boolean verifyTotpCode(String email, String code) {
+        User user = userRepository.findByEmail(email);
+        if (user == null || user.getTotpSecret() == null || user.getTotpSecret().isEmpty()) {
+            return false;
+        }
+        try {
+            // Usar TimeBasedOneTimePasswordGenerator o lógica propia
+            // Aquí implementamos verificación básica RFC 6238
+            byte[] secretBytes = decodeBase32(user.getTotpSecret());
+            long timeIndex = System.currentTimeMillis() / 30000;
+            for (int i = -1; i <= 1; i++) { // tolerancia de 1 paso
+                String expected = generateTotp(secretBytes, timeIndex + i);
+                if (expected.equals(code)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
 
+    // Decodificar base32
+    private byte[] decodeBase32(String base32) {
+        base32 = base32.replace("=", "").toUpperCase();
+        int length = base32.length() * 5 / 8;
+        byte[] bytes = new byte[length];
+        int buffer = 0, bitsLeft = 0, count = 0;
+        for (char c : base32.toCharArray()) {
+            int val = BASE32_CHARS.indexOf(c);
+            if (val < 0) continue;
+            buffer <<= 5;
+            buffer |= val;
+            bitsLeft += 5;
+            if (bitsLeft >= 8) {
+                bytes[count++] = (byte) ((buffer >> (bitsLeft - 8)) & 0xFF);
+                bitsLeft -= 8;
+            }
+        }
+        return bytes;
+    }
+
+    // Generar TOTP (RFC 6238, 6 dígitos, SHA1)
+    private String generateTotp(byte[] key, long timeIndex) throws Exception {
+        javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA1");
+        javax.crypto.spec.SecretKeySpec signKey = new javax.crypto.spec.SecretKeySpec(key, "HmacSHA1");
+        mac.init(signKey);
+        byte[] value = new byte[8];
+        for (int i = 7; i >= 0; i--) {
+            value[i] = (byte) (timeIndex & 0xFF);
+            timeIndex >>= 8;
+        }
+        byte[] hash = mac.doFinal(value);
+        int offset = hash[hash.length - 1] & 0xF;
+        int binary = ((hash[offset] & 0x7F) << 24) |
+                     ((hash[offset + 1] & 0xFF) << 16) |
+                     ((hash[offset + 2] & 0xFF) << 8) |
+                     (hash[offset + 3] & 0xFF);
+        int otp = binary % 1000000;
+        return String.format("%06d", otp);
+    }
+
+    
+    /**
+     * Envía un código de un solo uso por email para 3FA
+     */
+    public void sendThreeFactorCode(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return;
+        // Elimina códigos previos
+        threeFactorCodeRepository.deleteByUserId(user.getId());
+        String code = String.format("%06d", new java.util.Random().nextInt(999999));
+        String codeHash = passwordEncoder.encode(code);
+        java.time.Instant expiry = java.time.Instant.now().plusSeconds(600); // 10 min
+        edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode entry = new edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode(user.getId(), codeHash, expiry);
+        threeFactorCodeRepository.save(entry);
+        emailService.sendThreeFactorCodeEmail(email, code);
+    }
+
+    /**
+     * Verifica el código de 3FA
+     */
+    public boolean verifyThreeFactorCode(String email, String code) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return false;
+        java.util.Optional<edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode> entryOpt = threeFactorCodeRepository.findByUserId(user.getId());
+        if (entryOpt.isEmpty()) return false;
+        edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode entry = entryOpt.get();
+        if (entry.getExpiry().isBefore(java.time.Instant.now())) return false;
+        return passwordEncoder.matches(code, entry.getCodeHash());
     }
 }

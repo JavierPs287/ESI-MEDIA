@@ -1,12 +1,12 @@
 @import '../form-styles.css';
 
-
-/* estilos para el botón VIP */
+/* Estilos para el botón VIP */
 .btn-container {
   display: flex;
   justify-content: center;
   margin-top: 5px;
 }
+
 .btn-vip {
   padding: 10px 20px;
   border: none;
@@ -29,6 +29,60 @@
 }
 
 .vip-inactive {
+  background-color: var(--gris);
+  color: var(--blanco);
+}
+
+/* Estilos para el botón 2FA */
+.btn-2fa {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 12px;
+  margin: 0 auto;
+}
+
+.btn-2fa:hover {
+  font-weight: bold;
+  box-shadow: 0 0 5px var(--azul-oscuro);
+}
+
+.fa2-active {
+  background-color: var(--azul);
+  color: var(--blanco);
+  box-shadow: 0 0 5px var(--azul);
+  border-radius: 15px;
+}
+
+.fa2-inactive {
+  background-color: var(--gris);
+  color: var(--blanco);
+}
+
+/* Estilos para el botón 3FA (igual al de 2FA) */
+.btn-3fa {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 12px;
+  margin: 0 auto;
+}
+
+.btn-3fa:hover {
+  font-weight: bold;
+  box-shadow: 0 0 5px var(--azul-oscuro);
+}
+
+.fa3-active {
+  background-color: var(--azul);
+  color: var(--blanco);
+  box-shadow: 0 0 5px var(--azul);
+  border-radius: 15px;
+}
+
+.fa3-inactive {
   background-color: var(--gris);
   color: var(--blanco);
 }

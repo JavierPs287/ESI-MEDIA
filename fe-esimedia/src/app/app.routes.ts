@@ -17,17 +17,15 @@ import { ResetpasswordComponent } from './components/resetpassword/resetpassword
 import { MainMenuUserComponent } from './components/menus/main-menu-user/main-menu-user.component';
 import { ShowContentComponent } from './components/show-content/show-content.component';
 import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
+
+import { ConnectTotpComponent } from './components/connect-totp/connect-totp.component';
+import { VerifyTotpComponent } from './components/verify-totp/verify-totp.component';
 import { TemporalplaylistsComponent } from './components/temporalplaylists/temporalplaylists.component';
 import { ListPlaylistsComponent } from './components/list-playlists/list-playlists.component';
 import { PlaylistDetailComponent } from './components/playlist-detail/playlist-detail.component';
 
-export const routes: Routes = [
 
-    {
-        path: '',
-        redirectTo: '/home',
-        pathMatch: 'full'
-    },
+export const routes: Routes = [
 
     {
         path: 'home',
@@ -141,11 +139,20 @@ export const routes: Routes = [
         ]
     },
     {
-        path: 'playlists',
-        component: ListPlaylistsComponent,
+        path: 'activar2FA',
+        component: ConnectTotpComponent
     },
     {
-        path: 'playlist/:id',
-        component: PlaylistDetailComponent
-    }
+        path: 'verify-totp',
+        component: VerifyTotpComponent
+    },
+    {
+        path: 'verify-email-code',
+        loadComponent: () => import('./components/verify-email-code/verify-email-code.component').then(m => m.VerifyEmailCodeComponent)
+    },
+    {
+        path: '**',
+        redirectTo: 'home',
+        pathMatch: 'full'
+    },
 ];
