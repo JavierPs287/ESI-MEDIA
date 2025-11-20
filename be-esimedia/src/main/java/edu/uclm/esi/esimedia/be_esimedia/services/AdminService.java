@@ -2,6 +2,8 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREADOR_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_ERROR_MESSAGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_SPECIFIC_ERROR_MESSAGE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
 
 import java.util.NoSuchElementException;
@@ -196,8 +198,8 @@ public class AdminService {
         }
 
         if (user == null) {
-            logger.error("Usuario con email {} no encontrado", email);
-            throw new NoSuchElementException("User no encontrado");
+            logger.error(USER_SPECIFIC_ERROR_MESSAGE, email);
+            throw new NoSuchElementException(USER_ERROR_MESSAGE);
         }
 
         try {
@@ -217,8 +219,8 @@ public class AdminService {
 
         User user = userRepository.findByEmail(usuarioDTO.getEmail());
         if (user == null) {
-            logger.error("Usuario con email {} no encontrado", usuarioDTO.getEmail());
-            throw new NoSuchElementException("User no encontrado");
+            logger.error(USER_SPECIFIC_ERROR_MESSAGE, usuarioDTO.getEmail());
+            throw new NoSuchElementException(USER_ERROR_MESSAGE);
         }
 
         Optional<Usuario> optUsuario = usuarioRepository.findById(user.getId());
@@ -228,9 +230,7 @@ public class AdminService {
         }
         Usuario usuario = optUsuario.get();
 
-        // Validar que los campos comunes son validos
-        // Método chusta, copypaste de AuthService
-        // -- SI HAY ALTA DUPLICIDAD DE CÓDIGO, CAMBIAR --
+        // Validar que los campos son validos
         validateUsuarioUpdateFields(usuarioDTO);
 
         // Convertir DTO a entidad
@@ -300,7 +300,7 @@ public class AdminService {
         }
         Admin admin = optAdmin.get();
 
-        // Validar que los campos comunes son validos
+        // Validar que los campos son validos
         validateUserUpdateFields(adminDTO);
 
         // Convertir DTO a entidad
