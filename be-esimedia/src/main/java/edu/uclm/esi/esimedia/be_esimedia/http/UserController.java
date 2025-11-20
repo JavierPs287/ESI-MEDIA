@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -16,8 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ERROR_KEY;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.EMAIL_KEY;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.JWT_COOKIE_NAME;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MESSAGE_KEY;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.SUCCESS_KEY;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_KEY;
+
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
@@ -25,6 +31,7 @@ import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("user")
@@ -34,6 +41,7 @@ public class UserController {
     private final UserService userService;
     private final JwtUtils jwtUtils;
 
+    @Autowired
     public UserController(AuthService authService, UserService userService, JwtUtils jwtUtils) {
         this.authService = authService;
         this.userService = userService;
@@ -53,18 +61,18 @@ public class UserController {
             User user = userService.findByEmail(loginRequest.getEmail());
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Credenciales inválidas"));
+                        .body(Map.of(ERROR_KEY, "Credenciales inválidas"));
             }
             // Validar contraseña y bloqueo
             authService.login(loginRequest.getEmail(), loginRequest.getPassword());
             boolean has2FA = user.isTwoFaEnabled();
             Map<String, Object> response = new HashMap<>();
             response.put("role", user.getRole());
-            response.put("userId", user.getId());
-            response.put("email", user.getEmail());
+            response.put(USER_KEY, user.getId());
+            response.put(EMAIL_KEY, user.getEmail());
             if (has2FA) {
                 response.put("2faRequired", true);
-                response.put("message", "2FA requerido");
+                response.put(MESSAGE_KEY, "2FA requerido");
                 // No enviar token ni cookie
                 return ResponseEntity.ok(response);
             } else {
@@ -77,26 +85,26 @@ public class UserController {
                         .maxAge(24L * 60 * 60)
                         .sameSite("Lax")
                         .build();
-                response.put("message", "Login exitoso");
+                response.put(MESSAGE_KEY, "Login exitoso");
                 return ResponseEntity.ok()
                         .header(HttpHeaders.SET_COOKIE, cookie.toString())
                         .body(response);
             }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of(Constants.ERROR_KEY, e.getMessage()));
+                    .body(Map.of(ERROR_KEY, e.getMessage()));
         }
     }
 
     @GetMapping("/cookie-data")
-    public ResponseEntity<Map<String, String>> getCookieData(jakarta.servlet.http.HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> getCookieData(HttpServletRequest request) {
         try {
             // Extraer token de la cookie
             String token = jwtUtils.extractTokenFromCookie(request);
             
             if (token == null || !jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Token inválido o no proporcionado"));
+                        .body(Map.of(ERROR_KEY, "Token inválido o no proporcionado"));
             }
             
             // Extraer información del token
@@ -105,25 +113,19 @@ public class UserController {
             String userId = jwtUtils.getUserIdFromToken(token);
             
             Map<String, String> userInfo = new HashMap<>();
-            userInfo.put("email", email);
+            userInfo.put(EMAIL_KEY, email);
             userInfo.put("role", role);
-            userInfo.put("userId", userId);
+            userInfo.put(USER_KEY, userId);
             
             return ResponseEntity.ok(userInfo);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al obtener información del usuario"));
+                    .body(Map.of(ERROR_KEY, "Error al obtener información del usuario"));
         }
     }
 
-    @PatchMapping("/profile")
-    public ResponseEntity<UsuarioDTO> updateProfile(@RequestBody UsuarioDTO usuarioDTO, jakarta.servlet.http.HttpServletRequest request) {
-        UsuarioDTO updatedUsuario = userService.updateProfile(usuarioDTO, request);
-        return ResponseEntity.ok(updatedUsuario);
-    }
-
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getCurrentUser(jakarta.servlet.http.HttpServletRequest request) {
+    public ResponseEntity<UserDTO> getCurrentUser(HttpServletRequest request) {
         UserDTO userDTO = userService.getCurrentUser(request);
         return ResponseEntity.status(HttpStatus.OK).body(userDTO);
     }
@@ -152,50 +154,38 @@ public class UserController {
 
     @PostMapping("/verify-token")
     public ResponseEntity<Map<String, String>> verifyToken(
-        @CookieValue(name = JWT_COOKIE_NAME, required = false) String token) {
-    
-        Map<String, String> tokenInfo = new HashMap<>();
-    
-        // Si no hay cookie, devolver inválido
+            @CookieValue(name = JWT_COOKIE_NAME, required = false) String token) {
+
         if (token == null || token.isEmpty()) {
-            tokenInfo.put("valid", "false");
-            return ResponseEntity.status(HttpStatus.OK).body(tokenInfo);
+            return ResponseEntity.ok(Map.of("valid", "false"));
         }
-    
+
         try {
-            // Validar el token
-            boolean isValid = jwtUtils.validateToken(token);
-            tokenInfo.put("valid", String.valueOf(isValid));
-            
-            if (isValid) {
-                // Extraer información del token
-                String email = jwtUtils.getEmailFromToken(token);
-                String role = jwtUtils.getRoleFromToken(token);
-                String userId = jwtUtils.getUserIdFromToken(token);
-                
-                tokenInfo.put("email", email);
-                tokenInfo.put("role", role);
-                tokenInfo.put("userId", userId);
-            }
-            
-            return ResponseEntity.status(HttpStatus.OK).body(tokenInfo);
+            Map<String, String> info = new HashMap<>();
+            info.put(EMAIL_KEY, jwtUtils.getEmailFromToken(token));
+            info.put("role", jwtUtils.getRoleFromToken(token));
+            info.put(USER_KEY, jwtUtils.getUserIdFromToken(token));
+            info.put("valid", String.valueOf(jwtUtils.validateToken(token)));
+            return ResponseEntity.ok(info);
         } catch (Exception e) {
-            tokenInfo.put("valid", "false");
-            return ResponseEntity.status(HttpStatus.OK).body(tokenInfo);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(ERROR_KEY, "Token inválido: " + e.getMessage()));
         }
-    }        /**
+    }        
+    
+    /**
          * Endpoint para emitir el token tras verificación TOTP
          */
         //TODO eliminar codigo duplicado con login y mover a service
         @PostMapping("/2fa/token")
         public ResponseEntity<Map<String, Object>> issueTokenAfterTotp(@RequestBody Map<String, String> body) {
-            String email = body.get("email");
+            String email = body.get(EMAIL_KEY);
             if (email == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Email requerido"));
+                return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email requerido"));
             }
             User user = userService.findByEmail(email);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Usuario no encontrado"));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(ERROR_KEY, "Usuario no encontrado"));
             }
             String token = authService.generateJwtToken(user);
             ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
@@ -206,10 +196,10 @@ public class UserController {
                     .sameSite("Lax")
                     .build();
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "Token emitido tras 2FA");
+            response.put(MESSAGE_KEY, "Token emitido tras 2FA");
             response.put("role", user.getRole());
-            response.put("userId", user.getId());
-            response.put("email", user.getEmail());
+            response.put(USER_KEY, user.getId());
+            response.put(EMAIL_KEY, user.getEmail());
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .body(response);
@@ -222,7 +212,7 @@ public class UserController {
         String email = body.get("email");
         String code = body.get("code");
         if (email == null || code == null) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Email y código requeridos"));
+            return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, false, ERROR_KEY, "Email y código requeridos"));
         }
         boolean valid = authService.verifyTotpCode(email, code);
         User user = userService.findByEmail(email);
@@ -238,9 +228,9 @@ public class UserController {
             return ResponseEntity.ok(response);
         }
         if (valid) {
-            return ResponseEntity.ok(Map.of("success", true));
+            return ResponseEntity.ok(Map.of(SUCCESS_KEY, true));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "error", "Código TOTP incorrecto"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(SUCCESS_KEY, false, ERROR_KEY, "Código TOTP incorrecto"));
         }
     }
         /**
@@ -251,16 +241,17 @@ public class UserController {
         String email = (String) body.get("email");
         Boolean enable2FA = (Boolean) body.get("enable2FA");
         if (email == null || enable2FA == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email y enable2FA requeridos"));
+            return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email y enable2FA requeridos"));
         }
         boolean updated = userService.update2FA(email, enable2FA);
         if (updated) {
-            return ResponseEntity.ok(Map.of("message", "2FA actualizado correctamente"));
+            return ResponseEntity.ok(Map.of(MESSAGE_KEY, "2FA actualizado correctamente"));
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "No se pudo actualizar 2FA"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "No se pudo actualizar 2FA"));
         }
     }
-    //TODO eliminar lógica de los controllers y moverla a servicios
+
+        //TODO eliminar lógica de los controllers y moverla a servicios
     /**
      * Endpoint para activar 2FA TOTP y devolver QR y secreto
      */
@@ -269,18 +260,19 @@ public class UserController {
         try {
             String email = body.get("userId");
             if (email == null || email.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Email no proporcionado"));
+                return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email no proporcionado"));
             }
             Map<String, String> result = authService.activar2FA(email);
             if (result == null || result.isEmpty() || !result.containsKey("qrUrl")) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "No se pudo generar el QR de 2FA"));
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "No se pudo generar el QR de 2FA"));
             }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Error al activar 2FA: " + e.getMessage()));
+                    .body(Map.of(ERROR_KEY, "Error al activar 2FA: " + e.getMessage()));
         }
     }
+
         /**
          * Endpoint para enviar el código de 3FA por email
          */
@@ -302,13 +294,13 @@ public class UserController {
             String email = body.get("email");
             String code = body.get("code");
             if (email == null || code == null || email.isEmpty() || code.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Email y código requeridos"));
+                return ResponseEntity.badRequest().body(Map.of(SUCCESS_KEY, false, "error", "Email y código requeridos"));
             }
             boolean valid = authService.verifyThreeFactorCode(email, code);
             if (valid) {
                 User user = userService.findByEmail(email);
                 String token = authService.generateJwtToken(user);
-                ResponseCookie cookie = ResponseCookie.from(Constants.JWT_COOKIE_NAME, token)
+                ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
                         .httpOnly(true)
                         .secure(false)
                         .path("/")
@@ -342,7 +334,7 @@ public class UserController {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Usuario no encontrado"));
                 }
                 String token = authService.generateJwtToken(user);
-                ResponseCookie cookie = ResponseCookie.from(Constants.JWT_COOKIE_NAME, token)
+                ResponseCookie cookie = ResponseCookie.from(JWT_COOKIE_NAME, token)
                         .httpOnly(true)
                         .secure(false)
                         .path("/")
