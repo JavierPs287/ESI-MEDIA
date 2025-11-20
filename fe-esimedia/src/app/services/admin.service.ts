@@ -34,4 +34,9 @@ export class AdminService {
     });
   }
 
+  
+    toggleBlockUser(email: string, blocked: boolean): Observable<any> {
+        return this.http.patch<any>(`${this.baseUrl}/users/${email}/blocked`, { blocked });
+    }
+
 }
