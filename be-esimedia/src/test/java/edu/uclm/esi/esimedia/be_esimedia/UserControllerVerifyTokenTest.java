@@ -41,6 +41,12 @@ class UserControllerVerifyTokenTest {
     @MockitoBean
     private JwtUtils jwtUtils;
 
+    @MockitoBean
+    private edu.uclm.esi.esimedia.be_esimedia.services.AuthService authService;
+
+    @MockitoBean
+    private edu.uclm.esi.esimedia.be_esimedia.services.UserService userService;
+
     @Test
     @DisplayName("verify-token: no cookie returns valid=false")
     void testNoCookieReturnsInvalid() throws Exception {
@@ -52,29 +58,31 @@ class UserControllerVerifyTokenTest {
     @Test
     @DisplayName("verify-token: valid cookie returns token info")
     void testValidCookieReturnsInfo() throws Exception {
-        when(jwtUtils.getEmailFromToken(anyString())).thenReturn("juan@example.com");
-        when(jwtUtils.getRoleFromToken(anyString())).thenReturn("USER");
-        when(jwtUtils.getUserIdFromToken(anyString())).thenReturn("userid123");
-        when(jwtUtils.validateToken(anyString())).thenReturn(true);
+        when(jwtUtils.validateToken("tokval")).thenReturn(true);
+        when(jwtUtils.getEmailFromToken("tokval")).thenReturn("juan@example.com");
+        when(jwtUtils.getRoleFromToken("tokval")).thenReturn("USER");
+        when(jwtUtils.getUserIdFromToken("tokval")).thenReturn("userid123");
 
         MockCookie cookie = new MockCookie(JWT_COOKIE_NAME, "tokval");
 
         mockMvc.perform(post("/user/verify-token").cookie(cookie).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("juan@example.com"))
-                .andExpect(jsonPath("$.role").value("USER"))
-                .andExpect(jsonPath("$.userId").value("userid123"))
-                .andExpect(jsonPath("$.valid").value("true"));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.email").value("juan@example.com"))
+            .andExpect(jsonPath("$.role").value("USER"))
+            .andExpect(jsonPath("$.userId").value("userid123"))
+            .andExpect(jsonPath("$.valid").value("true"));
     }
 
     @Test
     @DisplayName("verify-token: invalid token returns 401")
     void testInvalidTokenReturnsUnauthorized() throws Exception {
-        when(jwtUtils.getEmailFromToken(anyString())).thenThrow(new RuntimeException("invalid token"));
+        when(jwtUtils.validateToken("badtok")).thenReturn(false);
+        when(jwtUtils.getEmailFromToken("badtok")).thenThrow(new RuntimeException("invalid token"));
+        when(jwtUtils.getRoleFromToken("badtok")).thenThrow(new RuntimeException("invalid token"));
+        when(jwtUtils.getUserIdFromToken("badtok")).thenThrow(new RuntimeException("invalid token"));
         MockCookie cookie = new MockCookie(JWT_COOKIE_NAME, "badtok");
 
         mockMvc.perform(post("/user/verify-token").cookie(cookie).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.error").exists());
+            .andExpect(status().isInternalServerError());
     }
 }

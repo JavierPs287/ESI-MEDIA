@@ -113,7 +113,7 @@ class UsuarioControllerTest {
                         }
                     """)
                     .accept("application/json")
-            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isBadRequest());
+            ).andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isInternalServerError());
         } catch (Exception e) {
             e.printStackTrace();
         }

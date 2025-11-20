@@ -16,7 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -30,19 +30,31 @@ import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 
-@WebMvcTest(UserController.class)
-public class UserControllerTest {
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import edu.uclm.esi.esimedia.be_esimedia.config.SecurityConfig;
+import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
+
+@WebMvcTest(
+    controllers = UserController.class,
+    excludeFilters = @ComponentScan.Filter(
+        type = FilterType.ASSIGNABLE_TYPE,
+        classes = {SecurityConfig.class, JwtAuthenticationFilter.class}
+    )
+)
+@org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = false)
+class UserControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
-    @MockBean
+    @MockitoBean
     private AuthService authService;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private JwtUtils jwtUtils;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -83,7 +95,7 @@ public class UserControllerTest {
         user.setRole("USUARIO");
 
         given(userService.findByEmail(req.getEmail())).willReturn(user);
-        doNothing().when(authService).login(eq(req.getEmail()), eq(req.getPassword()));
+        org.mockito.Mockito.when(authService.login(req.getEmail(), req.getPassword())).thenReturn(null);
 
         mvc.perform(post("/user/login").contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
@@ -103,7 +115,7 @@ public class UserControllerTest {
         user.setRole("USUARIO");
 
         given(userService.findByEmail(req.getEmail())).willReturn(user);
-        doNothing().when(authService).login(eq(req.getEmail()), eq(req.getPassword()));
+        org.mockito.Mockito.when(authService.login(req.getEmail(), req.getPassword())).thenReturn(null);
         given(authService.generateJwtToken(user)).willReturn("tokentest");
 
         mvc.perform(post("/user/login").contentType(MediaType.APPLICATION_JSON)
