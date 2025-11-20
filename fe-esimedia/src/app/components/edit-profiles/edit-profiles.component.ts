@@ -316,21 +316,18 @@ getbirthDate(): string {
     };
   }
 
-  canSave(): boolean {
-    return this.editForm.valid && this.editForm.dirty;
-  }
-
   save() {
     this.isSubmitting = true;
-    if (this.isMe){
+    // Si el usuario edita su propio perfil
+    if (this.isMe) {
       if (this.role === 'USUARIO') {
         const userData: Usuario = this.buildUsuarioFromForm();
         this.usuarioService.updateProfile(userData).subscribe({
-          next: (response) => {
+          next: () => {
             alert('Perfil de usuario actualizado correctamente');
             this.isSubmitting = false;
           },
-          error: (error) => {
+          error: () => {
             alert('Error al actualizar el perfil de usuario');
             this.isSubmitting = false;
           }
@@ -338,11 +335,11 @@ getbirthDate(): string {
       } else if (this.role === 'CREADOR') {
         const creatorData: Creator = this.buildCreatorFromForm();
         this.creatorService.updateProfile(creatorData).subscribe({
-          next: (response) => {
+          next: () => {
             alert('Perfil de creador actualizado correctamente');
-          this.isSubmitting = false;
+            this.isSubmitting = false;
           },
-          error: (error) => {
+          error: () => {
             alert('Error al actualizar el perfil de creador');
             this.isSubmitting = false;
           }
@@ -350,18 +347,61 @@ getbirthDate(): string {
       } else if (this.role === 'ADMIN') {
         const adminData: Admin = this.buildAdminFromForm();
         this.adminService.updateProfile(adminData).subscribe({
-          next: (response) => {
+          next: () => {
             alert('Perfil de administrador actualizado correctamente');
             this.isSubmitting = false;
           },
-          error: (error) => {
+          error: () => {
             alert('Error al actualizar el perfil de administrador');
             this.isSubmitting = false;
           }
         });
       } else {
         alert('Rol de usuario no reconocido');
+        this.isSubmitting = false;
       }
+    } else {
+        // Determinar el tipo de usuario editado
+        if (this.editedUser && (this.editedUser as Usuario).role === 'USUARIO') {
+          const userData: Usuario = this.buildUsuarioFromForm();
+          this.adminService.updateProfileUser(userData).subscribe({
+            next: () => {
+              alert('Perfil de usuario actualizado correctamente');
+              this.isSubmitting = false;
+            },
+            error: () => {
+              alert('Error al actualizar el perfil de usuario');
+              this.isSubmitting = false;
+            }
+          });
+        } else if (this.editedUser && (this.editedUser as Creator).role === 'CREADOR') {
+          const creatorData: Creator = this.buildCreatorFromForm();
+          this.adminService.updateProfileCreator(creatorData).subscribe({
+            next: () => {
+              alert('Perfil de creador actualizado correctamente');
+              this.isSubmitting = false;
+            },
+            error: () => {
+              alert('Error al actualizar el perfil de creador');
+              this.isSubmitting = false;
+            }
+          });
+        } else if (this.editedUser && (this.editedUser as Admin).role === 'ADMIN') {
+          const adminData: Admin = this.buildAdminFromForm();
+          this.adminService.updateProfile(adminData).subscribe({
+            next: () => {
+              alert('Perfil de administrador actualizado correctamente');
+              this.isSubmitting = false;
+            },
+            error: () => {
+              alert('Error al actualizar el perfil de administrador');
+              this.isSubmitting = false;
+            }
+          });
+        } else {
+          alert('Tipo de usuario a editar no reconocido');
+          this.isSubmitting = false;
+        }
     }
   }
 }

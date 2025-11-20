@@ -196,7 +196,7 @@
     <!-- Acciones -->
     <div class="actions">
       <button class="btn" type="button" (click)="startEdit()" *ngIf="!editMode">Modificar datos</button>
-      <button type="button" class="btn" (click)="save()" *ngIf="editMode" [disabled]="isSubmitting || !canSave()">Guardar</button>
+      <button type="button" class="btn" (click)="save()" *ngIf="editMode" [disabled]="isSubmitting">Guardar</button>
       <button class="btn" type="button" (click)="cancelEdit()" *ngIf="editMode">Cancelar</button>
     </div>
   </form>
