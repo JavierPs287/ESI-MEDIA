@@ -88,18 +88,18 @@ private initializeFromState(user: any): void {
 
     if (role === 'USUARIO') {
       this.editedUser = user as Usuario;
-      this.vip = (this.editedUser as Usuario).vip ? 'Eres VIP' : 'No eres VIP';
+      this.vip = this.editedUser.vip ? 'Eres VIP' : 'No eres VIP';
       this.birthDate = this.getbirthDate();
-      this.alias = (this.editedUser as Usuario).alias || '';
+      this.alias = this.editedUser.alias || '';
     } else if (role === 'CREADOR') {
       this.editedUser = user as Creator;
-      this.alias = (this.editedUser as Creator).alias;
-      this.description = (this.editedUser as Creator).description || '';
-      this.field = (this.editedUser as Creator).field ;
-      this.type = (this.editedUser as Creator).type || '';
+      this.alias = this.editedUser.alias;
+      this.description = this.editedUser.description || '';
+      this.field = this.editedUser.field ;
+      this.type = this.editedUser.type || '';
     } else if (role === 'ADMIN') {
       this.editedUser = user as Admin;
-      this.department = (this.editedUser as Admin).department ;
+      this.department = this.editedUser.department ;
     } else {
       alert ('Rol de usuario no reconocido');
       return;
@@ -116,18 +116,18 @@ private initializeFromState(user: any): void {
           this.imageId = user.imageId || null;
             if(user.role === 'USUARIO') {
               this.editedUser = user as Usuario;
-              this.vip = (this.editedUser as Usuario).vip ? 'Eres VIP' : 'No eres VIP';
+              this.vip = this.editedUser.vip ? 'Eres VIP' : 'No eres VIP';
               this.birthDate = this.getbirthDate();
-              this.alias = (this.editedUser as Usuario).alias || '';
+              this.alias = this.editedUser.alias || '';
             } else if (user.role === 'CREADOR') {
               this.editedUser = user as Creator;
-              this.alias = (this.editedUser as Creator).alias || '';
-              this.description = (this.editedUser as Creator).description || '';
-              this.field = (this.editedUser as Creator).field;
-              this.type = (this.editedUser as Creator).type || '';
+              this.alias = this.editedUser.alias || '';
+              this.description = this.editedUser.description || '';
+              this.field = this.editedUser.field;
+              this.type = this.editedUser.type || '';
             } else if (user.role === 'ADMIN') {
               this.editedUser = user as Admin;
-              this.department = (this.editedUser as Admin).department;
+              this.department = this.editedUser.department;
             }else {
               this.router.navigate(['/unauthorized']);
               return;
