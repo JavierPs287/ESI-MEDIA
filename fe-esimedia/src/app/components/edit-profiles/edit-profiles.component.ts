@@ -62,7 +62,8 @@ export class EditProfilesComponent {
 ngOnInit(): void {
   const url = this.router.url || '';
   // Si la ruta empieza por /editar usamos el state enviado por la navegación
-  if (url.startsWith('/modify')) {
+  if (url ==('/menu/admin/modify')) {
+    this.isMe = false;
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state || history.state;
     
@@ -71,9 +72,12 @@ ngOnInit(): void {
     }
     if (this.user) {
       this.initializeFromState(this.user);
+      this.initForm();
+      this.setReadMode();
       return;
     }
   }
+  this.isMe = true;
   this.initUser();
   this.initForm();
   this.setReadMode();

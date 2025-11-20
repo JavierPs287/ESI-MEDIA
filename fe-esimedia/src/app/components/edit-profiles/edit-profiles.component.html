@@ -188,7 +188,7 @@
     </ng-template>
 
     <!-- Cambiar contraseña -->
-    <div class="form-field">
+    <div class="form-field" *ngIf="isMe">
       <label for="Contraseña">Contraseña</label>
       <button type="button" routerLink="/forgotpassword" class="btn-change-password">Cambiar contraseña</button>
     </div>
@@ -196,8 +196,7 @@
     <!-- Acciones -->
     <div class="actions">
       <button class="btn" type="button" (click)="startEdit()" *ngIf="!editMode">Modificar datos</button>
-      <!-- temporal: llamar directamente a save() -->
-      <button type="button" class="btn" (click)="save()" [disabled]="isSubmitting || !canSave()">Guardar</button>
+      <button type="button" class="btn" (click)="save()" *ngIf="editMode" [disabled]="isSubmitting || !canSave()">Guardar</button>
       <button class="btn" type="button" (click)="cancelEdit()" *ngIf="editMode">Cancelar</button>
     </div>
   </form>

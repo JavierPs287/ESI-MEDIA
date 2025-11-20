@@ -46,6 +46,8 @@ export class UserManagementComponent implements OnInit {
 
     this.userService.getAllUsers().subscribe({
       next: (users) => {
+        this.users = users;
+        this.filteredUsers = users;
         this.isLoading = false;
       },
       error: (error) => {
@@ -113,8 +115,8 @@ export class UserManagementComponent implements OnInit {
   }
 
   editUser(email: string): void {
-    this.router.navigate(['/modify',], {
-      state: { User: this.users.find(u => u.email === email) }
+    this.router.navigate(['menu/admin/modify',], {
+      state: { user: this.users.find(u => u.email === email) }
     });
   }
 
@@ -141,10 +143,6 @@ export class UserManagementComponent implements OnInit {
         }
       }
     });
-  }
-
-  viewUser(email: string): void {
-    // Implementa la lógica de visualización
   }
 
   getAvatar(user: User): string {
