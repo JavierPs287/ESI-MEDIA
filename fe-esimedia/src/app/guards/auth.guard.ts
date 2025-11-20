@@ -7,8 +7,6 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  console.log('[authGuard] 🔍 Verificando acceso a:', state.url);
-
   // Esperar a que termine la inicialización
   return authService.isInitialized().pipe(
     filter(initialized => {
