@@ -154,6 +154,7 @@ public class UserService {
                 dto.setImageId(user.getImageId());
                 dto.setBlocked(user.isBlocked());
                 dto.setActive(user.isActive());
+                dto.setRole(user.getRole());
                 adminOpt.ifPresent(a -> dto.setDepartment(a.getDepartment()));
                 result.add(dto);
             }
@@ -168,6 +169,7 @@ public class UserService {
                 dto.setImageId(user.getImageId());
                 dto.setBlocked(user.isBlocked());
                 dto.setActive(user.isActive());
+                dto.setRole(user.getRole());
                 creadorOpt.ifPresent(c -> {
                     dto.setAlias(c.getAlias());
                     dto.setDescription(c.getDescription());
@@ -187,6 +189,7 @@ public class UserService {
                 dto.setImageId(user.getImageId());
                 dto.setBlocked(user.isBlocked());
                 dto.setActive(user.isActive());
+                dto.setRole(user.getRole());
                 usuarioOpt.ifPresent(u -> {
                     dto.setAlias(u.getAlias());
                     dto.setBirthDate(u.getBirthDate());
