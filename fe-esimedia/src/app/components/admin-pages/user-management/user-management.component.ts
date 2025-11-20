@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
+import { UserService } from '../../../services/user.service';
+import { User } from '../../../models/user.model';
+import { getAvatarUrlById } from '../../../services/image.service';
 
 @Component({
   selector: 'app-user-management',
@@ -18,26 +21,36 @@ export class UserManagementComponent implements OnInit {
   selectedStatus: string = '';
   selectedVipFilter: string = '';
 
-  // Mock data - reemplaza con datos de tu API
-  users = [
-    {
-      id: 1,
-      name: 'Maya Santos',
-      email: 'maya.s@example.com',
-      alias: 'mayasantos',
-      role: 'usuario',
-      avatar: 'assets/avatars/maya.jpg',
-      isBlocked: false,
-      isVip: true
-    },
-  ];
+  users: User[] = [];
+  filteredUsers: User[] = [];
+  isLoading = false;
+  errorMessage = '';
 
-  filteredUsers = this.users;
-
-  constructor(public dialogo: MatDialog) { }
+  constructor(
+    public dialogo: MatDialog,
+    private readonly userService: UserService
+  ) { }
 
   ngOnInit(): void {
-    this.filteredUsers = [...this.users];
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.userService.getAllUsers().subscribe({
+      next: (users) => {
+        this.users = users;
+        this.filteredUsers = [...users];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar usuarios:', error);
+        this.errorMessage = 'Error al cargar los usuarios. Por favor, intenta de nuevo.';
+        this.isLoading = false;
+      }
+    });
   }
 
   onSearch(): void {
@@ -50,51 +63,51 @@ export class UserManagementComponent implements OnInit {
 
   applyFilters(): void {
     this.filteredUsers = this.users.filter(user => {
-      const matchesSearch = !this.searchTerm || 
-        user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        user.alias.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const matchesSearch = !this.searchTerm ||
+        user.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        (user.alias?.toLowerCase() || '').includes(this.searchTerm.toLowerCase());
 
       const matchesRole = !this.selectedRole || user.role === this.selectedRole;
-      
-      const matchesStatus = !this.selectedStatus || 
-        (this.selectedStatus === 'bloqueado' ? user.isBlocked : !user.isBlocked);
 
-      const matchesVip = !this.selectedVipFilter || 
-        (this.selectedVipFilter === 'vip' ? user.isVip : !user.isVip);
+      const matchesStatus = !this.selectedStatus ||
+        (this.selectedStatus === 'bloqueado' ? user.blocked : !user.blocked);
+
+      const matchesVip = !this.selectedVipFilter ||
+        (this.selectedVipFilter === 'vip' ? user.vip : !user.vip);
 
       return matchesSearch && matchesRole && matchesStatus && matchesVip;
     });
   }
 
-  toggleBlockUser(userId: number): void {
-    const user = this.users.find(u => u.id === userId);
+  toggleBlockUser(email: string): void {
+    const user = this.users.find(u => u.email === email);
     if (!user) return;
 
-    const action = user.isBlocked ? 'desbloquear' : 'bloquear';
-    
+    const action = user.blocked ? 'desbloquear' : 'bloquear';
+
     this.dialogo.open(ConfirmDialogComponent, {
       data: {
         title: `¿${action.charAt(0).toUpperCase() + action.slice(1)} usuario?`,
         message: `¿Estás seguro de que deseas ${action} a ${user.name}?`,
         confirmText: action.charAt(0).toUpperCase() + action.slice(1),
         cancelText: 'Cancelar',
-        type: user.isBlocked ? 'success' : 'danger'
+        type: user.blocked ? 'success' : 'danger'
       }
     }).afterClosed().subscribe((result: boolean) => {
       if (result) {
-        user.isBlocked = !user.isBlocked;
+        user.blocked = !user.blocked;
         this.applyFilters();
       }
     });
   }
 
-  editUser(userId: number): void {
+  editUser(email: string): void {
     // Implementa la lógica de edición
   }
 
-  deleteUser(userId: number): void {
-    const user = this.users.find(u => u.id === userId);
+  deleteUser(email: string): void {
+    const user = this.users.find(u => u.email === email);
     if (!user) return;
 
     this.dialogo.open(ConfirmDialogComponent, {
@@ -108,7 +121,7 @@ export class UserManagementComponent implements OnInit {
     }).afterClosed().subscribe((result: boolean) => {
       if (result) {
         // Eliminar del array
-        const index = this.users.findIndex(u => u.id === userId);
+        const index = this.users.findIndex(u => u.email === email);
         if (index !== -1) {
           this.users.splice(index, 1);
           this.applyFilters();
@@ -118,7 +131,15 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  viewUser(userId: number): void {
+  viewUser(email: string): void {
     // Implementa la lógica de visualización
+  }
+
+  getAvatar(user: User): string {
+    return getAvatarUrlById(user.imageId || 0);
+  }
+
+  setRole(user: User): void {
+    this.selectedRole = user.role;
   }
 }

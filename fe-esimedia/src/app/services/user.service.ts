@@ -108,8 +108,8 @@ export class UserService {
         return this.http.get<{ email: string; role: string; userId: string }>(`${this.baseUrl}/cookie-data`, { withCredentials: true });
     }
 
-    getAllUsers(): Observable<Response> {
-        return this.http.get<Response>(this.baseUrl);
+    getAllUsers(): Observable<User[]> {
+        return this.http.get<User[]>(`${this.baseUrl}/all`);
     }
     getCurrentUser(): Observable<User | Usuario | Admin | Creator> {
         return this.http.get<User>(`${this.baseUrl}/me`, { withCredentials: true }).pipe(

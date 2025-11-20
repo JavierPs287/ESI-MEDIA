@@ -127,17 +127,17 @@ h1 {
   width: fit-content;
 }
 
-.role-admin {
+.role-ADMIN {
   background-color: #e7ffe5;
   color: rgb(16, 107, 16);
 }
 
-.role-moderator {
+.role-CREADOR {
   background-color: #fff3e0;
   color: var(--rojo);
 }
 
-.role-usuario {
+.role-USUARIO {
   background-color: #e3f2fd;
   color: var(--azul);
 }

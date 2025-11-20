@@ -2,6 +2,9 @@ package edu.uclm.esi.esimedia.be_esimedia.services;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREADOR_ROLE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_ERROR_MESSAGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_SPECIFIC_ERROR_MESSAGE;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.UpdatingException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
@@ -145,32 +149,42 @@ public class AdminService {
         creador.setType(creador.getType().trim().toUpperCase());
     }
 
-    // TODO hacer validateUserUpdateFields(UserDTO userDTO) SOLO con campos comunes
-    // TODO hacer validateUsuarioUpdateFields(UsuarioDTO usuarioDTO) que llame al anterior
-    // y valide alias y birthDate (al tener herencia, se puede llamar con validateUserUpdateFields(usuarioDTO))
-    // TODO hacer lo mismo con validateAdminUpdateFields y validateCreadorUpdateFields
-    // TODO Quitar campos que no se pueden editar (ver apuntes del primer Sprint en Discord, Apuntes Proyecto.txt)
-    public void validateUserUpdateFields(UsuarioDTO usuarioDTO) {
-        if (validateService.isRequiredFieldEmpty(usuarioDTO .getName(), 2, 50)) {
+    public void validateUserUpdateFields(UserDTO userDTO) {
+        if (validateService.isRequiredFieldEmpty(userDTO.getName(), 2, 50)) {
             throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
         }
-        if (validateService.isRequiredFieldEmpty(usuarioDTO .getLastName(), 2, 100)) {
+        if (validateService.isRequiredFieldEmpty(userDTO.getLastName(), 2, 100)) {
             throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
         }
-        if (validateService.isRequiredFieldEmpty(usuarioDTO .getEmail(), 5, 100)) {
-            throw new IllegalArgumentException("El email es obligatorio y debe tener entre 5 y 100 caracteres");
+    }
+
+    public void validateUsuarioUpdateFields(UsuarioDTO usuarioDTO) {
+        validateUserUpdateFields(usuarioDTO);
+
+        if (validateService.isRequiredFieldEmpty(usuarioDTO.getAlias(), 1, 50)) {
+            throw new IllegalArgumentException("El alias no puede estar vacío y debe tener entre 1 y 50 caracteres.");
         }
-        if (!validateService.isEmailValid(usuarioDTO .getEmail())) {
-            throw new IllegalArgumentException("El formato del email no es válido");
+        if (validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
+            throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
         }
-        if (usuarioDTO.getAlias() != null && !usuarioDTO.getAlias().isEmpty() && (usuarioDTO.getAlias().length() < 2 || usuarioDTO.getAlias().length() > 20)) {
-                throw new IllegalArgumentException("El alias debe tener entre 2 y 20 caracteres");
+    }
+
+    public void validateCreadorUpdateFields(CreadorDTO creadorDTO) {
+        validateUserUpdateFields(creadorDTO);
+
+        // Validar longitud y unicidad del alias
+        if (validateService.isRequiredFieldEmpty(creadorDTO.getAlias(), 2, 20)) {
+            throw new IllegalArgumentException("El alias es obligatorio y debe tener entre 2 y 20 caracteres");
         }
-        if (!validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
-            throw new IllegalArgumentException("La fecha de nacimiento no es válida o el usuario debe tener al menos 4 años");
+        if (creadorRepository.existsByAlias(creadorDTO.getAlias())) {
+            throw new IllegalArgumentException("El alias ya está registrado");
         }
-        if (userRepository.existsByEmail(usuarioDTO.getEmail())) {
-            throw new IllegalArgumentException("El email ya está registrado");
+
+        // Descripción validar longitud
+        if (!validateService.isFieldEmpty(creadorDTO.getDescription())) {
+            if (!validateService.isDescriptionValid(creadorDTO.getDescription())) {
+                throw new IllegalArgumentException("La descripción no puede tener más de 500 caracteres");
+            }
         }
     }
 
@@ -184,8 +198,8 @@ public class AdminService {
         }
 
         if (user == null) {
-            logger.error("Usuario con email {} no encontrado", email);
-            throw new NoSuchElementException("User no encontrado");
+            logger.error(USER_SPECIFIC_ERROR_MESSAGE, email);
+            throw new NoSuchElementException(USER_ERROR_MESSAGE);
         }
 
         try {
@@ -197,22 +211,16 @@ public class AdminService {
         }
     }
 
-    // TODO Quitar campos que no se pueden editar (ver apuntes del primer Sprint en Discord, Apuntes Proyecto.txt)
-    // TODO Hacer caso a TODOs de AdminController y UserService y tener método común updateUser
-    // TODO Tener en cuenta TODOS los atributos que hay en los modelos
-    // Primero coger User por email, luego Usuario por id de User
-    // Y a partir de tener los modelos, actualizar los campos
-    // Así, no se crean nuevos objetos en la BBDD o no se crean sin algunos datos
-    public void updateUser(String email, UsuarioDTO usuarioDTO) {
+    public void updateUsuario(UsuarioDTO usuarioDTO) {
         if (usuarioDTO == null) {
             logger.error("El objeto UsuarioDTO es nulo");
             throw new UpdatingException();
         }
 
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(usuarioDTO.getEmail());
         if (user == null) {
-            logger.error("Usuario con email {} no encontrado", email);
-            throw new NoSuchElementException("User no encontrado");
+            logger.error(USER_SPECIFIC_ERROR_MESSAGE, usuarioDTO.getEmail());
+            throw new NoSuchElementException(USER_ERROR_MESSAGE);
         }
 
         Optional<Usuario> optUsuario = usuarioRepository.findById(user.getId());
@@ -220,25 +228,90 @@ public class AdminService {
             logger.error("Usuario detalle con id {} no encontrado", user.getId());
             throw new NoSuchElementException("Usuario no encontrado");
         }
-        
         Usuario usuario = optUsuario.get();
 
-        // Validar que los campos comunes son validos
-        // Método chusta, copypaste de AuthService
-        // -- SI HAY ALTA DUPLICIDAD DE CÓDIGO, CAMBIAR --
-        validateUserUpdateFields(usuarioDTO);
+        // Validar que los campos son validos
+        validateUsuarioUpdateFields(usuarioDTO);
 
-        // Actualizar campos
-        user.setName(usuarioDTO.getName());
-        user.setLastName(usuarioDTO.getLastName());
-        user.setEmail(usuarioDTO.getEmail());
-        usuario.setAlias(usuarioDTO.getAlias());
-        usuario.setBirthDate(usuarioDTO.getBirthDate());
-        
+        // Convertir DTO a entidad
+        user.initializeFromDTO(usuarioDTO);
+        usuario.initializeFromDTO(usuarioDTO);
+
         try {
             userRepository.save(user);
+            usuarioRepository.save(usuario);
         } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al actualizar el usuario en la base de datos: {}", e.getMessage(), e);
+            throw new UpdatingException();
+        }
+    }
+
+    public void updateCreador(CreadorDTO creadorDTO) {
+        if (creadorDTO == null) {
+            logger.error("El objeto CreadorDTO es nulo");
+            throw new UpdatingException();
+        }
+
+        User user = userRepository.findByEmail(creadorDTO.getEmail());
+        if (user == null) {
+            logger.error("Usuario con email {} no encontrado", creadorDTO.getEmail());
+            throw new NoSuchElementException("User no encontrado");
+        }
+
+        Optional<Creador> optCreador = creadorRepository.findById(user.getId());
+        if (!optCreador.isPresent()) {
+            logger.error("Creador detalle con id {} no encontrado", user.getId());
+            throw new NoSuchElementException("Creador no encontrado");
+        }
+        Creador creador = optCreador.get();
+
+        // Validar que los campos comunes son validos
+        validateCreadorUpdateFields(creadorDTO);
+
+        // Convertir DTO a entidad
+        user.initializeFromDTO(creadorDTO);
+        creador.initializeFromDTO(creadorDTO);
+
+        try {
+            userRepository.save(user);
+            creadorRepository.save(creador);
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al actualizar el creador en la base de datos: {}", e.getMessage(), e);
+            throw new UpdatingException();
+        }
+    }
+
+    public void updateAdmin(AdminDTO adminDTO) {
+        if (adminDTO == null) {
+            logger.error("El objeto AdminDTO es nulo");
+            throw new UpdatingException();
+        }
+
+        User user = userRepository.findByEmail(adminDTO.getEmail());
+        if (user == null) {
+            logger.error("Usuario con email {} no encontrado", adminDTO.getEmail());
+            throw new NoSuchElementException("User no encontrado");
+        }
+
+        Optional<Admin> optAdmin = adminRepository.findById(user.getId());
+        if (!optAdmin.isPresent()) {
+            logger.error("Admin detalle con id {} no encontrado", user.getId());
+            throw new NoSuchElementException("Admin no encontrado");
+        }
+        Admin admin = optAdmin.get();
+
+        // Validar que los campos son validos
+        validateUserUpdateFields(adminDTO);
+
+        // Convertir DTO a entidad
+        user.initializeFromDTO(adminDTO);
+        admin.initializeFromDTO(adminDTO);
+
+        try {
+            userRepository.save(user);
+            adminRepository.save(admin);
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al actualizar el admin en la base de datos: {}", e.getMessage(), e);
             throw new UpdatingException();
         }
     }

@@ -1,20 +1,31 @@
 <div class="user-management-container">
-  <!-- Header -->
   <h1>User Management</h1>
 
-  <div class="search-filters-section">
-    <!-- Search Bar -->
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <p>Cargando usuarios...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="errorMessage && !isLoading">
+    <p>{{ errorMessage }}</p>
+    <button (click)="loadUsers()">Reintentar</button>
+  </div>
+
+  <!-- Search & Filters -->
+  <div class="search-filters-section" *ngIf="!isLoading && !errorMessage">
+    <!-- Search Bar Meter-->
     <input 
       type="text" class="search-input" placeholder="Search by name, alias, email..."
-      [(ngModel)]="searchTerm" (input)="onSearch()">
+      [(ngModel)]="searchTerm" (input)="onSearch()" (keyup.enter)="onSearch()"> 
 
     <!-- Dropdowns -->
     <div class="filters-row">
       <select class="filter-dropdown" [(ngModel)]="selectedRole" (change)="onFilterChange()">
         <option value="">All Roles</option>
-        <option value="admin">Admin</option>
-        <option value="creator">Creador</option>
-        <option value="usuario">Usuario</option>
+        <option value="ADMIN">Admin</option>
+        <option value="CREADOR">Creador</option>
+        <option value="USUARIO">Usuario</option>
       </select>
 
       <select class="filter-dropdown" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
@@ -31,11 +42,11 @@
     </div>
 
   <!-- Users List -->
-  <div class="users-list">
+  <div class="users-list" *ngIf="!isLoading && !errorMessage">
     <div class="user-card" *ngFor="let user of filteredUsers">
       <!-- Left Side: User Info -->
       <div class="user-info">
-        <img [src]="user.avatar" alt="User Avatar" class="user-avatar">
+        <img [src]="getAvatar(user)" alt="User Avatar" class="user-avatar">
         <div class="user-details">
           <h3 class="user-name">{{ user.name }}</h3>
           <p class="user-email">{{ user.email }}</p>
@@ -49,24 +60,24 @@
       <!-- Right Side: Status and Actions -->
       <div class="user-actions">
         <div class="status-badges">
-          <span class="badge blocked" *ngIf="user.isBlocked">BLOQUEADO</span>
-          <span class="badge vip" *ngIf="user.isVip">VIP</span>
+          <span class="badge blocked" *ngIf="user.blocked">BLOQUEADO</span>
+          <span class="badge vip" *ngIf="user.vip">VIP</span>
         </div>
         <div class="action-icons">
           <button 
             class="icon-btn block" 
-            [class.unblock]="user.isBlocked"
-            [title]="user.isBlocked ? 'Desbloquear Usuario' : 'Bloquear Usuario'" 
-            (click)="toggleBlockUser(user.id)">
-            <mat-icon>{{ user.isBlocked ? 'lock_open' : 'block' }}</mat-icon>
+            [class.unblock]="user.blocked"
+            [title]="user.blocked ? 'Desbloquear Usuario' : 'Bloquear Usuario'" 
+            (click)="toggleBlockUser(user.email)">
+            <mat-icon>{{ user.blocked ? 'lock_open' : 'block' }}</mat-icon>
           </button>
-          <button class="icon-btn edit" title="Edit User" (click)="editUser(user.id)">
+          <button class="icon-btn edit" title="Edit User" (click)="editUser(user.email)">
             <mat-icon>edit</mat-icon>
           </button>
-          <button class="icon-btn delete" title="Delete User" (click)="deleteUser(user.id)">
+          <button class="icon-btn delete" title="Delete User" (click)="deleteUser(user.email)">
             <mat-icon>delete</mat-icon>
           </button>
-          <button class="icon-btn view" title="View User" (click)="viewUser(user.id)">
+          <button class="icon-btn view" title="View User" (click)="viewUser(user.email)">
             <mat-icon>visibility</mat-icon>
           </button>
         </div>

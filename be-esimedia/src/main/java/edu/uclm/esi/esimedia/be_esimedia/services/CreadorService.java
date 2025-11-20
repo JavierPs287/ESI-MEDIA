@@ -9,27 +9,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
+import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
-import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.UpdatingException;
+import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
-import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
-import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 
 @Service
-public class UsuarioService {
+public class CreadorService {
 
-    private final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
+    private final Logger logger = LoggerFactory.getLogger(CreadorService.class);
 
-    private final UsuarioRepository usuarioRepository;
+    private final CreadorRepository creadorRepository;
     private final UserRepository userRepository;
     private final ValidateService validateService;
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, UserRepository userRepository,
+    public CreadorService(CreadorRepository creadorRepository, UserRepository userRepository,
             ValidateService validateService) {
-        this.usuarioRepository = usuarioRepository;
+        this.creadorRepository = creadorRepository;
         this.userRepository = userRepository;
         this.validateService = validateService;
     }
@@ -43,46 +43,54 @@ public class UsuarioService {
         }
     }
 
-    public void validateUsuarioUpdateFields(UsuarioDTO usuarioDTO) {
-        validateUserUpdateFields(usuarioDTO);
+    public void validateCreadorUpdateFields(CreadorDTO creadorDTO) {
+        validateUserUpdateFields(creadorDTO);
 
-        if (validateService.isRequiredFieldEmpty(usuarioDTO.getAlias(), 1, 50)) {
-            throw new IllegalArgumentException("El alias no puede estar vacío y debe tener entre 1 y 50 caracteres.");
+        // Validar longitud y unicidad del alias
+        if (validateService.isRequiredFieldEmpty(creadorDTO.getAlias(), 2, 20)) {
+            throw new IllegalArgumentException("El alias es obligatorio y debe tener entre 2 y 20 caracteres");
         }
-        if (validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
-            throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
+        if (creadorRepository.existsByAlias(creadorDTO.getAlias())) {
+            throw new IllegalArgumentException("El alias ya está registrado");
+        }
+
+        // Descripción validar longitud
+        if (!validateService.isFieldEmpty(creadorDTO.getDescription())) {
+            if (!validateService.isDescriptionValid(creadorDTO.getDescription())) {
+                throw new IllegalArgumentException("La descripción no puede tener más de 500 caracteres");
+            }
         }
     }
     
-    public void update(UsuarioDTO usuarioDTO) {
-        if (usuarioDTO == null) {
+    public void update(CreadorDTO creadorDTO) {
+        if (creadorDTO == null) {
             logger.error("El objeto UsuarioDTO es nulo");
             throw new UpdatingException();
         }
 
-        User user = userRepository.findByEmail(usuarioDTO.getEmail());
+        User user = userRepository.findByEmail(creadorDTO.getEmail());
         if (user == null) {
-            logger.error("Usuario con email {} no encontrado", usuarioDTO.getEmail());
+            logger.error("Usuario con email {} no encontrado", creadorDTO.getEmail());
             throw new NoSuchElementException("User no encontrado");
         }
 
-        Optional<Usuario> optUsuario = usuarioRepository.findById(user.getId());
-        if (!optUsuario.isPresent()) {
+        Optional<Creador> optCreador = creadorRepository.findById(user.getId());
+        if (!optCreador.isPresent()) {
             logger.error("Usuario detalle con id {} no encontrado", user.getId());
             throw new NoSuchElementException("Usuario no encontrado");
         }
-        Usuario usuario = optUsuario.get();
+        Creador creador = optCreador.get();
 
         // Validar que los campos son validos
-        validateUsuarioUpdateFields(usuarioDTO);
+        validateCreadorUpdateFields(creadorDTO);
 
         // Convertir DTO a entidad
-        user.initializeFromDTO(usuarioDTO);
-        usuario.initializeFromDTO(usuarioDTO);
+        user.initializeFromDTO(creadorDTO);
+        creador.initializeFromDTO(creadorDTO);
 
         try {
             userRepository.save(user);
-            usuarioRepository.save(usuario);
+            creadorRepository.save(creador);
         } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
             logger.error("Error al actualizar el usuario en la base de datos: {}", e.getMessage(), e);
             throw new UpdatingException();

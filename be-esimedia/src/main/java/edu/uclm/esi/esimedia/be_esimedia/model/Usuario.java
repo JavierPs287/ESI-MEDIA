@@ -24,7 +24,7 @@ public class Usuario {
         initializeFromDTO(dto);
     }
 
-    private void initializeFromDTO(UsuarioDTO dto) {
+    public void initializeFromDTO(UsuarioDTO dto) {
         this.setAlias(dto.getAlias());
         this.setBirthDate(dto.getBirthDate());
         this.setVip(dto.isVip());

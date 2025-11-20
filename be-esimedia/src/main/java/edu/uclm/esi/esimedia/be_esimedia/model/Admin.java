@@ -20,7 +20,7 @@ public class Admin {
         initializeFromDTO(dto);
     }
 
-    private void initializeFromDTO(AdminDTO dto) {
+    public void initializeFromDTO(AdminDTO dto) {
         this.setDepartment(dto.getDepartment());
     }
 

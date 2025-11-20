@@ -47,7 +47,7 @@ public class User {
         initializeFromDTO(dto);
     }
 
-    private void initializeFromDTO(UserDTO dto) {
+    public void initializeFromDTO(UserDTO dto) {
         this.setName(dto.getName());
         this.setLastName(dto.getLastName());
         this.setEmail(dto.getEmail());
