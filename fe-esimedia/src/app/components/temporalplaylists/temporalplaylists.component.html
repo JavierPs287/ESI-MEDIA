@@ -1,0 +1,133 @@
+<div class="container">
+  @if (canCreatePlaylists) {
+    <button class="btn-load-playlists" (click)="loadPlaylists()" [disabled]="loading">
+      {{ loading ? 'Cargando...' : 'Ver Mis Playlists' }}
+    </button>
+  } @else {
+    <div class="admin-message">
+      Los administradores no pueden crear playlists
+    </div>
+  }
+
+  <!-- Modal -->
+  @if (showModal) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Mis Playlists</h2>
+          <button class="close-btn" (click)="closeModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          @if (error) {
+            <div class="error-message">{{ error }}</div>
+          }
+
+          @if (loading) {
+            <div class="loading-message">Cargando playlists...</div>
+          } @else {
+            <!-- Botón para crear nueva playlist -->
+            @if (!showCreateForm && canCreatePlaylists) {
+              <button class="btn-create-playlist" (click)="toggleCreateForm()">
+                + Crear Nueva Playlist
+              </button>
+            }
+
+            <!-- Formulario de crear playlist -->
+            @if (showCreateForm) {
+              <div class="create-form">
+                <h3>Nueva Playlist</h3>
+                <div class="form-group">
+                  <label for="playlistName">Nombre *</label>
+                  <input 
+                    type="text" 
+                    id="playlistName" 
+                    [(ngModel)]="newPlaylistName"
+                    placeholder="Ej: Mis favoritas"
+                    class="form-input"
+                    [disabled]="loading"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="playlistDescription">Descripción</label>
+                  <textarea 
+                    id="playlistDescription" 
+                    [(ngModel)]="newPlaylistDescription"
+                    placeholder="Descripción opcional"
+                    class="form-textarea"
+                    rows="3"
+                    [disabled]="loading"
+                  ></textarea>
+                </div>
+
+                <!-- Opción de visibilidad solo para CREATOR -->
+                @if (canChooseVisibility) {
+                  <div class="form-group">
+                    <label class="visibility-label">
+                      <input 
+                        type="checkbox" 
+                        [(ngModel)]="newPlaylistIsPublic"
+                        [disabled]="loading"
+                        class="visibility-checkbox"
+                      />
+                      <span>Hacer pública esta playlist</span>
+                    </label>
+                    <small class="visibility-help">
+                      Las playlists públicas pueden ser vistas por todos los usuarios
+                    </small>
+                  </div>
+                } @else {
+                  <div class="visibility-info">
+                    <small>Esta playlist será privada (solo tú puedes verla)</small>
+                  </div>
+                }
+
+                <div class="form-actions">
+                  <button 
+                    class="btn-submit" 
+                    (click)="createPlaylist()"
+                    [disabled]="loading || !newPlaylistName.trim()"
+                  >
+                    {{ loading ? 'Creando...' : 'Crear' }}
+                  </button>
+                  <button 
+                    class="btn-cancel" 
+                    (click)="toggleCreateForm()"
+                    [disabled]="loading"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- Lista de playlists -->
+            @if (!showCreateForm) {
+              @if (playlists.length === 0) {
+                <p class="no-playlists">No tienes playlists creadas aún</p>
+              } @else {
+                <ul class="playlist-list">
+                  @for (playlist of playlists; track $index) {
+                    <li class="playlist-item">
+                      <div class="playlist-header">
+                        <h3>{{ playlist.name }}</h3>
+                        @if (playlist.isPublic) {
+                          <span class="badge-public">Pública</span>
+                        } @else {
+                          <span class="badge-private">Privada</span>
+                        }
+                      </div>
+                      @if (playlist.description) {
+                        <p>{{ playlist.description }}</p>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -74,11 +74,11 @@ public class SecurityConfig {
                 .requestMatchers("/usuario/**").hasAnyRole(USUARIO_ROLE)
                 
                 // Endpoints para usuarios autenticados (cualquier rol)
-                .requestMatchers("/user/**").hasAnyRole(USUARIO_ROLE, CREADOR_ROLE, ADMIN_ROLE)
+                // .requestMatchers("/user/**").hasAnyRole(USUARIO_ROLE, CREADOR_ROLE, ADMIN_ROLE)
                 
                 // El resto requiere autenticación
                 .anyRequest().authenticated()
-                // .anyRequest().permitAll() // Para pruebas con Postman
+                // .anyRequest().permitAll() // Para pruebas con Postman (comentado)
             );
         
         return http.build();
