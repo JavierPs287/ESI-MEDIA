@@ -17,6 +17,7 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_UPDATE_
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 
@@ -69,9 +70,15 @@ public class AdminController {
         return ResponseEntity.ok(USER_UPDATE_MESSAGE);
     }
 
-        @PatchMapping("/users/updateAdmin")
+    @PatchMapping("/users/updateAdmin")
     public ResponseEntity<String> updateAdmin(@RequestBody AdminDTO adminDTO) {
         adminService.updateAdmin(adminDTO);
         return ResponseEntity.ok(USER_UPDATE_MESSAGE);
     }
-}
+
+    @PostMapping("/users/deleteUser")
+    public ResponseEntity<String> deleteUser(@RequestBody UserDTO userDTO) {
+        adminService.deleteUser(userDTO);
+        return ResponseEntity.ok("Usuario eliminado correctamente");
+    }
+ }
