@@ -1,243 +1,246 @@
 trigger:
   branches:
     include:
-      - develop
-
+    - develop
 pool:
   vmImage: 'ubuntu-latest'
-
 variables:
-  nodeVersion: '20.x'
-  mavenCacheFolder: $(Pipeline.Workspace)/.m2/repository
-  mavenOpts: '-Dmaven.repo.local=$(mavenCacheFolder)'
-  imageRepository: 'esimedia'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-  tag: '$(Build.BuildId)'
-  appUrl: 'https://esi-media.onrender.com'
-
+- name: nodeVersion
+  value: '20.x'
+- name: mavenCacheFolder
+  value: $(Pipeline.Workspace)/.m2/repository
+- name: mavenOpts
+  value: '-Dmaven.repo.local=$(mavenCacheFolder)'
+- name: imageRepository
+  value: 'esimedia'
+- name: dockerfilePath
+  value: '$(Build.SourcesDirectory)/Dockerfile'
+- name: tag
+  value: '$(Build.BuildId)'
+- name: appUrl
+  value: 'https://esi-media.onrender.com'
 stages:
-  # ========================================
-  # STAGE 1: BUILD FRONTEND
-  # ========================================
-  - stage: BuildFrontend
-    displayName: 'Build Frontend'
-    jobs:
-      - job: AngularBuild
-        displayName: 'Angular Compile'
-        steps:
-          - task: NodeTool@0
-            displayName: 'Install Node.js'
-            inputs:
-              versionSpec: $(nodeVersion)
-
-          - script: |
-              cd fe-esimedia
-              npm ci
-            displayName: 'npm ci (Clean Install)'
-
-          - script: |
-              cd fe-esimedia
-              npm run build -- --configuration=production
-            displayName: 'Build Angular Application'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Frontend Build'
-            condition: succeeded()
-            inputs:
-              targetPath: '$(System.DefaultWorkingDirectory)/fe-esimedia/dist'
-              artifact: 'frontend-build'
-              publishLocation: 'pipeline'
-
-  # ========================================
-  # STAGE 2: BUILD BACKEND (en paralelo con FE)
-  # ========================================
-  - stage: BuildBackend
-    displayName: 'Build Backend'
-    dependsOn: []  # No depende de nada, se ejecuta en paralelo con FE
-    jobs:
-      - job: MavenBuild
-        displayName: 'Maven Compile and Test'
-        steps:
-          - task: JavaToolInstaller@0
-            displayName: 'Setup Java 21'
-            inputs:
-              versionSpec: '21'
-              jdkArchitectureOption: 'x64'
-              jdkSourceOption: 'PreInstalled'
-
-          - task: Cache@2
-            displayName: 'Cache Maven Dependencies'
-            inputs:
-              key: 'maven | "$(Agent.OS)" | be-esimedia/pom.xml'
-              restoreKeys: |
-                maven | "$(Agent.OS)"
-                maven
-              path: $(mavenCacheFolder)
-
-          - task: Maven@4
-            displayName: 'Maven Clean Compile'
-            inputs:
-              mavenPomFile: 'be-esimedia/pom.xml'
-              goals: 'clean compile'
-              options: '$(mavenOpts) -B -e'
-              publishJUnitResults: false
-              javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.21'
-              mavenVersionOption: 'Default'
-              mavenOptions: '-Xmx3072m'
-              mavenAuthenticateFeed: false
-
-          - task: Maven@4
-            displayName: 'Maven Test'
-            inputs:
-              mavenPomFile: 'be-esimedia/pom.xml'
-              goals: 'test'
-              options: '$(mavenOpts) -B'
-              publishJUnitResults: true
-              testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
-              javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.21'
-              mavenVersionOption: 'Default'
-              mavenOptions: '-Xmx3072m'
-            continueOnError: false
-
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'JUnit'
-              testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
-              mergeTestResults: true
-              failTaskOnFailedTests: true
-              testRunTitle: 'Backend Unit Tests'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Backend Build'
-            condition: succeeded()
-            inputs:
-              targetPath: '$(System.DefaultWorkingDirectory)/be-esimedia/target'
-              artifact: 'backend-build'
-              publishLocation: 'pipeline'
-
-  # ========================================
-  # STAGE 3: BUILD DOCKER (espera a FE y BE)
-  # ========================================
-  - stage: BuildDocker
+- stage: BuildFrontend
+  displayName: 'Build Frontend'
+  jobs:
+  - job: AngularBuild
+    displayName: 'Angular Compile'
+    steps:
+    - task: NodeTool@0
+      displayName: 'Install Node.js'
+      inputs:
+        versionSpec: $(nodeVersion)
+    - task: CmdLine@2
+      displayName: 'npm ci (Clean Install)'
+      inputs:
+        script: |
+          cd fe-esimedia
+          npm ci
+    - task: CmdLine@2
+      displayName: 'Build Angular Application'
+      inputs:
+        script: |
+          cd fe-esimedia
+          npm run build -- --configuration=production
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Frontend Build'
+      condition: succeeded()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/fe-esimedia/dist'
+        artifact: 'frontend-build'
+        publishLocation: 'pipeline'
+- stage: BuildBackend
+  displayName: 'Build Backend'
+  dependsOn: []
+  jobs:
+  - job: MavenBuild
+    displayName: 'Maven Compile and Test'
+    steps:
+    - task: JavaToolInstaller@0
+      displayName: 'Setup Java 21'
+      inputs:
+        versionSpec: '21'
+        jdkArchitectureOption: 'x64'
+        jdkSourceOption: 'PreInstalled'
+    - task: Cache@2
+      displayName: 'Cache Maven Dependencies'
+      inputs:
+        key: 'maven | "$(Agent.OS)" | be-esimedia/pom.xml'
+        restoreKeys: |
+          maven | "$(Agent.OS)"
+          maven
+        path: $(mavenCacheFolder)
+    - task: Maven@4
+      displayName: 'Maven Clean Compile'
+      inputs:
+        mavenPomFile: 'be-esimedia/pom.xml'
+        goals: 'clean compile'
+        options: '$(mavenOpts) -B -e'
+        publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.21'
+        mavenVersionOption: 'Default'
+        mavenOptions: '-Xmx3072m'
+        mavenAuthenticateFeed: false
+    - task: Maven@4
+      displayName: 'Maven Test'
+      inputs:
+        mavenPomFile: 'be-esimedia/pom.xml'
+        goals: 'test'
+        options: '$(mavenOpts) -B'
+        publishJUnitResults: true
+        testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.21'
+        mavenVersionOption: 'Default'
+        mavenOptions: '-Xmx3072m'
+      continueOnError: false
+    - task: Maven@4
+      displayName: 'Generate JaCoCo Report'
+      condition: succeededOrFailed()
+      inputs:
+        mavenPomFile: 'be-esimedia/pom.xml'
+        goals: 'jacoco:report'
+        options: '$(mavenOpts) -B'
+        publishJUnitResults: false
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.21'
+        mavenVersionOption: 'Default'
+        mavenOptions: '-Xmx3072m'
+    - task: PublishTestResults@2
+      displayName: 'Publish Test Results'
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+        mergeTestResults: true
+        failTaskOnFailedTests: true
+        testRunTitle: 'Backend Unit Tests'
+    - task: PublishCodeCoverageResults@2
+      displayName: 'Publish Code Coverage'
+      condition: succeededOrFailed()
+      inputs:
+        codeCoverageTool: 'JaCoCo'
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/be-esimedia/target/site/jacoco/jacoco.xml'
+        reportDirectory: '$(System.DefaultWorkingDirectory)/be-esimedia/target/site/jacoco'
+        failIfCoverageEmpty: false
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Backend Build'
+      condition: succeeded()
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/be-esimedia/target'
+        artifact: 'backend-build'
+        publishLocation: 'pipeline'
+- stage: BuildDocker
+  displayName: 'Build Docker Image'
+  dependsOn:
+  - BuildFrontend
+  - BuildBackend
+  condition: succeeded()
+  jobs:
+  - job: DockerBuild
     displayName: 'Build Docker Image'
-    dependsOn:
-      - BuildFrontend
-      - BuildBackend
-    condition: succeeded()
-    jobs:
-      - job: DockerBuild
-        displayName: 'Build Docker Image'
-        steps:
-          - checkout: self
-            displayName: 'Checkout Source Code'
-
-          - task: Docker@2
-            displayName: 'Build Docker Image'
-            inputs:
-              command: 'build'
-              Dockerfile: $(dockerfilePath)
-              repository: $(imageRepository)
-              tags: |
-                $(tag)
-                latest
-
-          - script: |
-              echo "======================================"
-              echo "✅ Docker image built successfully!"
-              echo "======================================"
-              echo "Image: $(imageRepository):$(tag)"
-              echo "Image: $(imageRepository):latest"
-              echo "======================================"
-            displayName: 'Display Build Info'
-
-  # ========================================
-  # STAGE 4: DEPLOY TO RENDER
-  # ========================================
-  - stage: DeployToRender
-    displayName: 'Deploy to Render'
-    dependsOn: BuildDocker
-    condition: succeeded()
-    jobs:
-      - deployment: DeployProduction
-        displayName: 'Deploy to Production (Render)'
-        environment: 'production'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: Bash@3
-                  displayName: 'Trigger Render Deploy'
-                  inputs:
-                    targetType: 'inline'
-                    script: |
-                      echo "Triggering Render deployment..."
-                      
-                      if [ -z "$(RENDER_API_KEY)" ]; then
-                        echo "⚠️  RENDER_API_KEY not configured"
-                        exit 1
-                      fi
-                      
-                      RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-                        "https://api.render.com/v1/services/$(renderServiceId)/deploys" \
-                        -H "Authorization: Bearer $(RENDER_API_KEY)" \
-                        -H "Content-Type: application/json" \
-                        -d '{}')
-                      
-                      HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-                      BODY=$(echo "$RESPONSE" | head -n-1)
-                      
-                      echo "Response: $BODY"
-                      echo "HTTP Status: $HTTP_CODE"
-                      
-                      if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-                        echo "✅ Deploy triggered successfully!"
-                      else
-                        echo "❌ Deploy failed with HTTP $HTTP_CODE"
-                        exit 1
-                      fi
-
-                - script: |
-                    echo "======================================"
-                    echo "✅ DEPLOYMENT COMPLETED"
-                    echo "======================================"
-                    echo "🌐 Application URL: $(appUrl)"
-                    echo "📊 Monitor: https://dashboard.render.com/web/$(renderServiceId)"
-                    echo "======================================"
-                  displayName: 'Deployment Summary'
-
-  # ========================================
-  # STAGE 5: SMOKE TESTS
-  # ========================================
-  - stage: SmokeTests
-    displayName: 'Smoke Tests'
-    dependsOn: DeployToRender
-    condition: succeeded()
-    jobs:
-      - job: VerifyDeployment
-        displayName: 'Verify Deployment'
-        steps:
+    steps:
+    - task: 6d15af64-176c-496d-b583-fd2ae21d4df4@1
+      displayName: 'Checkout Source Code'
+      inputs:
+        repository: self
+    - task: Docker@2
+      displayName: 'Build Docker Image'
+      inputs:
+        command: 'build'
+        Dockerfile: $(dockerfilePath)
+        repository: $(imageRepository)
+        tags: |
+          $(tag)
+          latest
+    - task: CmdLine@2
+      displayName: 'Display Build Info'
+      inputs:
+        script: |
+          echo "======================================"
+          echo "✅ Docker image built successfully!"
+          echo "======================================"
+          echo "Image: $(imageRepository):$(tag)"
+          echo "Image: $(imageRepository):latest"
+          echo "======================================"
+- stage: DeployToRender
+  displayName: 'Deploy to Render'
+  dependsOn:
+  - BuildDocker
+  condition: succeeded()
+  jobs:
+  - deployment: DeployProduction
+    displayName: 'Deploy to Production (Render)'
+    environment:
+      name: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
           - task: Bash@3
-            displayName: 'Health Check'
+            displayName: 'Trigger Render Deploy'
             inputs:
               targetType: 'inline'
               script: |
-                echo "Waiting for application to be ready..."
-                sleep 30
-                
-                HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $(appUrl))
-                
-                if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 302 ]; then
-                  echo "✅ Application is responding (HTTP $HTTP_STATUS)"
-                else
-                  echo "⚠️  Application returned HTTP $HTTP_STATUS"
+                echo "Triggering Render deployment..."
+
+                if [ -z "$(RENDER_API_KEY)" ]; then
+                  echo "⚠️  RENDER_API_KEY not configured"
+                  exit 1
                 fi
 
-          - script: |
-              echo "======================================"
-              echo "✅ PIPELINE COMPLETED SUCCESSFULLY"
-              echo "======================================"
-            displayName: 'Pipeline Complete'
+                RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+                  "https://api.render.com/v1/services/$(renderServiceId)/deploys" \
+                  -H "Authorization: Bearer $(RENDER_API_KEY)" \
+                  -H "Content-Type: application/json" \
+                  -d '{}')
+
+                HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+                BODY=$(echo "$RESPONSE" | head -n-1)
+
+                echo "Response: $BODY"
+                echo "HTTP Status: $HTTP_CODE"
+
+                if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+                  echo "✅ Deploy triggered successfully!"
+                else
+                  echo "❌ Deploy failed with HTTP $HTTP_CODE"
+                  exit 1
+                fi
+          - task: CmdLine@2
+            displayName: 'Deployment Summary'
+            inputs:
+              script: "echo \"======================================\"\necho \"✅ DEPLOYMENT COMPLETED\"\necho \"======================================\"\necho \"\U0001F310 Application URL: $(appUrl)\"\necho \"\U0001F4CA Monitor: https://dashboard.render.com/web/$(renderServiceId)\"\necho \"======================================\"\n"
+- stage: SmokeTests
+  displayName: 'Smoke Tests'
+  dependsOn:
+  - DeployToRender
+  condition: succeeded()
+  jobs:
+  - job: VerifyDeployment
+    displayName: 'Verify Deployment'
+    steps:
+    - task: Bash@3
+      displayName: 'Health Check'
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Waiting for application to be ready..."
+          sleep 30
+
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $(appUrl))
+
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 302 ]; then
+            echo "✅ Application is responding (HTTP $HTTP_STATUS)"
+          else
+            echo "⚠️  Application returned HTTP $HTTP_STATUS"
+          fi
+    - task: CmdLine@2
+      displayName: 'Pipeline Complete'
+      inputs:
+        script: |
+          echo "======================================"
+          echo "✅ PIPELINE COMPLETED SUCCESSFULLY"
+          echo "======================================"
+

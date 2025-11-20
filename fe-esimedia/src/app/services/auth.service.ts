@@ -1,20 +1,48 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly authenticated$ = new BehaviorSubject<boolean>(this.hasToken());
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}/user`;
+  private readonly authenticated$ = new BehaviorSubject<boolean>(false);
   private readonly userRole$ = new BehaviorSubject<string | null>(null);
   private readonly userId$ = new BehaviorSubject<string | null>(null);
   private readonly initialized$ = new BehaviorSubject<boolean>(false);
 
-  hasToken(): boolean {
-    // Verificar si existe la cookie esi_token
-    try {
-      return document.cookie.split(';').some(cookie => cookie.trim().startsWith('esi_token='));
-    } catch {
-      return false;
-    }
+  constructor() {
+    this.verifyStoredToken();
+  }
+
+  /**
+   * Verifica el token enviando una petición al backend
+   * La cookie se envía automáticamente gracias a withCredentials: true
+   */
+  private verifyStoredToken(): void {
+    // NO intentar leer la cookie manualmente
+    // El navegador la envía automáticamente con withCredentials: true
+    
+    // Enviar petición vacía - el backend lee la cookie del header
+    this.http.post<any>(`${this.baseUrl}/verify-token`, {})
+      .subscribe({
+        next: (response) => {
+          if (response.valid === 'true') {
+            console.log('Restaurando sesión');
+            this.setAuthenticated(true, response.role, response.userId);
+          } else {
+            console.warn('Token inválido');
+            this.logout();
+          }
+          this.initialized$.next(true);
+          console.log('Inicialización completada');
+        },
+        error: (error) => {
+          this.logout();
+          this.initialized$.next(true);
+        }
+      });
   }
 
   isInitialized(): Observable<boolean> {

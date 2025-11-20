@@ -19,14 +19,9 @@ import { ShowContentComponent } from './components/show-content/show-content.com
 import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
 import { ConnectTotpComponent } from './components/connect-totp/connect-totp.component';
 import { VerifyTotpComponent } from './components/verify-totp/verify-totp.component';
+// Importación para lazy load de componente standalone
 
 export const routes: Routes = [
-
-    {
-        path: '',
-        redirectTo: '/home',
-        pathMatch: 'full'
-    },
 
     {
         path: 'home',
@@ -127,5 +122,14 @@ export const routes: Routes = [
     {
         path: 'verify-totp',
         component: VerifyTotpComponent
+    },
+    {
+        path: 'verify-email-code',
+        loadComponent: () => import('./components/verify-email-code/verify-email-code.component').then(m => m.VerifyEmailCodeComponent)
+    },
+    {
+        path: '**',
+        redirectTo: 'home',
+        pathMatch: 'full'
     },
 ];

@@ -61,7 +61,7 @@ public class ContenidoService {
         List<Contenido> contenidos;
         if (filters != null) {
             validateFilters(filters);
-            if (CREADOR_ROLE.equals(role) && ADMIN_ROLE.equals(role)) {
+            if (CREADOR_ROLE.equals(role) || ADMIN_ROLE.equals(role)) {
                 filters.setVisible(null);
             }
             contenidos = applyFilters(filters);

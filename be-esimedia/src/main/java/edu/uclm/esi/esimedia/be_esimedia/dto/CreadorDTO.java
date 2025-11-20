@@ -10,7 +10,7 @@ public class CreadorDTO extends UserDTO {
     private String field;
     private String type;
 
-    public CreadorDTO() { /* Empty constructor */}
+    public CreadorDTO() { /* Constructor vacío (para @ModelAttribute) */ }
 
     public CreadorDTO(User user, Creador creador) {
         super.initializeFromModel(user);

@@ -56,8 +56,8 @@ public class SecurityConfig {
                 // Comentar desde aquí para pruebas con Postman
                 // Endpoints públicos (sin autenticación)
                 .requestMatchers("/user/login", "/user/logout", "/user/verify-token", "/user/register", 
-                    "/auth/forgotPassword", "/auth/resetPassword", "/auth/resetPassword/validate", "user/2fa/activate",
-                "user/2fa/verify", "user/2fa/token", "user/2fa").permitAll()
+                    "/auth/forgotPassword", "/auth/resetPassword", "/auth/resetPassword/validate", "/user/2fa/activate",
+                "/user/2fa/verify", "/user/2fa/token", "/user/2fa", "/user/send-3fa-code", "/user/verify-3fa-code", "/user/3fa/token").permitAll()
                 // Permitir todos los recursos estáticos de Angular (JS, CSS, assets, etc.)
                 .requestMatchers("/", "/index.html", "/*.js", "/*.css", "/*.ico", "/assets/**", "/public/**").permitAll()
                 
@@ -75,9 +75,6 @@ public class SecurityConfig {
                 
                 // Endpoints para usuarios autenticados (cualquier rol)
                 .requestMatchers("/user/**").hasAnyRole(USUARIO_ROLE, CREADOR_ROLE, ADMIN_ROLE)
-                
-                // Endpoints de contenido: lectura para todos, escritura para creators
-                .requestMatchers("/audio/**", "/video/**").permitAll()
                 
                 // El resto requiere autenticación
                 .anyRequest().authenticated()
