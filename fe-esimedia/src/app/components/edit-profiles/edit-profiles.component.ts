@@ -272,7 +272,6 @@ getbirthDate(): string {
   // Construye un Usuario a partir del formulario y del usuario cargado
   private buildUsuarioFromForm(): Usuario {
     const v = this.editForm.getRawValue(); // incluye campos deshabilitados
-    const existing = this.editedUser as Usuario | undefined;
     return {
       name: v.name || this.name,
       lastName: v.lastName || this.lastName,
@@ -288,7 +287,6 @@ getbirthDate(): string {
   // Construye un Creator a partir del formulario y del usuario cargado
   private buildCreatorFromForm(): Creator {
     const v = this.editForm.getRawValue();
-    const existing = this.editedUser as Creator | undefined;
     return {
       name: v.name || this.name,
       lastName: v.lastName || this.lastName,
@@ -304,7 +302,6 @@ getbirthDate(): string {
   // Construye un Admin a partir del formulario y del usuario cargado
   private buildAdminFromForm(): Admin {
     const v = this.editForm.getRawValue();
-    const existing = this.editedUser as Admin | undefined;
     return {
       name: v.name || this.name,
       lastName: v.lastName || this.lastName,
