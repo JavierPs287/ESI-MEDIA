@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RouterLink, Router } from '@angular/router';
 import { NavbarComponent } from "../navbar/navbar.component";
 import { AuthService } from '../../services/auth.service';
-import { UserService } from '../../services/usuario.service';
+import { UsuarioService } from '../../services/usuario.service';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class LoginuserComponent {
   fb = inject(FormBuilder);
-  userService = inject(UserService);
+  userService = inject(UsuarioService);
   router = inject(Router);
   visiblePassword = false;
   private readonly authService = inject(AuthService);

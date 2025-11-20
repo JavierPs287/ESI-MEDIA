@@ -49,7 +49,7 @@ public class UsuarioService {
         if (validateService.isRequiredFieldEmpty(usuarioDTO.getAlias(), 1, 50)) {
             throw new IllegalArgumentException("El alias no puede estar vacío y debe tener entre 1 y 50 caracteres.");
         }
-        if (validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
+        if (!validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
             throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
         }
     }

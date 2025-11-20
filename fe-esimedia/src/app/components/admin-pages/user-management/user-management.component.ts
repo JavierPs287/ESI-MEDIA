@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { UserService } from '../../../services/user.service';
-import { User } from '../../../models/user.model';
+import { Usuario as User } from '../../../models/user.model';
 import { getAvatarUrlById } from '../../../services/image.service';
 
 @Component({
@@ -41,8 +41,6 @@ export class UserManagementComponent implements OnInit {
 
     this.userService.getAllUsers().subscribe({
       next: (users) => {
-        this.users = users;
-        this.filteredUsers = [...users];
         this.isLoading = false;
       },
       error: (error) => {

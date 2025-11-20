@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Admin } from '../models/admin.model';
+import { Admin as AdminDTO } from '../models/user.model';
 import { Response } from '../models/response.model';
 import { environment } from '../../environments/environment';
 
@@ -32,6 +33,16 @@ export class AdminService {
         }
       });
     });
+  }
+
+  /**
+   * Actualiza el perfil de creador enviando un PATCH a /creador/profile
+   * @param adminData Objeto con los campos del CreadorDTO
+   * @returns Observable<string> con el mensaje de respuesta (texto)
+   */
+  updateProfile(adminData: AdminDTO): Observable<any> {
+    const url = `${environment.apiUrl}/admin/users/updateAdmin`;
+    return this.http.patch<any>(url, adminData);
   }
 
 }

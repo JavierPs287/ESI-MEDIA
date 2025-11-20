@@ -8,6 +8,9 @@ import { AVATAR_OPTIONS } from '../../constants/avatar-constants';
 import { N } from '@angular/cdk/keycodes';
 import { Admin, Creator, Usuario } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
+import { UsuarioService} from '../../services/usuario.service';
+import { CreatorService} from '../../services/creator.service';
+import { AdminService} from '../../services/admin.service';
 import { Router, RouterLink } from '@angular/router';
 import { getAvatarUrlById } from '../../services/image.service';
 
@@ -19,6 +22,9 @@ import { getAvatarUrlById } from '../../services/image.service';
 })
 export class EditProfilesComponent {
   private readonly userService = inject(UserService);
+  private readonly usuarioService = inject(UsuarioService);
+  private readonly creatorService = inject(CreatorService);
+  private readonly adminService = inject(AdminService);
   private readonly router = inject(Router);
   editedUser!: Usuario | Creator | Admin | null;
 
@@ -28,6 +34,9 @@ export class EditProfilesComponent {
   editMode = false;
   backup: any = {};
   fields = FIELDS;
+  isMe = true;
+  isSubmitting = false;
+
   // Datos comunes
   name: string = '';
   lastName: string = ''
@@ -54,8 +63,6 @@ export class EditProfilesComponent {
 
   ngOnInit(): void {
     this.initUser();
-    this.initForm();
-    this.setReadMode();
   }
 
   private initUser(): void {
@@ -84,6 +91,10 @@ export class EditProfilesComponent {
               return;
             }
             this.role = user.role;
+
+          // Inicializar form sólo después de tener editedUser
+          this.initForm();
+          this.setReadMode();
         },
         error: err => {
           alert('Error al cargar el usuario actual');
@@ -216,15 +227,102 @@ getbirthDate(): string {
     this.setReadMode();
   }
 
+  // Construye un Usuario a partir del formulario y del usuario cargado
+  private buildUsuarioFromForm(): Usuario {
+    const v = this.editForm.getRawValue(); // incluye campos deshabilitados
+    const existing = this.editedUser as Usuario | undefined;
+    return {
+      name: v.name ?? this.name,
+      lastName: v.lastName ?? this.lastName,
+      email: this.email,
+      alias: v.alias,
+      birthDate: v.birthDate ? new Date(v.birthDate).toISOString() : (existing?.birthDate ?? ''),
+      vip: !!v.vip,
+      imageId: v.imageId,
+      role: 'USUARIO',
+    };
+  }
+
+  // Construye un Creator a partir del formulario y del usuario cargado
+  private buildCreatorFromForm(): Creator {
+    const v = this.editForm.getRawValue();
+    const existing = this.editedUser as Creator | undefined;
+    return {
+      name: v.name ?? this.name,
+      lastName: v.lastName ?? this.lastName,
+      email: this.email,
+      alias: v.alias ?? existing?.alias ?? '',
+      imageId: v.imageId ?? this.selectedPhoto ?? this.imageId ?? existing?.imageId ?? null,
+      role: 'CREADOR',
+      description: v.description ?? existing?.description ?? '',
+      field: v.field ?? existing?.field ?? '',
+      type: existing?.type ?? this.type ?? ''
+    };
+  }
+
+  // Construye un Admin a partir del formulario y del usuario cargado
+  private buildAdminFromForm(): Admin {
+    const v = this.editForm.getRawValue();
+    const existing = this.editedUser as Admin | undefined;
+    return {
+      name: v.name ?? this.name,
+      lastName: v.lastName ?? this.lastName,
+      email: this.email,
+      imageId: v.imageId,
+      role: 'ADMIN',
+      department: v.department ?? existing?.department ?? ''
+    };
+  }
+
   canSave(): boolean {
-    const anyTouched = Object.values(this.editForm.controls).some(c => c.touched);
-    const anyChanged = this.editForm.dirty;
-    return anyTouched && anyChanged;
+    return this.editForm.valid && this.editForm.dirty;
   }
 
   save() {
-    if (!this.canSave()) return;
-    
+    this.isSubmitting = true;
+    if (this.isMe){
+      if (this.role === 'USUARIO') {
+        const userData: Usuario = this.buildUsuarioFromForm();
+        this.usuarioService.updateProfile(userData).subscribe({
+          next: (response) => {
+            alert('Perfil de usuario actualizado correctamente');
+            this.router.navigate(['/menu/user']);
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            alert('Error al actualizar el perfil de usuario');
+            this.isSubmitting = false;
+          }
+        });
+      } else if (this.role === 'CREADOR') {
+        const creatorData: Creator = this.buildCreatorFromForm();
+        this.creatorService.updateProfile(creatorData).subscribe({
+          next: (response) => {
+            alert('Perfil de creador actualizado correctamente');
+            this.router.navigate(['/menu/creator']);
+          this.isSubmitting = false;
+          },
+          error: (error) => {
+            alert('Error al actualizar el perfil de creador');
+            this.isSubmitting = false;
+          }
+        });
+      } else if (this.role === 'ADMIN') {
+        const adminData: Admin = this.buildAdminFromForm();
+        this.adminService.updateProfile(adminData).subscribe({
+          next: (response) => {
+            alert('Perfil de administrador actualizado correctamente');
+            this.router.navigate(['/menu/admin']);
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            alert('Error al actualizar el perfil de administrador');
+            this.isSubmitting = false;
+          }
+        });
+      } else {
+        alert('Rol de usuario no reconocido');
+      }
+    }
   }
-
 }

@@ -7,5 +7,8 @@ export interface Usuario {
     password: string;
     vip: boolean;
     enable2FA?: boolean;
+    enable3FA?: boolean;
+    twoFaEnabled?: boolean;
+    threeFaEnabled?: boolean;
     imageId?: number | null;
 }
