@@ -133,6 +133,7 @@ mat-card-actions {
   padding: 16px;
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
 }
 
 mat-card-actions button {
