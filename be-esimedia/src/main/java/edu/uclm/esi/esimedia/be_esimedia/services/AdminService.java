@@ -254,8 +254,8 @@ public class AdminService {
 
         User user = userRepository.findByEmail(creadorDTO.getEmail());
         if (user == null) {
-            logger.error("Usuario con email {} no encontrado", creadorDTO.getEmail());
-            throw new NoSuchElementException("User no encontrado");
+            logger.error(USER_SPECIFIC_ERROR_MESSAGE, creadorDTO.getEmail());
+            throw new NoSuchElementException(USER_ERROR_MESSAGE);
         }
 
         Optional<Creador> optCreador = creadorRepository.findById(user.getId());
@@ -316,4 +316,36 @@ public class AdminService {
         }
     }
 
+    public void deleteUser(UserDTO userDTO) {
+        if (userDTO == null) {
+            logger.error("El objeto UserDTO es nulo");
+            throw new UpdatingException();
+        }
+
+        User user = userRepository.findByEmail(userDTO.getEmail());
+        if (user == null) {
+            logger.error("Usuario con email {} no encontrado", userDTO.getEmail());
+            throw new NoSuchElementException("User no encontrado");
+        }
+
+        try {
+            if (user.getRole().equals(USUARIO_ROLE)) {
+                usuarioRepository.deleteById(user.getId());
+            } else if (user.getRole().equals(CREADOR_ROLE)) {
+                creadorRepository.deleteById(user.getId());
+            } else if (user.getRole().equals(ADMIN_ROLE)) {
+                adminRepository.deleteById(user.getId());
+            }
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al eliminar los detalles del usuario de la base de datos: {}", e.getMessage(), e);
+            throw new UpdatingException();
+        }
+
+        try {
+            userRepository.delete(user);
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al eliminar el usuario de la base de datos: {}", e.getMessage(), e);
+            throw new UpdatingException();
+        }
+    }
 }

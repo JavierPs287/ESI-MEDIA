@@ -34,15 +34,13 @@ export class AdminService {
       });
     });
   }
-
-  /**
-   * Actualiza el perfil de creador enviando un PATCH a /creador/profile
-   * @param adminData Objeto con los campos del CreadorDTO
-   * @returns Observable<string> con el mensaje de respuesta (texto)
-   */
+  
   updateProfile(adminData: AdminDTO): Observable<any> {
     const url = `${environment.apiUrl}/admin/users/updateAdmin`;
     return this.http.patch<any>(url, adminData);
   }
 
+  toggleBlockUser(email: string, blocked: boolean): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/users/${email}/blocked`, { blocked });
+  }
 }

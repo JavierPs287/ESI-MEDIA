@@ -11,16 +11,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import edu.uclm.esi.esimedia.be_esimedia.config.SecurityConfig;
-import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.http.UsuarioController;
 import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
-import edu.uclm.esi.esimedia.be_esimedia.services.AudioService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UsuarioService;
 
 @WebMvcTest(

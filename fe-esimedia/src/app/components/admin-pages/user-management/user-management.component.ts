@@ -7,6 +7,7 @@ import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.comp
 import { UserService } from '../../../services/user.service';
 import { Usuario as User } from '../../../models/user.model';
 import { getAvatarUrlById } from '../../../services/image.service';
+import { AdminService } from '../../../services/admin.service';
 
 @Component({
   selector: 'app-user-management',
@@ -28,7 +29,8 @@ export class UserManagementComponent implements OnInit {
 
   constructor(
     public dialogo: MatDialog,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly adminService: AdminService
   ) { }
 
   ngOnInit(): void {
@@ -94,8 +96,15 @@ export class UserManagementComponent implements OnInit {
       }
     }).afterClosed().subscribe((result: boolean) => {
       if (result) {
-        user.blocked = !user.blocked;
-        this.applyFilters();
+        this.adminService.toggleBlockUser(email, !user.blocked).subscribe({
+          next: () => {
+            user.blocked = !user.blocked;
+            this.applyFilters();
+          },
+          error: (error) => {
+            console.error('Error al cambiar el estado de bloqueo:', error);
+          }
+        });
       }
     });
   }
