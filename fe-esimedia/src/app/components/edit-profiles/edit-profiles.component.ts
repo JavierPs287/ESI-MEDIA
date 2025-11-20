@@ -33,6 +33,7 @@ export class EditProfilesComponent {
 
   editMode = false;
   backup: any = {};
+  user!: Admin | Creator | Usuario;
   fields = FIELDS;
   isMe = true;
   isSubmitting = false;
@@ -61,8 +62,53 @@ export class EditProfilesComponent {
   showPhotoOptions = false;
   selectedPhoto: number | null = null;
 
-  ngOnInit(): void {
-    this.initUser();
+ngOnInit(): void {
+  const url = this.router.url || '';
+  // Si la ruta empieza por /editar usamos el state enviado por la navegación
+  if (url.startsWith('/modify')) {
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras.state || history.state;
+    
+    if (state && state['user']) {
+      this.user = state['user'];
+    }
+    if (this.user) {
+      this.initializeFromState(this.user);
+      return;
+    }
+  }
+  this.initUser();
+  this.initForm();
+  this.setReadMode();
+}
+
+private initializeFromState(user: any): void {
+  this.name = user.name ?? '';
+  this.lastName = user.lastName ?? '';
+  this.email = user.email ?? '';
+  this.imageId = user.imageId ?? null;
+
+  const role = (user.role).toString();
+    if (role === 'USUARIO') {
+      this.editedUser = user as Usuario;
+      this.vip = (this.editedUser as Usuario).vip ? 'Eres VIP' : 'No eres VIP';
+      this.birthDate = this.getbirthDate();
+      this.alias = (this.editedUser as Usuario).alias || '';
+    } else if (role === 'CREADOR') {
+      this.editedUser = user as Creator;
+      this.alias = (this.editedUser as Creator).alias;
+      this.description = (this.editedUser as Creator).description || '';
+      this.field = (this.editedUser as Creator).field ;
+      this.type = (this.editedUser as Creator).type ;
+    } else if (role === 'ADMIN') {
+      this.editedUser = user as Admin;
+      this.department = (this.editedUser as Admin).department ;
+    } else {
+      // rol desconocido: redirigir a unauthorized
+      this.router.navigate(['/unauthorized']);
+      return;
+    }
+    this.role = user.role ?? '';
   }
 
   private initUser(): void {

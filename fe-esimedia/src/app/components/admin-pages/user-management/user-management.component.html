@@ -16,7 +16,7 @@
   <div class="search-filters-section" *ngIf="!isLoading && !errorMessage">
     <!-- Search Bar Meter-->
     <input 
-      type="text" class="search-input" placeholder="Search by name, alias, email..."
+      type="text" class="search-input" placeholder="Buscar por nombre, correo o alias"
       [(ngModel)]="searchTerm" (input)="onSearch()" (keyup.enter)="onSearch()"> 
 
     <!-- Dropdowns -->
@@ -43,7 +43,7 @@
 
   <!-- Users List -->
   <div class="users-list" *ngIf="!isLoading && !errorMessage">
-    <div class="user-card" *ngFor="let user of filteredUsers">
+    <div class="user-card" *ngFor="let user of filteredUsers" >
       <!-- Left Side: User Info -->
       <div class="user-info">
         <img [src]="getAvatar(user)" alt="User Avatar" class="user-avatar">

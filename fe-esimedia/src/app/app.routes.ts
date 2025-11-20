@@ -103,6 +103,10 @@ export const routes: Routes = [
             {
                 path: 'editProfile',
                 component: EditProfilesComponent
+            },
+            {
+                path: 'modify',
+                component: EditProfilesComponent
             }
         ]
     },

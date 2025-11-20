@@ -156,7 +156,7 @@
     <!-- Foto actual / selección -->
     <ng-container *ngIf="!editMode; else editPhotoBlock">
       <div class="form-field">
-        <label>Foto de perfil actual</label>
+        <label for="foto">Foto de perfil actual</label>
         <div class="photo-current">
           <img [src]="getAvatar()" alt="Foto de perfil actual" class="current-photo">
         </div>
@@ -189,7 +189,7 @@
 
     <!-- Cambiar contraseña -->
     <div class="form-field">
-      <label>Contraseña</label>
+      <label for="Contraseña">Contraseña</label>
       <button type="button" routerLink="/forgotpassword" class="btn-change-password">Cambiar contraseña</button>
     </div>
 
