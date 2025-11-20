@@ -46,6 +46,13 @@ public class AdminController {
     @PatchMapping("/users/{email}/blocked")
     public ResponseEntity<Object> setUserBlocked(@PathVariable("email") String emailPath, @RequestBody Map<String, Boolean> body) {
         String email = java.net.URLDecoder.decode(emailPath, java.nio.charset.StandardCharsets.UTF_8);
+        
+        // Validar que el campo 'blocked' existe en el body
+        if (!body.containsKey("blocked")) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(ERROR_KEY, "Error interno"));
+        }
+        
         Boolean blocked = body.get("blocked");
 
         try {
