@@ -19,7 +19,10 @@ import { ShowContentComponent } from './components/show-content/show-content.com
 import { ReproduceContentComponent } from './components/reproduce-content/reproduce-content.component';
 import { ConnectTotpComponent } from './components/connect-totp/connect-totp.component';
 import { VerifyTotpComponent } from './components/verify-totp/verify-totp.component';
+import { ListPlaylistsComponent } from './components/list-playlists/list-playlists.component';
+import { PlaylistDetailComponent } from './components/playlist-detail/playlist-detail.component';
 import { EditProfilesComponent } from './components/edit-profiles/edit-profiles.component';
+// Importación para lazy load de componente standalone
 
 export const routes: Routes = [
 
@@ -49,10 +52,9 @@ export const routes: Routes = [
     },
 
     {
-        path: 'resetPassword',
+        path: 'resetpassword',
         component: ResetpasswordComponent
     },
-
     {
         path: 'menu/creator',
         component: MainMenuCreatorComponent,
@@ -74,6 +76,18 @@ export const routes: Routes = [
             {
                 path: 'uploadContent/video',
                 component: UploadVideoComponent
+            },
+            {
+                path: 'reproduce/:urlId',
+                component: ReproduceContentComponent
+            },
+            {
+                path: 'playlists',
+                component: ListPlaylistsComponent
+            },
+            {
+                path: 'playlist/:id',
+                component: PlaylistDetailComponent
             },
             {
                 path: 'editProfile',
@@ -115,6 +129,10 @@ export const routes: Routes = [
             {
                 path: 'modify',
                 component: EditProfilesComponent
+            },
+            {
+                path: 'reproduce/:urlId',
+                component: ReproduceContentComponent
             }
         ]
     },
@@ -132,6 +150,14 @@ export const routes: Routes = [
             {
                 path: 'reproduce/:urlId',
                 component: ReproduceContentComponent
+            },
+            {
+                path: 'playlists',
+                component: ListPlaylistsComponent
+            },
+            {
+                path: 'playlist/:id',
+                component: PlaylistDetailComponent
             },
             {
                 path: 'editProfile',

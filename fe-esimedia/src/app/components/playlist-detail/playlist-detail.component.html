@@ -1,0 +1,97 @@
+<div class="container">
+  <div class="header">
+    <button mat-icon-button class="back-button" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>{{ playlist?.name || 'Playlist' }}</h1>
+  </div>
+
+  @if (loading) {
+    <div class="loading-container">
+      <p>Cargando playlist...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error && playlist) {
+    <div class="playlist-info">
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div class="info-row">
+            <mat-icon>description</mat-icon>
+            <p>{{ playlist.description }}</p>
+          </div>
+          <div class="info-row">
+            <mat-chip-set>
+              @if (playlist.isPublic) {
+                <mat-chip class="chip-public">
+                  <mat-icon>public</mat-icon>
+                  Pública
+                </mat-chip>
+              } @else {
+                <mat-chip class="chip-private">
+                  <mat-icon>lock</mat-icon>
+                  Privada
+                </mat-chip>
+              }
+            </mat-chip-set>
+            <span class="content-count">{{ playlist.contenidos.length }} contenido(s)</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    @if (playlist.contenidos.length === 0) {
+      <div class="no-content">
+        <mat-icon class="no-content-icon">music_note</mat-icon>
+        <p>Esta playlist no tiene contenido</p>
+      </div>
+    } @else {
+      <div class="content-list">
+        <h2>Contenido</h2>
+        @for (content of playlist.contenidos; track content.urlId) {
+          <mat-card class="content-card">
+            <mat-card-header>
+              <mat-icon class="content-type-icon">{{ getContentIcon(content.type) }}</mat-icon>
+              <mat-card-title>{{ content.title }}</mat-card-title>
+              <mat-card-subtitle>{{ content.creador }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p class="description">{{ content.description }}</p>
+              <div class="content-details">
+                <div class="detail-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ getDurationText(content.duration) }}</span>
+                </div>
+                <div class="detail-item">
+                  <mat-icon>visibility</mat-icon>
+                  <span>{{ content.views }} vistas</span>
+                </div>
+                <div class="detail-item">
+                  <mat-icon>star</mat-icon>
+                  <span>{{ content.rating.toFixed(1) }}</span>
+                </div>
+              </div>
+              <div class="tags">
+                @for (tag of content.tags; track tag) {
+                  <mat-chip>{{ tag }}</mat-chip>
+                }
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="playContent(content.urlId)">
+                <mat-icon>play_arrow</mat-icon>
+                Reproducir
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</div>

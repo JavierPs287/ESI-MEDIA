@@ -64,6 +64,7 @@ export class ResetpasswordComponent implements OnInit {
   }
 
   onSubmit(): void {
+    
     if (this.registerForm.valid) {
       const formValue = this.registerForm.getRawValue();
       const contrasena = formValue.password;

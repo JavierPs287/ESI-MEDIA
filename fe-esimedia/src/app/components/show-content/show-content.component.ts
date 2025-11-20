@@ -14,6 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { TAGS } from '../../constants/form-constants';
+import { HttpClient } from '@angular/common/http';
+
 @Component({
   selector: 'app-show-content',
   imports: [CommonModule,
@@ -25,11 +27,13 @@ export class ShowContentComponent implements OnInit {
 
   private readonly contentService = inject(ContentService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
   contents: Content[] = [];
   filteredContents: Content[] = [];
   isLoading = true;
   errorMessage = '';
+  userRole = '';
 
   // filtros / opciones
   availableTags: string[] = TAGS;
@@ -43,6 +47,7 @@ export class ShowContentComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.loadUserRole();
     this.loadContents();
   }
 
@@ -66,6 +71,18 @@ export class ShowContentComponent implements OnInit {
     });
   }
 
+  loadUserRole(): void {
+    this.http.get<any>('http://localhost:8081/user/me', { withCredentials: true })
+      .subscribe({
+        next: (userInfo) => {
+          this.userRole = userInfo.role;
+        },
+        error: (err) => {
+          console.error('Error al cargar información del usuario:', err);
+        }
+      });
+  }
+
   onContentClick(urlId: string) {
     const selectedContent = this.contents.find(c => c.urlId === urlId);
     // Validar que urlId existe
@@ -78,7 +95,16 @@ export class ShowContentComponent implements OnInit {
       alert('Contenido no encontrado');
       return;
     }
-    this.router.navigate(['/menu/user/reproduce', urlId], {
+
+    // Navegar según el rol del usuario
+    let basePath = '/menu/user';
+    if (this.userRole === 'ADMIN') {
+      basePath = '/menu/admin';
+    } else if (this.userRole === 'CREADOR') {
+      basePath = '/menu/creator';
+    }
+
+    this.router.navigate([`${basePath}/reproduce`, urlId], {
       state: { content: selectedContent }
     });
   }

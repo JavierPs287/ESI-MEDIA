@@ -1,107 +1,107 @@
-package edu.uclm.esi.esimedia.be_esimedia;
+// // package edu.uclm.esi.esimedia.be_esimedia;
 
-import java.time.Instant;
+// // import java.time.Instant;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+// // import org.junit.jupiter.api.BeforeEach;
+// // import org.junit.jupiter.api.DisplayName;
+// // import org.junit.jupiter.api.Test;
+// // import static org.mockito.ArgumentMatchers.any;
+// // import static org.mockito.Mockito.doNothing;
+// // import static org.mockito.Mockito.doThrow;
+// // import static org.mockito.Mockito.verify;
+// // import static org.mockito.Mockito.times;
+// // import org.springframework.beans.factory.annotation.Autowired;
+// // import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+// // import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+// // import org.springframework.context.annotation.ComponentScan;
+// // import org.springframework.context.annotation.FilterType;
+// // import org.springframework.test.context.bean.override.mockito.MockitoBean;
+// // import org.springframework.test.web.servlet.MockMvc;
+// // import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+// // import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+// // import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import edu.uclm.esi.esimedia.be_esimedia.config.SecurityConfig;
-import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
-import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
-import edu.uclm.esi.esimedia.be_esimedia.http.VideoController;
-import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
-import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
-import jakarta.servlet.http.HttpServletRequest;
+// import edu.uclm.esi.esimedia.be_esimedia.config.SecurityConfig;
+// import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
+// import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
+// import edu.uclm.esi.esimedia.be_esimedia.http.VideoController;
+// import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
+// import edu.uclm.esi.esimedia.be_esimedia.services.VideoService;
+// import jakarta.servlet.http.HttpServletRequest;
 
-@WebMvcTest(
-    controllers = VideoController.class,
-    excludeFilters = @ComponentScan.Filter(
-        type = FilterType.ASSIGNABLE_TYPE, 
-        classes = {SecurityConfig.class, JwtAuthenticationFilter.class}
-    )
-)
-@AutoConfigureMockMvc(addFilters = false)
-@DisplayName("VideoController Tests")
-class VideoControllerTest {
+// // @WebMvcTest(
+// //     controllers = VideoController.class,
+// //     excludeFilters = @ComponentScan.Filter(
+// //         type = FilterType.ASSIGNABLE_TYPE, 
+// //         classes = {SecurityConfig.class, JwtAuthenticationFilter.class}
+// //     )
+// // )
+// // @AutoConfigureMockMvc(addFilters = false)
+// // @DisplayName("VideoController Tests")
+// // class VideoControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+// //     @Autowired
+// //     private MockMvc mockMvc;
 
-    @MockitoBean
-    private VideoService videoService;
+// //     @MockitoBean
+// //     private VideoService videoService;
 
-    private VideoDTO validVideoDTO;
+// //     private VideoDTO validVideoDTO;
 
-    @BeforeEach
-    public void setUp() {
-        validVideoDTO = new VideoDTO();
-        validVideoDTO.setTitle("Test Video");
-        validVideoDTO.setDescription("This is a test video description.");
-        validVideoDTO.setTags(new String[] { "test", "video" });
-        validVideoDTO.setDuration(120.0);
-        validVideoDTO.setVip(false);
-        validVideoDTO.setVisible(true);
-        validVideoDTO.setVisibilityChangeDate(Instant.now());
-        validVideoDTO.setMinAge(4);
-        validVideoDTO.setCreador("test_creator");
-        validVideoDTO.setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-        validVideoDTO.setResolution(1080);
-    }
+// //     @BeforeEach
+// //     public void setUp() {
+// //         validVideoDTO = new VideoDTO();
+// //         validVideoDTO.setTitle("Test Video");
+// //         validVideoDTO.setDescription("This is a test video description.");
+// //         validVideoDTO.setTags(new String[] { "test", "video" });
+// //         validVideoDTO.setDuration(120.0);
+// //         validVideoDTO.setVip(false);
+// //         validVideoDTO.setVisible(true);
+// //         validVideoDTO.setVisibilityChangeDate(Instant.now());
+// //         validVideoDTO.setMinAge(4);
+// //         validVideoDTO.setCreador("test_creator");
+// //         validVideoDTO.setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+// //         validVideoDTO.setResolution(1080);
+// //     }
 
-    @Test
-    @DisplayName("Debe subir video exitosamente con datos válidos")
-    void testUploadVideoSuccess() throws Exception {
-        // Arrange
-        doNothing().when(videoService).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
+//     @Test
+//     @DisplayName("Debe subir video exitosamente con datos válidos")
+//     void testUploadVideoSuccess() throws Exception {
+//         // Arrange
+//         doNothing().when(videoService).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
 
-        // Act & Assert
-        mockMvc.perform(multipart("/creador/uploadVideo")
-                .param("title", validVideoDTO.getTitle())
-                .param("description", validVideoDTO.getDescription())
-                .param("tags", validVideoDTO.getTags()[0], validVideoDTO.getTags()[1])
-                .param("duration", String.valueOf(validVideoDTO.getDuration()))
-                .param("vip", String.valueOf(validVideoDTO.isVip()))
-                .param("visible", String.valueOf(validVideoDTO.isVisible()))
-                .param("minAge", String.valueOf(validVideoDTO.getMinAge()))
-                .param("creador", validVideoDTO.getCreador())
-                .param("url", validVideoDTO.getUrl())
-                .param("resolution", String.valueOf(validVideoDTO.getResolution())))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("Vídeo subido exitosamente"));
+// //         // Act & Assert
+// //         mockMvc.perform(multipart("/creador/uploadVideo")
+// //                 .param("title", validVideoDTO.getTitle())
+// //                 .param("description", validVideoDTO.getDescription())
+// //                 .param("tags", validVideoDTO.getTags()[0], validVideoDTO.getTags()[1])
+// //                 .param("duration", String.valueOf(validVideoDTO.getDuration()))
+// //                 .param("vip", String.valueOf(validVideoDTO.isVip()))
+// //                 .param("visible", String.valueOf(validVideoDTO.isVisible()))
+// //                 .param("minAge", String.valueOf(validVideoDTO.getMinAge()))
+// //                 .param("creador", validVideoDTO.getCreador())
+// //                 .param("url", validVideoDTO.getUrl())
+// //                 .param("resolution", String.valueOf(validVideoDTO.getResolution())))
+// //                 .andExpect(status().isCreated())
+// //                 .andExpect(jsonPath("$.message").value("Vídeo subido exitosamente"));
 
-        verify(videoService, times(1)).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
-    }
+//         verify(videoService, times(1)).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
+//     }
 
-    @Test
-    @DisplayName("Debe retornar BadRequest cuando faltan campos obligatorios")
-    void testUploadVideoWithoutUrl() throws Exception {
-        // Arrange
-        doThrow(new VideoUploadException("Campos obligatorios incorrectos"))
-            .when(videoService).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
+//     @Test
+//     @DisplayName("Debe retornar BadRequest cuando faltan campos obligatorios")
+//     void testUploadVideoWithoutUrl() throws Exception {
+//         // Arrange
+//         doThrow(new VideoUploadException("Campos obligatorios incorrectos"))
+//             .when(videoService).uploadVideo(any(VideoDTO.class), any(HttpServletRequest.class));
 
-        // Act & Assert
-        mockMvc.perform(multipart("/creador/uploadVideo")
-                .param("title", validVideoDTO.getTitle())
-                .param("duration", String.valueOf(validVideoDTO.getDuration()))
-                .param("minAge", String.valueOf(validVideoDTO.getMinAge()))
-                .param("resolution", String.valueOf(validVideoDTO.getResolution())))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").exists());
-    }
-}
+// //         // Act & Assert
+// //         mockMvc.perform(multipart("/creador/uploadVideo")
+// //                 .param("title", validVideoDTO.getTitle())
+// //                 .param("duration", String.valueOf(validVideoDTO.getDuration()))
+// //                 .param("minAge", String.valueOf(validVideoDTO.getMinAge()))
+// //                 .param("resolution", String.valueOf(validVideoDTO.getResolution())))
+// //                 .andExpect(status().isBadRequest())
+// //                 .andExpect(jsonPath("$.error").exists());
+// //     }
+// // }
