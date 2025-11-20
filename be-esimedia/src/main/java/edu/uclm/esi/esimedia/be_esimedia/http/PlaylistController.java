@@ -9,16 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.PlaylistDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Playlist;
-import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.services.PlaylistService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,26 +30,28 @@ import jakarta.servlet.http.HttpServletRequest;
 @CrossOrigin("*")
 public class PlaylistController {
 
+    private static final String ERROR_USUARIO_NO_AUTENTICADO = "Usuario no autenticado";
+    private static final String K_ERROR = "error";
+    private static final String K_MESSAGE = "message";
+    private static final String ADMIN_ROLE = "ADMIN";
+
     private final PlaylistService playlistService;
     private final JwtUtils jwtUtils;
-    private final ContenidoRepository contenidoRepository;
     
     @Autowired
-    public PlaylistController(PlaylistService playlistService, JwtUtils jwtUtils, ContenidoRepository contenidoRepository) {
+    public PlaylistController(PlaylistService playlistService, JwtUtils jwtUtils) {
         this.playlistService = playlistService;
         this.jwtUtils = jwtUtils;
-        this.contenidoRepository = contenidoRepository;
     }
     
     @PostMapping("/listPlaylists")
     public ResponseEntity<Object> listPlaylists(HttpServletRequest request) {
-        try {
             // Extraer token de la cookie
             String token = jwtUtils.extractTokenFromCookie(request);
             
             if (token == null || !jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Usuario no autenticado"));
+                        .body(Map.of(K_ERROR, ERROR_USUARIO_NO_AUTENTICADO));
             }
             
             // Obtener el userId del token
@@ -56,21 +60,16 @@ public class PlaylistController {
             // Obtener solo las playlists del usuario autenticado
             List<PlaylistDTO> playlists = playlistService.listPlaylistsByOwnerId(userId);
             return ResponseEntity.status(HttpStatus.OK).body(playlists);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al obtener las playlists: " + e.getMessage()));
-        }
     }
 
     @PostMapping("/listAllPlaylists")
     public ResponseEntity<Object> listAllPlaylists(HttpServletRequest request) {
-        try {
             // Extraer token de la cookie
             String token = jwtUtils.extractTokenFromCookie(request);
             
             if (token == null || !jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Usuario no autenticado"));
+                        .body(Map.of(K_ERROR, ERROR_USUARIO_NO_AUTENTICADO));
             }
             
             // Obtener el userId y role del token
@@ -80,21 +79,16 @@ public class PlaylistController {
             // Obtener playlists según el rol
             List<PlaylistDTO> playlists = playlistService.listAllPlaylistsByRole(userId, userRole);
             return ResponseEntity.status(HttpStatus.OK).body(playlists);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al obtener las playlists: " + e.getMessage()));
-        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getPlaylistById(@PathVariable String id, HttpServletRequest request) {
-        try {
             // Extraer token de la cookie
             String token = jwtUtils.extractTokenFromCookie(request);
             
             if (token == null || !jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Usuario no autenticado"));
+                        .body(Map.of(K_ERROR, ERROR_USUARIO_NO_AUTENTICADO));
             }
             
             // Obtener el userId del token
@@ -103,34 +97,14 @@ public class PlaylistController {
             // Obtener la playlist
             Playlist playlist = playlistService.getPlaylistById(id);
             
-            System.out.println("DEBUG: Playlist obtenida - ID: " + playlist.getId());
-            System.out.println("DEBUG: Playlist name: " + playlist.getName());
-            
             // Verificar permisos: el usuario debe ser el propietario o la playlist debe ser pública
             if (!playlist.getOwnerId().equals(userId) && !playlist.isPublic()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "No tienes permisos para ver esta playlist"));
+                        .body(Map.of(K_ERROR, "No tienes permisos para ver esta playlist"));
             }
             
             // Obtener el contenido de la playlist
             List<ContenidoDTO> contenidos = new ArrayList<>();
-            String[] contenidoIds = playlist.getContenidoIds();
-            
-            System.out.println("DEBUG: contenidoIds es null? " + (contenidoIds == null));
-            if (contenidoIds != null) {
-                System.out.println("DEBUG: Playlist tiene " + contenidoIds.length + " contenidos");
-                for (String contenidoId : contenidoIds) {
-                    System.out.println("DEBUG: Buscando contenido con urlId: " + contenidoId);
-                    // Los IDs en la playlist son urlId, no _id de MongoDB
-                    contenidoRepository.findByUrlId(contenidoId).ifPresent(contenido -> {
-                        System.out.println("DEBUG: Contenido encontrado: " + contenido.getTitle());
-                        contenidos.add(new ContenidoDTO(contenido));
-                    });
-                }
-            } else {
-                System.out.println("DEBUG: contenidoIds es NULL!");
-            }
-            System.out.println("DEBUG: Total contenidos añadidos: " + contenidos.size());
             
             // Construir la respuesta
             Map<String, Object> response = new HashMap<>();
@@ -142,10 +116,94 @@ public class PlaylistController {
             response.put("contenidos", contenidos);
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al obtener la playlist: " + e.getMessage()));
-        }
+    }
+
+    @PostMapping("/create-playlist")
+    public ResponseEntity<Map<String, String>> createPlaylist(@RequestBody PlaylistDTO playlistDTO, jakarta.servlet.http.HttpServletRequest request) {
+            // Extraer token de la cookie
+            String token = jwtUtils.extractTokenFromCookie(request);
+            
+            if (token == null || !jwtUtils.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of(K_ERROR, ERROR_USUARIO_NO_AUTENTICADO));
+            }
+            
+            // Obtener el rol y userId del token
+            String userRole = jwtUtils.getRoleFromToken(token);
+            String userId = jwtUtils.getUserIdFromToken(token);
+            
+            // Validar que no sea ADMIN
+            if (ADMIN_ROLE.equals(userRole)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of(K_ERROR, "Los administradores no pueden crear playlists"));
+            }
+            
+            // Si es USER, forzar playlist privada
+            if ("USER".equals(userRole)) {
+                playlistDTO.setPublic(false);
+            }
+            
+            // Asignar el ownerId
+            playlistDTO.setOwnerId(userId);
+            
+            playlistService.createPlaylist(playlistDTO);
+            
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of(K_MESSAGE, "Playlist creada exitosamente"));
+    }
+
+    @PutMapping("/update-playlist")
+    public ResponseEntity<Map<String, String>> updatePlaylist(@RequestBody PlaylistDTO playlistDTO, jakarta.servlet.http.HttpServletRequest request) {
+            // Extraer token de la cookie
+            String token = jwtUtils.extractTokenFromCookie(request);
+            
+            if (token == null || !jwtUtils.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of(K_ERROR, ERROR_USUARIO_NO_AUTENTICADO));
+            }
+            
+            // Obtener el rol y userId del token
+            String userRole = jwtUtils.getRoleFromToken(token);
+            String userId = jwtUtils.getUserIdFromToken(token);
+            
+            // Validar que no sea ADMIN
+            if (ADMIN_ROLE.equals(userRole)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of(K_ERROR, "Los administradores no pueden actualizar playlists"));
+            }
+            
+            // Actualizar la playlist
+            playlistService.updatePlaylist(playlistDTO, userId);
+            
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of(K_MESSAGE, "Playlist actualizada exitosamente"));
+    }
+
+    @DeleteMapping("/delete-playlist/{playlistId}")
+    public ResponseEntity<Map<String, String>> deletePlaylist(@PathVariable String playlistId, jakarta.servlet.http.HttpServletRequest request) {
+            // Extraer token de la cookie
+            String token = jwtUtils.extractTokenFromCookie(request);
+            
+            if (token == null || !jwtUtils.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of(K_ERROR, ERROR_USUARIO_NO_AUTENTICADO));
+            }
+            
+            // Obtener el rol y userId del token
+            String userRole = jwtUtils.getRoleFromToken(token);
+            String userId = jwtUtils.getUserIdFromToken(token);
+            
+            // Validar que no sea ADMIN
+            if (ADMIN_ROLE.equals(userRole)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of(K_ERROR, "Los administradores no pueden eliminar playlists"));
+            }
+            
+            // Eliminar la playlist
+            playlistService.deletePlaylist(playlistId, userId);
+            
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of(K_MESSAGE, "Playlist eliminada exitosamente"));
     }
 
 }

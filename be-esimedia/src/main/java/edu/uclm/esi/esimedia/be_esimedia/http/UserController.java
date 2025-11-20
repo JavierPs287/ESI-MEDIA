@@ -9,12 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,12 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.JWT_COOKIE_NAME;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
-import edu.uclm.esi.esimedia.be_esimedia.dto.PlaylistDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.LoginRequest;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
-import edu.uclm.esi.esimedia.be_esimedia.services.PlaylistService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 
@@ -38,13 +33,11 @@ public class UserController {
     private final AuthService authService;
     private final UserService userService;
     private final JwtUtils jwtUtils;
-    private final PlaylistService playlistService;
 
-    public UserController(AuthService authService, UserService userService, JwtUtils jwtUtils, PlaylistService playlistService) {
+    public UserController(AuthService authService, UserService userService, JwtUtils jwtUtils) {
         this.authService = authService;
         this.userService = userService;
         this.jwtUtils = jwtUtils;
-        this.playlistService = playlistService;
     }
     
     @PostMapping("/register")

@@ -5,14 +5,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-<<<<<<< HEAD
-
-=======
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
->>>>>>> origin/develop
+import org.springframework.stereotype.Service;
+
 import edu.uclm.esi.esimedia.be_esimedia.dto.ForgotPasswordTokenDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
