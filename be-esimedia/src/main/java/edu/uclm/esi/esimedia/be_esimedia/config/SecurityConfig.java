@@ -25,10 +25,10 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
-import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ADMIN_ROLE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.CREADOR_ROLE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
+import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -74,7 +74,7 @@ public class SecurityConfig {
                 .requestMatchers("/usuario/**").hasAnyRole(USUARIO_ROLE)
                 
                 // Endpoints para usuarios autenticados (cualquier rol)
-                // .requestMatchers("/user/**").hasAnyRole(USUARIO_ROLE, CREADOR_ROLE, ADMIN_ROLE)
+                .requestMatchers("/user/**").hasAnyRole(USUARIO_ROLE, CREADOR_ROLE, ADMIN_ROLE)
                 
                 // El resto requiere autenticación
                 .anyRequest().authenticated()
