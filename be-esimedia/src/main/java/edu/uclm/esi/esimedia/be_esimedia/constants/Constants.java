@@ -16,6 +16,7 @@ public final class Constants {
     // Usuarios
     public static final String MASKED_PASSWORD = "XXXXXXXXX";
     public static final String USER_ERROR_MESSAGE = "Usuario no encontrado";
+    public static final String USER_UPDATE_MESSAGE = "Usuario actualizado correctamente";
 
     // Seguridad
     public static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
