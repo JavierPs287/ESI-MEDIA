@@ -20,3 +20,14 @@ export const DEPARTMENTS: string[] = [
   'Operaciones',
   'Legal'
 ];
+
+export const TAGS = [
+  'Acción',
+  'Comedia',
+  'Drama',
+  'Terror',
+  'Thriller',
+  'Educativo',
+  'Infantil',
+  'Documentales'
+];

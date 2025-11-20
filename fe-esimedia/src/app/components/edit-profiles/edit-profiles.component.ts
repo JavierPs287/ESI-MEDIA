@@ -54,7 +54,6 @@ export class EditProfilesComponent {
 
   ngOnInit(): void {
     this.initUser();
-    console.log(this.editedUser);
     this.initForm();
     this.setReadMode();
   }
@@ -71,7 +70,6 @@ export class EditProfilesComponent {
               this.vip = (this.editedUser as Usuario).vip ? 'Eres VIP' : 'No eres VIP';
               this.birthDate = this.getbirthDate();
               this.alias = (this.editedUser as Usuario).alias || '';
-              console.log(this.birthDate);
             } else if (user.role === 'CREADOR') {
               this.editedUser = user as Creator;
               this.alias = (this.editedUser as Creator).alias || '';
@@ -226,8 +224,7 @@ getbirthDate(): string {
 
   save() {
     if (!this.canSave()) return;
-
-
+    
   }
 
 }
