@@ -42,6 +42,7 @@ public final class Constants {
 
     // Video
     public static final int MAX_STANDARD_RESOLUTION = 1080; // 1080p
+    public static String MASKED_PASSWORD;
     
 
 

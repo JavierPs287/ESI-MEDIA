@@ -5,10 +5,12 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_ERROR_M
 import java.time.Instant;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import edu.uclm.esi.esimedia.be_esimedia.dto.ForgotPasswordTokenDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
@@ -45,11 +47,16 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final AuthService authService;
+    private final TokenService tokenService;
+    private final EmailService emailService;
+    private final PasswordHistoryRepository passwordHistoryRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, TokenRepository tokenRepository, ValidateService validateService,
-            BCryptPasswordEncoder passwordEncoder, JwtUtils jwtUtils, AdminRepository adminRepository,
-            CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, AuthService authService) {
+    public UserService(UserRepository userRepository, UsuarioRepository usuarioRepository,
+            AdminRepository adminRepository, CreadorRepository creadorRepository, TokenRepository tokenRepository,
+            ValidateService validateService, BCryptPasswordEncoder passwordEncoder, JwtUtils jwtUtils,
+            AuthService authService, TokenService tokenService, EmailService emailService,
+            PasswordHistoryRepository passwordHistoryRepository) {
         this.userRepository = userRepository;
         this.usuarioRepository = usuarioRepository;
         this.adminRepository = adminRepository;
@@ -59,6 +66,9 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
         this.authService = authService;
+        this.tokenService = tokenService;
+        this.emailService = emailService;
+        this.passwordHistoryRepository = passwordHistoryRepository;
     }
 
     public boolean existsEmail(String email) {
@@ -69,13 +79,134 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public List<UserDTO> findAll() {
+    // TODO No hace falta la request como parámetro, userDTO ya tiene el email
+    // TODO Usar método común de validación (mirar TODOs en AdminService, mover validateUserUpdateFields aquí)
+    // TODO Tener en cuenta que esto es USERService, aquí solo cosas comunes a todos los roles
+    // TODO Mover cosas de Usuario a UsuarioService
+    public UsuarioDTO updateProfile(UsuarioDTO usuarioDTO, HttpServletRequest request) {
+        String token = jwtUtils.extractTokenFromCookie(request);
+
+        if (token == null || token.isEmpty()) {
+            throw new InvalidTokenException("Token no proporcionado");
+        }
+
+        String email = jwtUtils.getEmailFromToken(token);
+        User user = findByEmail(email);
+
+        if (user == null) {
+            throw new InvalidTokenException(Constants.USER_ERROR_MESSAGE);
+        }
+
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
+        if (usuarioOpt.isEmpty()) {
+            throw new InvalidTokenException(Constants.USER_ERROR_MESSAGE);
+        }
+
+        Usuario usuario = usuarioOpt.get();
+
+        // Validar campos usando ValidateService
+        if (validateService.isRequiredFieldEmpty(usuarioDTO.getName(), 2, 50)) {
+            throw new IllegalArgumentException("El nombre es obligatorio y debe tener entre 2 y 50 caracteres");
+        }
+        if (validateService.isRequiredFieldEmpty(usuarioDTO.getLastName(), 2, 100)) {
+            throw new IllegalArgumentException("Los apellidos son obligatorios y deben tener entre 2 y 100 caracteres");
+        }
+        if (validateService.isRequiredFieldEmpty(email, 5, 100)) {
+            throw new IllegalArgumentException("El email es obligatorio y debe tener entre 5 y 100 caracteres");
+        }
+        if (!validateService.isEmailValid(email)) {
+            throw new IllegalArgumentException("El formato del email no es válido");
+        }
+        if (validateService.isRequiredFieldEmpty(String.valueOf(usuarioDTO.getImageId()), 1, 10)) {
+            throw new IllegalArgumentException(
+                    "El ID de la imagen no puede estar vacío y debe tener entre 1 y 10 caracteres.");
+        }
+        if (validateService.isRequiredFieldEmpty(usuarioDTO.getAlias(), 1, 50)) {
+            throw new IllegalArgumentException("El alias no puede estar vacío y debe tener entre 1 y 50 caracteres.");
+        }
+        if (validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
+            throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
+        }
+
+        if (usuarioDTO.isVip() != usuario.isVip()) {
+            usuario.setVip(usuarioDTO.isVip());
+        }
+
+        usuarioRepository.save(usuario);
+
+        // Devolver el DTO actualizado
+        UsuarioDTO updatedDTO = new UsuarioDTO();
+        updatedDTO.setEmail(user.getEmail());
+        updatedDTO.setName(user.getName());
+        updatedDTO.setLastName(user.getLastName());
+        updatedDTO.setPassword(Constants.MASKED_PASSWORD);
+        updatedDTO.setImageId(user.getImageId());
+        updatedDTO.setBlocked(user.isBlocked());
+        updatedDTO.setActive(user.isActive());
+        updatedDTO.setAlias(usuario.getAlias());
+        updatedDTO.setBirthDate(usuario.getBirthDate());
+        updatedDTO.setVip(usuario.isVip());
+
+        return updatedDTO;
+    }
+
+public List<UserDTO> findAll() {
         List<User> users = userRepository.findAll();
         List<UserDTO> result = new ArrayList<>();
 
         for (User user : users) {
-            UserDTO dto = getCurrentUser(user);
-            result.add(dto);
+            // prefer role-specific entity if exists
+            if (adminRepository.existsById(user.getId())) {
+                Optional<Admin> adminOpt = adminRepository.findById(user.getId());
+                AdminDTO dto = new AdminDTO();
+                dto.setEmail(user.getEmail());
+                dto.setName(user.getName());
+                dto.setLastName(user.getLastName());
+                dto.setPassword(Constants.MASKED_PASSWORD);
+                dto.setImageId(user.getImageId());
+                dto.setBlocked(user.isBlocked());
+                dto.setActive(user.isActive());
+                adminOpt.ifPresent(a -> dto.setDepartment(a.getDepartment()));
+                result.add(dto);
+            }
+
+            if (creadorRepository.existsById(user.getId())) {
+                Optional<Creador> creadorOpt = creadorRepository.findById(user.getId());
+                CreadorDTO dto = new CreadorDTO();
+                dto.setEmail(user.getEmail());
+                dto.setName(user.getName());
+                dto.setLastName(user.getLastName());
+                dto.setPassword(Constants.MASKED_PASSWORD);
+                dto.setImageId(user.getImageId());
+                dto.setBlocked(user.isBlocked());
+                dto.setActive(user.isActive());
+                creadorOpt.ifPresent(c -> {
+                    dto.setAlias(c.getAlias());
+                    dto.setDescription(c.getDescription());
+                    dto.setField(c.getField());
+                    dto.setType(c.getType());
+                });
+                result.add(dto);
+            }
+
+            if (usuarioRepository.existsById(user.getId())) {
+                Optional<Usuario> usuarioOpt = usuarioRepository.findById(user.getId());
+                UsuarioDTO dto = new UsuarioDTO();
+                dto.setEmail(user.getEmail());
+                dto.setName(user.getName());
+                dto.setLastName(user.getLastName());
+                dto.setPassword(Constants.MASKED_PASSWORD);
+                dto.setImageId(user.getImageId());
+                dto.setBlocked(user.isBlocked());
+                dto.setActive(user.isActive());
+                usuarioOpt.ifPresent(u -> {
+                    dto.setAlias(u.getAlias());
+                    dto.setBirthDate(u.getBirthDate());
+                    dto.setVip(u.isVip());
+                });
+                result.add(dto);
+            }
+
         }
 
         return result;
@@ -152,8 +283,7 @@ public class UserService {
         }
     }
 
-    public void startPasswordReset(String email, TokenService tokenService, EmailService emailService,
-            TokenRepository tokenRepository) {
+    public void startPasswordReset(String email) {
         User user = findByEmail(email);
 
         if (user == null) {
@@ -168,8 +298,7 @@ public class UserService {
         emailService.sendPasswordResetEmail(user, token);
     }
 
-    public void resetPassword(String token, String newPassword, TokenService tokenService,
-            PasswordHistoryRepository passwordHistoryRepository) throws InvalidTokenException {
+    public void resetPassword(String token, String newPassword) throws InvalidTokenException {
         // Verificar que la contraseña no esté en la blacklist usando AuthService
         if (authService.isPasswordBlacklisted(newPassword)) {
             throw new InvalidPasswordException("La contraseña está en la lista negra de contraseñas comunes.");

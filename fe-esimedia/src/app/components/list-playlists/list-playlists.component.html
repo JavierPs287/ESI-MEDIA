@@ -1,0 +1,65 @@
+<div class="container">
+  <div class="header">
+    <button mat-icon-button class="back-button" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Playlists</h1>
+  </div>
+
+  @if (loading) {
+    <div class="loading-container">
+      <p>Cargando playlists...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error) {
+    @if (playlists.length === 0) {
+      <div class="no-content">
+        <mat-icon class="no-content-icon">playlist_play</mat-icon>
+        <p>No hay playlists disponibles</p>
+      </div>
+    } @else {
+      <div class="playlist-grid">
+        @for (playlist of playlists; track playlist.id) {
+          <mat-card class="playlist-card">
+            <mat-card-header>
+              <mat-card-title>{{ playlist.name }}</mat-card-title>
+              <mat-chip-set>
+                @if (playlist.isPublic) {
+                  <mat-chip class="chip-public">
+                    <mat-icon>public</mat-icon>
+                    Pública
+                  </mat-chip>
+                } @else {
+                  <mat-chip class="chip-private">
+                    <mat-icon>lock</mat-icon>
+                    Privada
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </mat-card-header>
+            <mat-card-content>
+              <p class="description">{{ playlist.description }}</p>
+              <div class="content-count">
+                <mat-icon>music_note</mat-icon>
+                <span>{{ getContentCountText(playlist.contenidoIds.length) }}</span>
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="viewPlaylist(playlist.id!)">
+                <mat-icon>play_arrow</mat-icon>
+                Ver Playlist
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</div>

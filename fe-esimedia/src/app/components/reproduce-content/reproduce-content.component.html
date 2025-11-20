@@ -92,7 +92,161 @@
           <span>{{ (contentSelect.views ?? 0) | number }} reproducciones</span>
         </div> 
       </div>
+
+      <!-- Botón para añadir a playlist -->
+      <div class="playlist-actions">
+        <button mat-raised-button color="primary" (click)="openAddToPlaylistModal()" [disabled]="!canCreatePlaylists">
+          <mat-icon>playlist_add</mat-icon> Añadir a Playlist
+        </button>
+        <p *ngIf="!canCreatePlaylists" class="admin-warning">Los administradores no pueden añadir contenido a playlists</p>
+      </div>
       
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Playlists -->
+<div *ngIf="showPlaylistModal" class="modal-overlay" (click)="closePlaylistModal()" (keydown.escape)="closePlaylistModal()" tabindex="-1">
+  <div class="modal-content" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <h2 id="modal-title">Añadir a Playlist</h2>
+      <button class="close-btn" (click)="closePlaylistModal()" aria-label="Cerrar modal">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="success-message">
+        <mat-icon>check_circle</mat-icon>
+        {{ successMessage }}
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="playlistError" class="error-message">
+        <mat-icon>error</mat-icon>
+        {{ playlistError }}
+      </div>
+
+      <!-- Estado de carga -->
+      <div *ngIf="loadingPlaylists" class="loading-message">
+        <mat-icon class="loading-icon">refresh</mat-icon>
+        <p>Cargando playlists...</p>
+      </div>
+
+      <!-- Lista de playlists -->
+      <div *ngIf="!loadingPlaylists && !successMessage">
+        <!-- Botón para crear nueva playlist -->
+        <button 
+          *ngIf="!showCreateForm && canCreatePlaylists" 
+          mat-raised-button 
+          color="accent" 
+          class="btn-create-playlist"
+          (click)="toggleCreateForm()">
+          <mat-icon>add</mat-icon> Crear Nueva Playlist
+        </button>
+
+        <!-- Formulario de crear playlist -->
+        <div *ngIf="showCreateForm" class="create-form">
+          <h3>Nueva Playlist</h3>
+          <div class="form-group">
+            <label for="playlistName">Nombre *</label>
+            <input 
+              type="text" 
+              id="playlistName" 
+              [(ngModel)]="newPlaylistName"
+              placeholder="Ej: Mis favoritas"
+              class="form-input"
+              [disabled]="loadingPlaylists"
+            />
+          </div>
+          <div class="form-group">
+            <label for="playlistDescription">Descripción</label>
+            <textarea 
+              id="playlistDescription" 
+              [(ngModel)]="newPlaylistDescription"
+              placeholder="Descripción opcional"
+              class="form-textarea"
+              rows="3"
+              [disabled]="loadingPlaylists"
+            ></textarea>
+          </div>
+
+          <!-- Opción de visibilidad solo para CREADOR -->
+          <div *ngIf="canChooseVisibility" class="form-group">
+            <label class="visibility-label">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="newPlaylistIsPublic"
+                [disabled]="loadingPlaylists"
+                class="visibility-checkbox"
+              />
+              <span>Hacer pública esta playlist</span>
+            </label>
+            <small class="visibility-help">
+              Las playlists públicas pueden ser vistas por todos los usuarios
+            </small>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              mat-raised-button
+              color="primary"
+              class="btn-submit" 
+              (click)="createPlaylist()"
+              [disabled]="loadingPlaylists || !newPlaylistName.trim()"
+            >
+              <mat-icon>save</mat-icon> {{ loadingPlaylists ? 'Creando...' : 'Crear y Añadir' }}
+            </button>
+            <button 
+              mat-raised-button
+              class="btn-cancel" 
+              (click)="toggleCreateForm()"
+              [disabled]="loadingPlaylists"
+            >
+              <mat-icon>close</mat-icon> Cancelar
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!showCreateForm">
+          <div *ngIf="playlists.length === 0" class="no-playlists">
+            <mat-icon>playlist_play</mat-icon>
+            <p>No tienes playlists creadas aún</p>
+          </div>
+        </div>
+
+        <ul *ngIf="playlists.length > 0 && !showCreateForm" class="playlist-list">
+          <li *ngFor="let playlist of playlists" class="playlist-item">
+            <div class="playlist-info">
+              <div class="playlist-header">
+                <h3>{{ playlist.name }}</h3>
+                <span *ngIf="playlist.isPublic" class="badge-public">Pública</span>
+                <span *ngIf="!playlist.isPublic" class="badge-private">Privada</span>
+              </div>
+              <p *ngIf="playlist.description">{{ playlist.description }}</p>
+              <p class="content-count">{{ playlist.contenidoIds.length || 0 }} contenidos</p>
+            </div>
+            <button 
+              *ngIf="!contentSelect || !playlist.contenidoIds.includes(contentSelect.urlId)"
+              mat-raised-button 
+              color="accent" 
+              (click)="addToPlaylist(playlist)"
+              [disabled]="loadingPlaylists"
+            >
+              <mat-icon>add</mat-icon> Añadir
+            </button>
+            <button 
+              *ngIf="contentSelect && playlist.contenidoIds.includes(contentSelect.urlId)"
+              mat-raised-button 
+              class="btn-remove" 
+              (click)="removeFromPlaylist(playlist)"
+              [disabled]="loadingPlaylists || playlist.contenidoIds.length === 1"
+              [title]="playlist.contenidoIds.length === 1 ? 'No se puede eliminar el único contenido de la playlist' : 'Eliminar de la playlist'"
+            >
+              <mat-icon>remove</mat-icon> Eliminar de la Playlist
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
