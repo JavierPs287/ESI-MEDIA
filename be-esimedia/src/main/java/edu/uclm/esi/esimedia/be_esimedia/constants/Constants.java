@@ -14,7 +14,6 @@ public final class Constants {
     public static final int MAX_AGE = 150;
 
     // Usuarios
-    public static final String MASKED_PASSWORD = "XXXXXXXXX";
     public static final String USER_ERROR_MESSAGE = "Usuario no encontrado";
     public static final String USER_UPDATE_MESSAGE = "Usuario actualizado correctamente";
     public static final String USER_SPECIFIC_ERROR_MESSAGE = "Usuario con email {} no encontrado";

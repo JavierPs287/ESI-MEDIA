@@ -5,7 +5,6 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_ERROR_M
 import java.time.Instant;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,19 +237,5 @@ public class UserService {
         }
         userRepository.save(user);
         return true;
-    }
-    
-    /**
-     * Método auxiliar para extraer el token de la cookie
-     */
-    private String extractTokenFromCookie(HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("esi_token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 }

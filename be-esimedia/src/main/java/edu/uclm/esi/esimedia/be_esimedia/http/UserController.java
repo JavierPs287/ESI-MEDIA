@@ -97,30 +97,25 @@ public class UserController {
 
     @GetMapping("/cookie-data")
     public ResponseEntity<Map<String, String>> getCookieData(HttpServletRequest request) {
-        try {
-            // Extraer token de la cookie
-            String token = jwtUtils.extractTokenFromCookie(request);
-            
-            if (token == null || !jwtUtils.validateToken(token)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of(ERROR_KEY, "Token inválido o no proporcionado"));
-            }
-            
-            // Extraer información del token
-            String email = jwtUtils.getEmailFromToken(token);
-            String role = jwtUtils.getRoleFromToken(token);
-            String userId = jwtUtils.getUserIdFromToken(token);
-            
-            Map<String, String> userInfo = new HashMap<>();
-            userInfo.put(EMAIL_KEY, email);
-            userInfo.put("role", role);
-            userInfo.put(USER_KEY, userId);
-            
-            return ResponseEntity.ok(userInfo);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(ERROR_KEY, "Error al obtener información del usuario"));
+        // Extraer token de la cookie
+        String token = jwtUtils.extractTokenFromCookie(request);
+        
+        if (token == null || !jwtUtils.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(ERROR_KEY, "Token inválido o no proporcionado"));
         }
+        
+        // Extraer información del token
+        String email = jwtUtils.getEmailFromToken(token);
+        String role = jwtUtils.getRoleFromToken(token);
+        String userId = jwtUtils.getUserIdFromToken(token);
+        
+        Map<String, String> userInfo = new HashMap<>();
+        userInfo.put(EMAIL_KEY, email);
+        userInfo.put("role", role);
+        userInfo.put(USER_KEY, userId);
+        
+        return ResponseEntity.ok(userInfo);
     }
 
     @GetMapping("/me")
@@ -159,17 +154,13 @@ public class UserController {
             return ResponseEntity.ok(Map.of("valid", "false"));
         }
 
-        try {
-            Map<String, String> info = new HashMap<>();
-            info.put(EMAIL_KEY, jwtUtils.getEmailFromToken(token));
-            info.put("role", jwtUtils.getRoleFromToken(token));
-            info.put(USER_KEY, jwtUtils.getUserIdFromToken(token));
-            info.put("valid", String.valueOf(jwtUtils.validateToken(token)));
-            return ResponseEntity.ok(info);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of(ERROR_KEY, "Token inválido: " + e.getMessage()));
-        }
+        
+        Map<String, String> info = new HashMap<>();
+        info.put(EMAIL_KEY, jwtUtils.getEmailFromToken(token));
+        info.put("role", jwtUtils.getRoleFromToken(token));
+        info.put(USER_KEY, jwtUtils.getUserIdFromToken(token));
+        info.put("valid", String.valueOf(jwtUtils.validateToken(token)));
+        return ResponseEntity.ok(info);
     }        
     
     /**
@@ -256,20 +247,15 @@ public class UserController {
      */
     @PostMapping("/2fa/activate")
     public ResponseEntity<Map<String, String>> activar2FA(@RequestBody Map<String, String> body) {
-        try {
-            String email = body.get(EMAIL_KEY);
-            if (email == null || email.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email no proporcionado"));
-            }
-            Map<String, String> result = authService.activar2FA(email);
-            if (result == null || result.isEmpty() || !result.containsKey("qrUrl")) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "No se pudo generar el QR de 2FA"));
-            }
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of(ERROR_KEY, "Error al activar 2FA: " + e.getMessage()));
+        String email = body.get(EMAIL_KEY);
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email no proporcionado"));
         }
+        Map<String, String> result = authService.activar2FA(email);
+        if (result == null || result.isEmpty() || !result.containsKey("qrUrl")) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(ERROR_KEY, "No se pudo generar el QR de 2FA"));
+        }
+        return ResponseEntity.ok(result);
     }
 
         /**

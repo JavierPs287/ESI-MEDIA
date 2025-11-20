@@ -4,6 +4,7 @@ import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Date;
 
@@ -33,6 +34,11 @@ public class AuthService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    private static final String BASE32_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+
+    private final SecureRandom random = new SecureRandom();
+
     private final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UsuarioRepository usuarioRepository;
@@ -60,7 +66,7 @@ public class AuthService {
         if (user == null) return Map.of();
 
         try {
-            javax.crypto.KeyGenerator keyGen = javax.crypto.KeyGenerator.getInstance("HmacSHA1");
+            javax.crypto.KeyGenerator keyGen = javax.crypto.KeyGenerator.getInstance(HMAC_SHA1_ALGORITHM);
             keyGen.init(160);
             javax.crypto.SecretKey secretKey = keyGen.generateKey();
             byte[] secretBytes = secretKey.getEncoded();
@@ -83,32 +89,38 @@ public class AuthService {
     }
 
     // Utilidad para convertir a base32 (RFC 4648, sin padding)
-    private static final String BASE32_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-    private String toBase32(byte[] bytes) {
+    private static String toBase32(byte[] bytes) {
         StringBuilder base32 = new StringBuilder();
-        int i = 0, index = 0, digit = 0;
-        int currByte, nextByte;
+        int i = 0;
+        int index = 0;
         while (i < bytes.length) {
-            currByte = bytes[i] >= 0 ? bytes[i] : bytes[i] + 256;
-            if (index > 3) {
-                if ((i + 1) < bytes.length) {
-                    nextByte = bytes[i + 1] >= 0 ? bytes[i + 1] : bytes[i + 1] + 256;
-                } else {
-                    nextByte = 0;
-                }
-                digit = currByte & (0xFF >> index);
-                index = (index + 5) % 8;
-                digit <<= index;
-                digit |= nextByte >> (8 - index);
+            int currByte = bytes[i] >= 0 ? bytes[i] : bytes[i] + 256;
+            int digit = calculateBase32Digit(bytes, i, index, currByte);
+            index = (index + 5) % 8;
+            if (index == 0 || index > 3) {
                 i++;
-            } else {
-                digit = (currByte >> (8 - (index + 5))) & 0x1F;
-                index = (index + 5) % 8;
-                if (index == 0) i++;
             }
             base32.append(BASE32_CHARS.charAt(digit));
         }
         return base32.toString();
+    }
+
+    private static int calculateBase32Digit(byte[] bytes, int i, int index, int currByte) {
+        if (index > 3) {
+            int nextByte;
+            if ((i + 1) < bytes.length) {
+                nextByte = bytes[i + 1] >= 0 ? bytes[i + 1] : bytes[i + 1] + 256;
+            } else {
+                nextByte = 0;
+            }
+            int digit = currByte & (0xFF >> index);
+            int newIndex = (index + 5) % 8;
+            digit <<= newIndex;
+            digit |= nextByte >> (8 - newIndex);
+            return digit;
+        } else {
+            return (currByte >> (8 - (index + 5))) & 0x1F;
+        }
     }
 
     public void register(UsuarioDTO usuarioDTO) {
@@ -374,8 +386,8 @@ public class AuthService {
 
     // Generar TOTP (RFC 6238, 6 dígitos, SHA1)
     private String generateTotp(byte[] key, long timeIndex) throws Exception {
-        javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA1");
-        javax.crypto.spec.SecretKeySpec signKey = new javax.crypto.spec.SecretKeySpec(key, "HmacSHA1");
+        javax.crypto.Mac mac = javax.crypto.Mac.getInstance(HMAC_SHA1_ALGORITHM);
+        javax.crypto.spec.SecretKeySpec signKey = new javax.crypto.spec.SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
         mac.init(signKey);
         byte[] value = new byte[8];
         for (int i = 7; i >= 0; i--) {
@@ -401,7 +413,7 @@ public class AuthService {
         if (user == null) return;
         // Elimina códigos previos
         threeFactorCodeRepository.deleteByUserId(user.getId());
-        String code = String.format("%06d", new java.util.Random().nextInt(999999));
+        String code = String.format("%06d", random.nextInt(999999));
         String codeHash = passwordEncoder.encode(code);
         java.time.Instant expiry = java.time.Instant.now().plusSeconds(600); // 10 min
         edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode entry = new edu.uclm.esi.esimedia.be_esimedia.model.ThreeFactorCode(user.getId(), codeHash, expiry);
