@@ -3,6 +3,7 @@ import { PlaylistService, PlaylistDTO } from '../../services/playlist.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-temporalplaylists',
@@ -16,6 +17,7 @@ export class TemporalplaylistsComponent implements OnInit {
   showCreateForm: boolean = false;
   loading: boolean = false;
   error: string = '';
+  private readonly baseUrl = `${environment.apiUrl}`;
   
   // Campos para crear playlist
   newPlaylistName: string = '';
@@ -37,7 +39,7 @@ export class TemporalplaylistsComponent implements OnInit {
   }
 
   loadUserInfo(): void {
-    this.http.get<any>('http://localhost:8081/user/me', { withCredentials: true })
+    this.http.get<any>(`${this.baseUrl}/user/me`, { withCredentials: true })
       .subscribe({
         next: (userInfo) => {
           this.userRole = userInfo.role;

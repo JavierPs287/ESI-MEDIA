@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { environment } from '../../../environments/environment';
 
 interface ContentDTO {
   title: string;
@@ -43,6 +44,7 @@ export class PlaylistDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}`;
 
   playlistId: string = '';
   playlist: PlaylistDetail | null = null;
@@ -60,7 +62,7 @@ export class PlaylistDetailComponent implements OnInit {
   }
 
   loadUserRole(): void {
-    this.http.get<any>('http://localhost:8081/user/me', { withCredentials: true })
+    this.http.get<any>(`${this.baseUrl}/user/me`, { withCredentials: true })
       .subscribe({
         next: (userInfo) => {
           this.userRole = userInfo.role;
@@ -77,7 +79,7 @@ export class PlaylistDetailComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.http.get<PlaylistDetail>(`http://localhost:8081/playlist/${this.playlistId}`, { withCredentials: true })
+    this.http.get<PlaylistDetail>(`${this.baseUrl}/playlist/${this.playlistId}`, { withCredentials: true })
       .subscribe({
         next: (data) => {
           console.log('Playlist recibida:', data);

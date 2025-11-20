@@ -22,6 +22,7 @@ export class ShowContentComponent implements OnInit {
   private readonly contentService = inject(ContentService);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}`;
 
   contents: Content[] = [];
   isLoading = true;
@@ -55,7 +56,7 @@ export class ShowContentComponent implements OnInit {
   }
 
   loadUserRole(): void {
-    this.http.get<any>('http://localhost:8081/user/me', { withCredentials: true })
+    this.http.get<any>(`${this.baseUrl}/user/me`, { withCredentials: true })
       .subscribe({
         next: (userInfo) => {
           this.userRole = userInfo.role;

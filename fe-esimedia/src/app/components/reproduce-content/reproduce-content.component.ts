@@ -11,6 +11,7 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
 import { PlaylistService, PlaylistDTO } from '../../services/playlist.service';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-reproduce-content',
@@ -33,6 +34,7 @@ export class ReproduceContentComponent implements OnInit, OnDestroy {
   errorMessage = '';
   private audioBlobUrl: string | null = null;
   private readonly videoBlobUrl: string | null = null;
+  private readonly baseUrl = `${environment.apiUrl}`;
   
   // Propiedades para gestión de playlists
   playlists: PlaylistDTO[] = [];
@@ -182,7 +184,7 @@ export class ReproduceContentComponent implements OnInit, OnDestroy {
 
   loadUserInfo(): void {
     // String baseURL: ${environment.apiUrl};
-    this.http.get<any>('http://localhost:8081/user/me', { withCredentials: true })
+    this.http.get<any>(`${this.baseUrl}/user/me`, { withCredentials: true })
       .subscribe({
         next: (userInfo) => {
           this.userRole = userInfo.role;

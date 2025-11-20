@@ -7,6 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { PlaylistService, PlaylistDTO } from '../../services/playlist.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-list-playlists',
@@ -19,6 +20,7 @@ export class ListPlaylistsComponent implements OnInit {
 private readonly router = inject(Router);
 private readonly http = inject(HttpClient);
 private readonly playlistService = inject(PlaylistService);
+private readonly baseUrl = `${environment.apiUrl}`;
   playlists: PlaylistDTO[] = [];
   loading: boolean = false;
   error: string = '';
@@ -30,7 +32,7 @@ private readonly playlistService = inject(PlaylistService);
 
   loadUserRole(): void {
     this.loading = true;
-    this.http.get<any>('http://localhost:8081/user/me', { withCredentials: true })
+    this.http.get<any>(`${this.baseUrl}/user/me`, { withCredentials: true })
       .subscribe({
         next: (userInfo) => {
           this.userRole = userInfo.role;
