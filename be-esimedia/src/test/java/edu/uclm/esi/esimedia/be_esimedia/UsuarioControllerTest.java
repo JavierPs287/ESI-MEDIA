@@ -2,6 +2,7 @@ package edu.uclm.esi.esimedia.be_esimedia;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -90,7 +91,7 @@ class UsuarioControllerTest {
     @DisplayName("Debe manejar error al actualizar perfil con datos inválidos")
     void testProfileUpdateFailure() {
         // Arrange
-        doNothing().when(usuarioService).update(any(UsuarioDTO.class));
+        doThrow(new IllegalArgumentException("invalid input")).when(usuarioService).update(any(UsuarioDTO.class));
 
         // Act & Assert
         try {

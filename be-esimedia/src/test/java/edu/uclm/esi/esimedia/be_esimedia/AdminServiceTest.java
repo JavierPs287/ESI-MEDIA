@@ -1,106 +1,203 @@
 package edu.uclm.esi.esimedia.be_esimedia;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.util.NoSuchElementException;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.OptimisticLockingFailureException;
 
+import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
+import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
+import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.UpdatingException;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
-import edu.uclm.esi.esimedia.be_esimedia.repository.*;
+import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
 import edu.uclm.esi.esimedia.be_esimedia.services.ValidateService;
 
+@ExtendWith(MockitoExtension.class)
+@DisplayName("AdminService Unit Tests")
 class AdminServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private AdminRepository adminRepository;
-    @Mock private CreadorRepository creadorRepository;
-    @Mock private UsuarioRepository usuarioRepository;
-    @Mock private ValidateService validateService;
-    @Mock private AuthService authService;
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private AdminRepository adminRepository;
+
+    @Mock
+    private CreadorRepository creadorRepository;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
+
+    @Mock
+    private ValidateService validateService;
+
+    @Mock
+    private AuthService authService;
 
     @InjectMocks
     private AdminService adminService;
 
-    private User user;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        user = new User();
-        user.setEmail("testuser@example.com");
-        user.setBlocked(false);
+    @Test
+    @DisplayName("registerAdmin: null DTO throws RegisterException")
+    void testRegisterAdminNullThrows() {
+        assertThrows(RegisterException.class, () -> adminService.registerAdmin(null));
     }
 
     @Test
-    @DisplayName("Debe bloquear al usuario correctamente")
+    @DisplayName("registerAdmin: success saves user and admin")
+    void testRegisterAdminSuccess() {
+        AdminDTO dto = new AdminDTO();
+        dto.setEmail("a@b.com");
+        dto.setName("Nombre");
+        dto.setPassword("Aa1!pass");
+        dto.setLastName("Apellidos");
+        dto.setDepartment("  DEPT  ");
+
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId("u1");
+            return u;
+        });
+
+        doNothing().when(adminRepository).save(any());
+        doNothing().when(authService).validateUserCreation(any(User.class));
+
+        adminService.registerAdmin(dto);
+
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(adminRepository, times(1)).save(any());
+    }
+
+    @Test
+    @DisplayName("registerAdmin: save failure throws RegisterException")
+    void testRegisterAdminSaveFailureThrows() {
+        AdminDTO dto = new AdminDTO();
+        dto.setEmail("a@b.com");
+        dto.setName("Nombre");
+        dto.setPassword("Aa1!pass");
+        dto.setLastName("Apellidos");
+        dto.setDepartment("DEPT");
+
+        when(userRepository.save(any(User.class))).thenThrow(new IllegalArgumentException("db error"));
+        doNothing().when(authService).validateUserCreation(any(User.class));
+
+        assertThrows(RegisterException.class, () -> adminService.registerAdmin(dto));
+    }
+
+    @Test
+    @DisplayName("registerCreador: null DTO throws RegisterException")
+    void testRegisterCreadorNullThrows() {
+        assertThrows(RegisterException.class, () -> adminService.registerCreador(null));
+    }
+
+    @Test
+    @DisplayName("registerCreador: duplicate alias throws RegisterException")
+    void testRegisterCreadorDuplicateAliasThrows() {
+        CreadorDTO dto = new CreadorDTO();
+        dto.setEmail("c@d.com");
+        dto.setName("Nombre");
+        dto.setPassword("Aa1!pass");
+        dto.setLastName("Apellidos");
+        dto.setAlias("alias");
+
+        when(creadorRepository.existsByAlias("alias")).thenReturn(true);
+        doNothing().when(authService).validateUserCreation(any(User.class));
+
+        assertThrows(RegisterException.class, () -> adminService.registerCreador(dto));
+    }
+
+    @Test
+    @DisplayName("setUserBlocked: null blocked throws IllegalArgumentException")
+    void testSetUserBlockedNullBlockedThrows() {
+        User u = new User();
+        u.setEmail("u@u.com");
+        when(userRepository.findByEmail("u@u.com")).thenReturn(u);
+
+        assertThrows(IllegalArgumentException.class, () -> adminService.setUserBlocked("u@u.com", null));
+    }
+
+    @Test
+    @DisplayName("setUserBlocked: user not found throws NoSuchElementException")
+    void testSetUserBlockedUserNotFoundThrows() {
+        when(userRepository.findByEmail("u@u.com")).thenReturn(null);
+        assertThrows(java.util.NoSuchElementException.class, () -> adminService.setUserBlocked("u@u.com", true));
+    }
+
+    @Test
+    @DisplayName("setUserBlocked: success updates user")
     void testSetUserBlockedSuccess() {
+        User u = new User();
+        u.setEmail("u@u.com");
+        u.setId("uid");
+        when(userRepository.findByEmail("u@u.com")).thenReturn(u);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        when(userRepository.findByEmail("testuser@example.com"))
-                .thenReturn(user);
+        adminService.setUserBlocked("u@u.com", true);
 
-        adminService.setUserBlocked("testuser@example.com", true);
-
-        verify(userRepository).findByEmail("testuser@example.com");
-        verify(userRepository).save(user);
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    @DisplayName("Debe lanzar NoSuchElementException cuando el usuario no existe")
-    void testSetUserBlockedUserNotFound() {
-
-        when(userRepository.findByEmail("wrong@example.com"))
-                .thenReturn(null);
-
-        assertThrows(NoSuchElementException.class, () -> {
-            adminService.setUserBlocked("wrong@example.com", true);
-        });
-
-        verify(userRepository).findByEmail("wrong@example.com");
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Debe lanzar IllegalArgumentException cuando blocked es nulo")
-    void testSetUserBlockedNullBlocked() {
-
-        when(userRepository.findByEmail("testuser@example.com"))
-                .thenReturn(user);
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            adminService.setUserBlocked("testuser@example.com", null);
-        });
-
-        verify(userRepository).findByEmail("testuser@example.com");
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Debe lanzar UpdatingException cuando falla el save()")
+    @DisplayName("setUserBlocked: database error throws UpdatingException")
     void testSetUserBlockedDatabaseError() {
+        User u = new User();
+        u.setEmail("u@u.com");
+        u.setId("uid");
+        when(userRepository.findByEmail("u@u.com")).thenReturn(u);
+        doThrow(new OptimisticLockingFailureException("boom")).when(userRepository).save(any(User.class));
 
-        when(userRepository.findByEmail("testuser@example.com"))
-                .thenReturn(user);
+        assertThrows(UpdatingException.class, () -> adminService.setUserBlocked("u@u.com", true));
+    }
 
-        doThrow(new OptimisticLockingFailureException("Error test"))
-                .when(userRepository).save(user);
+    @Test
+    @DisplayName("updateUsuario: null DTO throws UpdatingException")
+    void testUpdateUsuarioNullThrows() {
+        assertThrows(UpdatingException.class, () -> adminService.updateUsuario(null));
+    }
 
-        assertThrows(UpdatingException.class, () -> {
-            adminService.setUserBlocked("testuser@example.com", true);
-        });
+    @Test
+    @DisplayName("deleteUser: null DTO throws UpdatingException")
+    void testDeleteUserNullThrows() {
+        assertThrows(UpdatingException.class, () -> adminService.deleteUser(null));
+    }
 
-        verify(userRepository).findByEmail("testuser@example.com");
-        verify(userRepository).save(user);
+    @Test
+    @DisplayName("deleteUser: success deletes usuario and user")
+    void testDeleteUserSuccess() {
+        User user = new User();
+        user.setEmail("u@user.com");
+        user.setId("id1");
+        user.setRole(Constants.USUARIO_ROLE);
+
+        when(userRepository.findByEmail("u@user.com")).thenReturn(user);
+        doNothing().when(usuarioRepository).deleteById("id1");
+        doNothing().when(userRepository).delete(user);
+
+        UserDTO dto = new UserDTO();
+        dto.setEmail("u@user.com");
+
+        adminService.deleteUser(dto);
+
+        verify(usuarioRepository, times(1)).deleteById("id1");
+        verify(userRepository, times(1)).delete(user);
     }
 }

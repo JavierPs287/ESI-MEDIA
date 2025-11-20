@@ -15,13 +15,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import edu.uclm.esi.esimedia.be_esimedia.config.SecurityConfig;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
-import edu.uclm.esi.esimedia.be_esimedia.http.UsuarioController;
+import edu.uclm.esi.esimedia.be_esimedia.http.AdminController;
 import edu.uclm.esi.esimedia.be_esimedia.security.JwtAuthenticationFilter;
 import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 
 
 @WebMvcTest(
-    controllers = UsuarioController.class,
+    controllers = AdminController.class,
     excludeFilters = @ComponentScan.Filter(
         type = FilterType.ASSIGNABLE_TYPE, 
         classes = {SecurityConfig.class, JwtAuthenticationFilter.class}
@@ -29,7 +29,7 @@ import edu.uclm.esi.esimedia.be_esimedia.services.AdminService;
 )
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("AdminController Tests")
-class AdminDControllerTest{
+class AdminControllerTest{
 
     @Autowired
     private MockMvc mockMvc;
@@ -58,15 +58,15 @@ class AdminDControllerTest{
     @DisplayName("Debe de bloquear el perfil de usuario correctamente")
     void testProfileUpdateSuccess() {
         // Arrange
+        // mock adminService.setUserBlocked to do nothing when called with the encoded email and blocked=false
         doNothing().when(adminService).setUserBlocked(validUsuarioDTO.getEmail(), false);
-
         // Act & Assert
         try {
-            mockMvc.perform(
+                mockMvc.perform(
                     org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                            .patch("/admin/block")
-                            .contentType("application/json")
-                            .content("{ \"email\": \"testuser@example.com\" }")
+                        .patch("/admin/users/testuser%40example.com/blocked")
+                        .contentType("application/json")
+                        .content("{ \"blocked\": false }")
                     )
                     .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
         } catch (Exception e) {
@@ -83,11 +83,11 @@ class AdminDControllerTest{
 
         // Act & Assert
         try {
-            mockMvc.perform(
+                mockMvc.perform(
                     org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                            .patch("/admin/block")
-                            .contentType("application/json")
-                            .content("{ \"email\": \"wrong@example.com\" }")
+                        .patch("/admin/users/wrong%40example.com/blocked")
+                        .contentType("application/json")
+                        .content("{ \"blocked\": false }")
                     )
                     .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().is4xxClientError());
                     // Puedes poner isBadRequest() o isNotFound() según tu controller
