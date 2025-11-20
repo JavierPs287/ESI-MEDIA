@@ -15,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
+import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.UpdatingException;
+import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
@@ -316,4 +318,36 @@ public class AdminService {
         }
     }
 
+    public void deleteUser(UserDTO userDTO) {
+        if (userDTO == null) {
+            logger.error("El objeto UserDTO es nulo");
+            throw new UpdatingException();
+        }
+
+        User user = userRepository.findByEmail(userDTO.getEmail());
+        if (user == null) {
+            logger.error("Usuario con email {} no encontrado", userDTO.getEmail());
+            throw new NoSuchElementException("User no encontrado");
+        }
+
+        try {
+            if (user.getRole().equals(USUARIO_ROLE)) {
+                usuarioRepository.deleteById(user.getId());
+            } else if (user.getRole().equals(CREADOR_ROLE)) {
+                creadorRepository.deleteById(user.getId());
+            } else if (user.getRole().equals(ADMIN_ROLE)) {
+                adminRepository.deleteById(user.getId());
+            }
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al eliminar los detalles del usuario de la base de datos: {}", e.getMessage(), e);
+            throw new UpdatingException();
+        }
+
+        try {
+            userRepository.delete(user);
+        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
+            logger.error("Error al eliminar el usuario de la base de datos: {}", e.getMessage(), e);
+            throw new UpdatingException();
+        }
+    }
 }
