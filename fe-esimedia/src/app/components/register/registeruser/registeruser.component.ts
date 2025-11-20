@@ -1,7 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, FormGroup } from '@angular/forms';
-import { UserService } from '../../../services/usuario.service';
+import { UserService } from '../../../services/user.service';
+import { UsuarioService } from '../../../services/usuario.service';
 import { Usuario } from '../../../models/usuario.model';
 import { Response } from '../../../models/response.model';
 import { NavbarComponent } from "../../navbar/navbar.component";
@@ -34,6 +35,7 @@ export class RegisteruserComponent implements  OnInit {
   fb = inject(FormBuilder);
   registerForm!: FormGroup;
   userService = inject(UserService);
+  usuarioService = inject(UsuarioService);
   router = inject(Router);
   connectTotpService = inject(ConnectTotpService);
 
@@ -69,7 +71,7 @@ export class RegisteruserComponent implements  OnInit {
         password: formValue.password,
       };
       
-      this.userService.register(userData)
+      this.usuarioService.register(userData)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
         next: (response) => {

@@ -27,7 +27,7 @@ export class ResetpasswordComponent implements OnInit {
   
   registerForm = this.fb.nonNullable.group({
     password: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordStrengthValidator()]],
-    repetePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+    repeatePassword: ['',[Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   }, { validators: passwordMatchValidator() });
 
   ngOnInit(): void {

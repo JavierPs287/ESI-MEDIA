@@ -11,7 +11,7 @@ export class ConnectTotpService {
 
   constructor(private readonly http: HttpClient) {}
 
-  activar2FA(userId: string): Observable<{ qrUrl: string, secret: string }> {
-    return this.http.post<{ qrUrl: string, secret: string }>(`${this.baseUrl}/activate`, { userId });
+  activar2FA(email: string): Observable<{ qrUrl: string, secret: string }> {
+    return this.http.post<{ qrUrl: string, secret: string }>(`${this.baseUrl}/activate`, { email });
   }
 }

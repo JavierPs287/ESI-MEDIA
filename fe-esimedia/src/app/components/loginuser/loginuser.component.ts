@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RouterLink, Router } from '@angular/router';
 import { NavbarComponent } from "../navbar/navbar.component";
 import { AuthService } from '../../services/auth.service';
-import { UserService } from '../../services/usuario.service';
+import { UserService } from '../../services/user.service';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
