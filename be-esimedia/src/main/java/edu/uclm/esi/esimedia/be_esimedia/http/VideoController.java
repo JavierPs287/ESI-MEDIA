@@ -33,7 +33,7 @@ public class VideoController {
                 .body(Map.of(MESSAGE_KEY, "Vídeo subido exitosamente"));
     }
 
-    @GetMapping("/usuario/video/{urlId}")
+    @GetMapping("/user/video/{urlId}")
     public ResponseEntity<String> getVideo(@PathVariable String urlId, HttpServletRequest request) {
         return videoService.getVideo(urlId, request);
     }

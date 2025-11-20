@@ -12,16 +12,19 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.VIDEO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
 
 import edu.uclm.esi.esimedia.be_esimedia.dto.VideoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.VideoUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.model.Video;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.VideoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
@@ -39,18 +42,22 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final ContenidoRepository contenidoRepository;
     private final CreadorRepository creadorRepository;
+    private final UserRepository userRepository;
     private final UsuarioRepository usuarioRepository;
 
     private final JwtUtils jwtUtils;
 
     @Autowired
     public VideoService(ValidateService validateService, ContenidoService contenidoService, 
-            VideoRepository videoRepository, ContenidoRepository contenidoRepository, CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
+            VideoRepository videoRepository, ContenidoRepository contenidoRepository, 
+            CreadorRepository creadorRepository, UserRepository userRepository, 
+            UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
         this.validateService = validateService;
         this.contenidoService = contenidoService;
         this.videoRepository = videoRepository;
         this.contenidoRepository = contenidoRepository;
         this.creadorRepository = creadorRepository;
+        this.userRepository = userRepository;
         this.usuarioRepository = usuarioRepository;
         this.jwtUtils = jwtUtils;
     }
@@ -110,9 +117,12 @@ public class VideoService {
     }
 
     public ResponseEntity<String> getVideo(String urlId, HttpServletRequest request) {
-        // Conseguir usuario del token
+        // Conseguir user del token
         String userId = jwtUtils.getUserIdFromRequest(request);
-        Usuario usuario = usuarioRepository.findById(userId)
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User no autenticado"));
+        
+        Usuario usuario = usuarioRepository.findById(user.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
 
         // Validar urlId
@@ -135,12 +145,16 @@ public class VideoService {
                 .orElseThrow(VideoGetException::new);
 
         // Comprobar permisos de acceso
-        if (!validateService.canUsuarioAccessVideo(usuario, contenido, video)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado al contenido");
+        if (user.getRole().equals(USUARIO_ROLE)) {
+            if (!validateService.canUsuarioAccessVideo(usuario, contenido, video)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado al contenido");
+            }
+            // Incrementar contador de reproducciones
+            contenidoService.incrementViews(contenido.getId());
+        } else {
+            // Los roles de gestión pueden tener acceso completo
+            logger.info("El usuario con rol {} tiene acceso completo al contenido", user.getRole());
         }
-
-        // Incrementar contador de reproducciones
-        contenidoService.incrementViews(contenido.getId());
 
         return ResponseEntity.ok(video.getUrl());
     }
