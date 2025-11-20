@@ -9,12 +9,9 @@ import { getImageUrlByName } from '../../services/image.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent} from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { TAGS } from '../../constants/form-constants';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-show-content',
