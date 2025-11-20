@@ -42,3 +42,6 @@ application-local.properties
 *.env
 .env
 .env.local
+
+# Certificado https
+src/main/resources/keystore.p12
