@@ -104,10 +104,22 @@ export class PlaylistDetailComponent implements OnInit {
   }
 
   playContent(urlId: string): void {
+    // Buscar el contenido completo en la playlist
+    const content = this.playlist?.contenidos.find(c => c.urlId === urlId);
+    
+    if (!content) {
+      console.error('Contenido no encontrado en la playlist');
+      return;
+    }
+
     if (this.userRole === 'CREADOR') {
-      this.router.navigate(['/menu/creator/reproduce', urlId]);
+      this.router.navigate(['/menu/creator/reproduce', urlId], {
+        state: { content: content }
+      });
     } else if (this.userRole === 'USUARIO') {
-      this.router.navigate(['/menu/user/reproduce', urlId]);
+      this.router.navigate(['/menu/user/reproduce', urlId], {
+        state: { content: content }
+      });
     }
   }
 

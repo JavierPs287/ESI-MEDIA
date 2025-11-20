@@ -43,7 +43,7 @@
 }
 
 .info-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a28ab 0%, #764ba2 100%);
   color: white;
 }
 
@@ -68,12 +68,12 @@
 }
 
 .chip-public {
-  background-color: #4caf50 !important;
+  background-color: #067e0a !important;
   color: white !important;
 }
 
 .chip-private {
-  background-color: #ff9800 !important;
+  background-color: #aa6702 !important;
   color: white !important;
 }
 

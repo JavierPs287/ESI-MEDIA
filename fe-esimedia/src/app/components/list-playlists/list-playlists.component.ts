@@ -85,7 +85,13 @@ private readonly playlistService = inject(PlaylistService);
   }
 
   viewPlaylist(playlistId: string): void {
-    this.router.navigate(['/playlist', playlistId]);
+    if (this.userRole === 'ADMIN') {
+      this.router.navigate(['/menu/admin/playlist', playlistId]);
+    } else if (this.userRole === 'CREADOR') {
+      this.router.navigate(['/menu/creator/playlist', playlistId]);
+    } else {
+      this.router.navigate(['/menu/user/playlist', playlistId]);
+    }
   }
 
   deletePlaylist(playlistId: string, playlistName: string): void {

@@ -91,12 +91,12 @@ mat-chip-set {
 }
 
 .chip-public {
-  background-color: #4caf50 !important;
+  background-color: #1a6d1d !important;
   color: white !important;
 }
 
 .chip-private {
-  background-color: #ff9800 !important;
+  background-color: #a26202 !important;
   color: white !important;
 }
 

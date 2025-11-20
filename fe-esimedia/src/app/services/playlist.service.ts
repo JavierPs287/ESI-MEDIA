@@ -24,11 +24,11 @@ export class PlaylistService {
   }
 
   createPlaylist(playlist: PlaylistDTO): Observable<any> {
-    return this.http.post(`${this.apiUrl}/user/create-playlist`, playlist, { withCredentials: true });
+    return this.http.post(`${this.apiUrl}/playlist/create-playlist`, playlist, { withCredentials: true });
   }
 
   updatePlaylist(playlist: PlaylistDTO): Observable<any> {
-    return this.http.put(`${this.apiUrl}/user/update-playlist`, playlist, { withCredentials: true });
+    return this.http.put(`${this.apiUrl}/playlist/update-playlist`, playlist, { withCredentials: true });
   }
 
   addContentToPlaylist(playlistId: string, contentId: string): Observable<any> {
@@ -43,6 +43,6 @@ export class PlaylistService {
   }
 
   deletePlaylist(playlistId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/user/delete-playlist/${playlistId}`, { withCredentials: true });
+    return this.http.delete(`${this.apiUrl}/playlist/delete-playlist/${playlistId}`, { withCredentials: true });
   }
 }
