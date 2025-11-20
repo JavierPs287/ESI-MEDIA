@@ -233,9 +233,11 @@ public class AdminService {
         // Validar que los campos son validos
         validateUsuarioUpdateFields(usuarioDTO);
 
+        String password = user.getPassword();
         // Convertir DTO a entidad
         user.initializeFromDTO(usuarioDTO);
         usuario.initializeFromDTO(usuarioDTO);
+        user.setPassword(password); // Mantener la contraseña actual
 
         try {
             userRepository.save(user);

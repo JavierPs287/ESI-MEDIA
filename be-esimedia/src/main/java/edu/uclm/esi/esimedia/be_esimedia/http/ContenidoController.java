@@ -44,7 +44,7 @@ public class ContenidoController {
                 .body(Map.of(MESSAGE_KEY, "Valoración subida exitosamente"));
     }
 
-    @GetMapping("/usuario/contenido/{urlId}/metadata")
+    @GetMapping("/user/contenido/{urlId}/metadata")
     public ResponseEntity<ReproductionMetadataDTO> getReproductionMetadata(
                 @PathVariable String urlId, HttpServletRequest request) {
         ReproductionMetadataDTO metadata = contenidoService.getReproductionMetadata(urlId, request);

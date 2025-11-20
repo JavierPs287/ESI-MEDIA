@@ -98,7 +98,7 @@ export class ContentService {
    */
   getAudioByUrlId(urlId: string): Observable<Blob> {
     return new Observable<Blob>(observer => {
-      fetch(`${environment.apiUrl}/usuario/audio/${urlId}`, {
+      fetch(`${this.userBaseUrl}/audio/${urlId}`, {
         method: 'GET',
         credentials: 'include',
       })
@@ -125,7 +125,7 @@ export class ContentService {
    * @returns Observable con la URL del vídeo
    */
   getVideoByUrlId(urlId: string): Observable<string> {
-    return this.http.get(`${environment.apiUrl}/usuario/video/${urlId}`, {
+    return this.http.get(`${this.userBaseUrl}/video/${urlId}`, {
       responseType: 'text',
       withCredentials: true
     });

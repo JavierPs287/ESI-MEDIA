@@ -43,3 +43,6 @@ Thumbs.db
 
 # SonarQube
 .scannerwork/
+
+#Certificados https
+ssl/

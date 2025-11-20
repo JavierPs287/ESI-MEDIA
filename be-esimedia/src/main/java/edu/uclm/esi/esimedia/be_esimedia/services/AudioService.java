@@ -25,16 +25,20 @@ import org.springframework.web.server.ResponseStatusException;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_MAX_FILE_SIZE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.AUDIO_TYPE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.URLID_LENGTH;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USUARIO_ROLE;
+
 import edu.uclm.esi.esimedia.be_esimedia.dto.AudioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioGetException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.AudioUploadException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Audio;
 import edu.uclm.esi.esimedia.be_esimedia.model.Contenido;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
+import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.model.Usuario;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AudioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
+import edu.uclm.esi.esimedia.be_esimedia.repository.UserRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.UsuarioRepository;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import edu.uclm.esi.esimedia.be_esimedia.utils.UrlGenerator;
@@ -57,19 +61,22 @@ public class AudioService {
     private final AudioRepository audioRepository;
     private final ContenidoRepository contenidoRepository;
     private final CreadorRepository creadorRepository;
+    private final UserRepository userRepository;
     private final UsuarioRepository usuarioRepository;
 
     private final JwtUtils jwtUtils;
 
     @Autowired
-    public AudioService(ValidateService validateService, ContenidoService contenidoService, 
-            AudioRepository audioRepository, ContenidoRepository contenidoRepository, 
-            CreadorRepository creadorRepository, UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
+    public AudioService(ValidateService validateService, ContenidoService contenidoService,
+            AudioRepository audioRepository, ContenidoRepository contenidoRepository,
+            CreadorRepository creadorRepository, UserRepository userRepository,
+            UsuarioRepository usuarioRepository, JwtUtils jwtUtils) {
         this.validateService = validateService;
         this.contenidoService = contenidoService;
         this.audioRepository = audioRepository;
         this.contenidoRepository = contenidoRepository;
         this.creadorRepository = creadorRepository;
+        this.userRepository = userRepository;
         this.usuarioRepository = usuarioRepository;
         this.jwtUtils = jwtUtils;
     }
@@ -80,7 +87,7 @@ public class AudioService {
             logger.error("El objeto AudioDTO es nulo");
             throw new AudioUploadException();
         }
-        
+
         // Conseguir creador del token
         String userId = jwtUtils.getUserIdFromRequest(request);
         Creador creador = creadorRepository.findById(userId)
@@ -91,7 +98,7 @@ public class AudioService {
             logger.error("El creador autenticado no es un creador de audios");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El creador no tiene permisos para subir audios");
         }
-        
+
         if (creador.getAlias() == null || creador.getAlias().isEmpty()) {
             logger.error("El creador no tiene un alias establecido");
             audioDTO.setCreador("creador_mal_configurado");
@@ -145,10 +152,13 @@ public class AudioService {
     }
 
     public ResponseEntity<Resource> getAudio(String urlId, HttpServletRequest request) {
-        // Conseguir usuario del token
+        // Conseguir user del token
         String userId = jwtUtils.getUserIdFromRequest(request);
-        Usuario usuario = usuarioRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User no autenticado"));
+
+        Usuario usuario = usuarioRepository.findById(user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"));
 
         // Validar urlId
         if (urlId == null || urlId.isEmpty()) {
@@ -168,11 +178,6 @@ public class AudioService {
 
         Audio audio = audioRepository.findById(contenido.getId())
                 .orElseThrow(AudioGetException::new);
-
-        // Comprobar permisos de acceso
-        if (!validateService.canUsuarioAccessContenido(usuario, contenido)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado al contenido");
-        }
 
         // Conseguir archivo físico
         File file = new File(audio.getFilePath());
@@ -196,8 +201,17 @@ public class AudioService {
         // Crear recurso para el archivo físico
         Resource resource = new FileSystemResource(file);
 
-        // Incrementar contador de reproducciones
-        contenidoService.incrementViews(contenido.getId());
+        // Comprobar permisos de acceso
+        if (user.getRole().equals(USUARIO_ROLE)) {
+            if (!validateService.canUsuarioAccessContenido(usuario, contenido)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado al contenido");
+            }
+            // Incrementar contador de reproducciones
+            contenidoService.incrementViews(contenido.getId());
+        } else {
+            // Los roles de gestión pueden tener acceso completo
+            logger.info("El usuario con rol {} tiene acceso completo al contenido", user.getRole());
+        }
 
         // Retornar respuesta con el recurso y encabezados adecuados
         return ResponseEntity.ok()
@@ -253,7 +267,7 @@ public class AudioService {
             throw new AudioUploadException("Fecha límite de visibilidad inválida");
         }
 
-        if (!validateService.isImageIdValid(audioDTO.getImageId())){
+        if (!validateService.isImageIdValid(audioDTO.getImageId())) {
             audioDTO.setImageId(0); // ID de la imagen por defecto
         }
     }

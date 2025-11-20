@@ -64,6 +64,10 @@ export const routes: Routes = [
                 component: ShowContentComponent
             },
             {
+                path: 'reproduce/:urlId',
+                component: ReproduceContentComponent
+            },
+            {
                 path: 'uploadContent/audio',
                 component: UploadAudioComponent
             },
@@ -87,6 +91,10 @@ export const routes: Routes = [
             {
                 path: '',
                 component: ShowContentComponent
+            },
+            {
+                path: 'reproduce/:urlId',
+                component: ReproduceContentComponent
             },
             {
                 path: 'userManagement',
