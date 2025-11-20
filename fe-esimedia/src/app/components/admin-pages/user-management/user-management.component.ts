@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { UserService } from '../../../services/user.service';
-import { User } from '../../../models/user.model';
+import { superUser as User } from '../../../models/superUser.model';
 import { getAvatarUrlById } from '../../../services/image.service';
 import { AdminService } from '../../../services/admin.service';
 
@@ -16,6 +17,13 @@ import { AdminService } from '../../../services/admin.service';
   styleUrl: './user-management.component.css'
 })
 export class UserManagementComponent implements OnInit {
+  constructor(
+    public dialogo: MatDialog,
+    private readonly userService: UserService,
+    private readonly adminService: AdminService,
+    private readonly router: Router
+  ) { }
+
 
   searchTerm: string = '';
   selectedRole: string = '';
@@ -27,12 +35,7 @@ export class UserManagementComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
 
-  constructor(
-    public dialogo: MatDialog,
-    private readonly userService: UserService,
-    private readonly adminService: AdminService
-  ) { }
-
+  
   ngOnInit(): void {
     this.loadUsers();
   }
@@ -44,7 +47,7 @@ export class UserManagementComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (users) => {
         this.users = users;
-        this.filteredUsers = [...users];
+        this.filteredUsers = users;
         this.isLoading = false;
       },
       error: (error) => {
@@ -68,7 +71,7 @@ export class UserManagementComponent implements OnInit {
       const matchesSearch = !this.searchTerm ||
         user.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (user.alias?.toLowerCase() || '').includes(this.searchTerm.toLowerCase());
+        user.alias?.toLowerCase().includes(this.searchTerm.toLowerCase());
 
       const matchesRole = !this.selectedRole || user.role === this.selectedRole;
 
@@ -112,7 +115,9 @@ export class UserManagementComponent implements OnInit {
   }
 
   editUser(email: string): void {
-    // Implementa la lógica de edición
+    this.router.navigate(['menu/admin/modify',], {
+      state: { user: this.users.find(u => u.email === email) }
+    });
   }
 
   deleteUser(email: string): void {
@@ -138,10 +143,6 @@ export class UserManagementComponent implements OnInit {
         }
       }
     });
-  }
-
-  viewUser(email: string): void {
-    // Implementa la lógica de visualización
   }
 
   getAvatar(user: User): string {

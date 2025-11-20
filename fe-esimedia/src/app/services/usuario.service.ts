@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Usuario } from '../models/usuario.model';
+import { Usuario as UsuarioDTO } from '../models/user.model';
 import { Response } from '../models/response.model';
 import { environment } from '../../environments/environment';
 
@@ -85,4 +86,15 @@ export class UsuarioService {
   update2FA(email: string, enable2FA: boolean): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/2fa`, { email, enable2FA });
   }
+
+  /**
+   * Actualiza el perfil de creador enviando un PATCH a /creador/profile
+   * @param usuarioData Objeto con los campos del CreadorDTO
+   * @returns Observable<string> con el mensaje de respuesta (texto)
+   */
+  updateProfile(usuarioData: UsuarioDTO): Observable<any> {
+    const url = `${environment.apiUrl}/usuario/profile`;
+    return this.http.patch<any>(url, usuarioData);
+  }
+
 }

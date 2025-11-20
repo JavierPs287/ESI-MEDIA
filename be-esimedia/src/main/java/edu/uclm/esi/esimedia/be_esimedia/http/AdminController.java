@@ -66,21 +66,21 @@ public class AdminController {
     }
 
     @PatchMapping("/users/updateUsuario")
-    public ResponseEntity<String> updateUsuario(@RequestBody UsuarioDTO usuarioDTO) {
+    public ResponseEntity<Map<String,String>> updateUsuario(@RequestBody UsuarioDTO usuarioDTO) {
         adminService.updateUsuario(usuarioDTO);
-        return ResponseEntity.ok(USER_UPDATE_MESSAGE);
+        return ResponseEntity.ok(Map.of("message", USER_UPDATE_MESSAGE));
     }
 
     @PatchMapping("/users/updateCreador")
-    public ResponseEntity<String> updateCreador(@RequestBody CreadorDTO creadorDTO) {
+    public ResponseEntity<Map<String,String>> updateCreador(@RequestBody CreadorDTO creadorDTO) {
         adminService.updateCreador(creadorDTO);
-        return ResponseEntity.ok(USER_UPDATE_MESSAGE);
+        return ResponseEntity.ok(Map.of("message", USER_UPDATE_MESSAGE));
     }
 
     @PatchMapping("/users/updateAdmin")
-    public ResponseEntity<String> updateAdmin(@RequestBody AdminDTO adminDTO) {
+    public ResponseEntity<Map<String,String>> updateAdmin(@RequestBody AdminDTO adminDTO) {
         adminService.updateAdmin(adminDTO);
-        return ResponseEntity.ok(USER_UPDATE_MESSAGE);
+        return ResponseEntity.ok(Map.of("message", USER_UPDATE_MESSAGE));
     }
 
     @PostMapping("/users/deleteUser")

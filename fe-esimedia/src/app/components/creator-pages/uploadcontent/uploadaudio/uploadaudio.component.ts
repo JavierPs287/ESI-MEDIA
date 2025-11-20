@@ -8,6 +8,7 @@ import { ContentService } from '../../../../services/content.service';
 import { ContentFormService } from '../../../../services/content-form.service';
 import { UploadContentComponent } from '../uploadcontent.component';
 import { IMAGE_OPTIONS, DEFAULT_IMAGE } from '../../../../constants/image-constants';
+import { TAGS } from '../../../../constants/form-constants';
 
 @Component({
   selector: 'app-uploadaudio',
@@ -28,8 +29,7 @@ export class UploadAudioComponent implements OnInit {
   selectedAudioFile: File | null = null;
   selectedImage: string | null = null;
   audioFileName = '';
-  
-  tags = ['Acción', 'Comedia', 'Drama', 'Terror', 'Thriller', 'Educativo', 'Infantil', 'Documentales'];
+  tags = TAGS;
   availableImages = IMAGE_OPTIONS;
 
   constructor(

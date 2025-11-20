@@ -1,13 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
-import { Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors} from '@angular/forms';
 import { FIELDS, DEPARTMENTS } from '../../constants/form-constants';
 import { AVATAR_OPTIONS } from '../../constants/avatar-constants';
-import { N } from '@angular/cdk/keycodes';
 import { Admin, Creator, Usuario } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
+import { UsuarioService} from '../../services/usuario.service';
+import { CreatorService} from '../../services/creator.service';
+import { AdminService} from '../../services/admin.service';
 import { Router, RouterLink } from '@angular/router';
 import { getAvatarUrlById } from '../../services/image.service';
 
@@ -19,6 +19,9 @@ import { getAvatarUrlById } from '../../services/image.service';
 })
 export class EditProfilesComponent {
   private readonly userService = inject(UserService);
+  private readonly usuarioService = inject(UsuarioService);
+  private readonly creatorService = inject(CreatorService);
+  private readonly adminService = inject(AdminService);
   private readonly router = inject(Router);
   editedUser!: Usuario | Creator | Admin | null;
 
@@ -27,7 +30,11 @@ export class EditProfilesComponent {
 
   editMode = false;
   backup: any = {};
+  user!: Admin | Creator | Usuario;
   fields = FIELDS;
+  isMe = true;
+  isSubmitting = false;
+
   // Datos comunes
   name: string = '';
   lastName: string = ''
@@ -52,11 +59,56 @@ export class EditProfilesComponent {
   showPhotoOptions = false;
   selectedPhoto: number | null = null;
 
-  ngOnInit(): void {
-    this.initUser();
-    console.log(this.editedUser);
-    this.initForm();
-    this.setReadMode();
+ngOnInit(): void {
+  const url = this.router.url || '';
+  // Si la ruta empieza por /editar usamos el state enviado por la navegación
+  if (url ==('/menu/admin/modify')) {
+    this.isMe = false;
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras.state || history.state;
+    
+    if (state && state['user']) {
+      this.user = state['user'];
+    }
+    if (this.user) {
+      this.initializeFromState(this.user);
+      this.initForm();
+      this.setReadMode();
+      return;
+    }
+  }
+  this.isMe = true;
+  this.initUser();
+  this.initForm();
+  this.setReadMode();
+}
+
+private initializeFromState(user: any): void {
+  this.name = user.name;
+  this.lastName = user.lastName;
+  this.email = user.email;
+  this.imageId = user.imageId || null;
+  const role = user.role;
+
+    if (role === 'USUARIO') {
+      this.editedUser = user as Usuario;
+      this.vip = this.editedUser.vip ? 'Eres VIP' : 'No eres VIP';
+      this.birthDate = this.getbirthDate();
+      this.alias = this.editedUser.alias || '';
+    } else if (role === 'CREADOR') {
+      this.editedUser = user as Creator;
+      this.alias = this.editedUser.alias;
+      this.description = this.editedUser.description || '';
+      this.field = this.editedUser.field ;
+      this.type = this.editedUser.type || '';
+    } else if (role === 'ADMIN') {
+      this.editedUser = user as Admin;
+      this.department = this.editedUser.department ;
+    } else {
+      alert ('Rol de usuario no reconocido');
+      return;
+    }
+  this.role = user.role;
   }
 
   private initUser(): void {
@@ -68,24 +120,27 @@ export class EditProfilesComponent {
           this.imageId = user.imageId || null;
             if(user.role === 'USUARIO') {
               this.editedUser = user as Usuario;
-              this.vip = (this.editedUser as Usuario).vip ? 'Eres VIP' : 'No eres VIP';
+              this.vip = this.editedUser.vip ? 'Eres VIP' : 'No eres VIP';
               this.birthDate = this.getbirthDate();
-              this.alias = (this.editedUser as Usuario).alias || '';
-              console.log(this.birthDate);
+              this.alias = this.editedUser.alias || '';
             } else if (user.role === 'CREADOR') {
               this.editedUser = user as Creator;
-              this.alias = (this.editedUser as Creator).alias || '';
-              this.description = (this.editedUser as Creator).description || '';
-              this.field = (this.editedUser as Creator).field;
-              this.type = (this.editedUser as Creator).type;
+              this.alias = this.editedUser.alias || '';
+              this.description = this.editedUser.description || '';
+              this.field = this.editedUser.field;
+              this.type = this.editedUser.type || '';
             } else if (user.role === 'ADMIN') {
               this.editedUser = user as Admin;
-              this.department = (this.editedUser as Admin).department;
+              this.department = this.editedUser.department;
             }else {
               this.router.navigate(['/unauthorized']);
               return;
             }
             this.role = user.role;
+
+          // Inicializar form sólo después de tener editedUser
+          this.initForm();
+          this.setReadMode();
         },
         error: err => {
           alert('Error al cargar el usuario actual');
@@ -95,15 +150,15 @@ export class EditProfilesComponent {
 
   private initForm(): void {
     this.editForm = this.fb.group({
-      name: [ this.editedUser?.name || '' ],
-      lastName: [ this.editedUser?.lastName || ''],
-      alias: [ (this.editedUser as any)?.alias || ''],
-      birthDate: [ (this.editedUser as any)?.birthDate || '' ],
-      vip: [ !!(this.editedUser as any)?.vip ],
-      description: [ (this.editedUser as any)?.description || '' ],
-      field: [ (this.editedUser as any)?.field || '' ],
-      department: [ (this.editedUser as any)?.department || '' ],
-      imageId: [ this.selectedPhoto || null ],
+      name: [ '' ],
+      lastName: [ ''],
+      alias: [  ''],
+      birthDate: [ '' ],
+      vip: [ false ],
+      description: [ '' ],
+      field: [ '' ],
+      department: [ '' ],
+      imageId: [ null ],
     });
   }
 //VALIDATORS
@@ -218,16 +273,135 @@ getbirthDate(): string {
     this.setReadMode();
   }
 
-  canSave(): boolean {
-    const anyTouched = Object.values(this.editForm.controls).some(c => c.touched);
-    const anyChanged = this.editForm.dirty;
-    return anyTouched && anyChanged;
+  // Construye un Usuario a partir del formulario y del usuario cargado
+  private buildUsuarioFromForm(): Usuario {
+    const v = this.editForm.getRawValue(); // incluye campos deshabilitados
+    return {
+      name: v.name || this.name,
+      lastName: v.lastName || this.lastName,
+      email: this.email,
+      alias: v.alias || this.alias,
+      birthDate: v.birthDate ? new Date(v.birthDate).toISOString() : this.birthDate,
+      vip: v.vip,
+      imageId: v.imageId || this.selectedPhoto,
+      role: 'USUARIO',
+    };
+  }
+
+  // Construye un Creator a partir del formulario y del usuario cargado
+  private buildCreatorFromForm(): Creator {
+    const v = this.editForm.getRawValue();
+    return {
+      name: v.name || this.name,
+      lastName: v.lastName || this.lastName,
+      email: this.email,
+      alias: v.alias || this.alias,
+      imageId: v.imageId || this.selectedPhoto || null,
+      role: 'CREADOR',
+      description: v.description || this.description,
+      field: v.field || this.field,
+    };
+  }
+
+  // Construye un Admin a partir del formulario y del usuario cargado
+  private buildAdminFromForm(): Admin {
+    const v = this.editForm.getRawValue();
+    return {
+      name: v.name || this.name,
+      lastName: v.lastName || this.lastName,
+      email: this.email,
+      imageId: v.imageId || this.selectedPhoto,
+      role: 'ADMIN',
+      department: v.department || this.department
+    };
   }
 
   save() {
-    if (!this.canSave()) return;
-
-
+    this.isSubmitting = true;
+    // Si el usuario edita su propio perfil
+    if (this.isMe) {
+      if (this.role === 'USUARIO') {
+        const userData: Usuario = this.buildUsuarioFromForm();
+        this.usuarioService.updateProfile(userData).subscribe({
+          next: () => {
+            alert('Perfil de usuario actualizado correctamente');
+            this.isSubmitting = false;
+          },
+          error: () => {
+            alert('Error al actualizar el perfil de usuario');
+            this.isSubmitting = false;
+          }
+        });
+      } else if (this.role === 'CREADOR') {
+        const creatorData: Creator = this.buildCreatorFromForm();
+        this.creatorService.updateProfile(creatorData).subscribe({
+          next: () => {
+            alert('Perfil de creador actualizado correctamente');
+            this.isSubmitting = false;
+          },
+          error: () => {
+            alert('Error al actualizar el perfil de creador');
+            this.isSubmitting = false;
+          }
+        });
+      } else if (this.role === 'ADMIN') {
+        const adminData: Admin = this.buildAdminFromForm();
+        this.adminService.updateProfile(adminData).subscribe({
+          next: () => {
+            alert('Perfil de administrador actualizado correctamente');
+            this.isSubmitting = false;
+          },
+          error: () => {
+            alert('Error al actualizar el perfil de administrador');
+            this.isSubmitting = false;
+          }
+        });
+      } else {
+        alert('Rol de usuario no reconocido');
+        this.isSubmitting = false;
+      }
+    } else {
+        // Determinar el tipo de usuario editado
+        if (this.editedUser && (this.editedUser as Usuario).role === 'USUARIO') {
+          const userData: Usuario = this.buildUsuarioFromForm();
+          this.adminService.updateProfileUser(userData).subscribe({
+            next: () => {
+              alert('Perfil de usuario actualizado correctamente');
+              this.isSubmitting = false;
+            },
+            error: () => {
+              alert('Error al actualizar el perfil de usuario');
+              this.isSubmitting = false;
+            }
+          });
+        } else if (this.editedUser && (this.editedUser as Creator).role === 'CREADOR') {
+          const creatorData: Creator = this.buildCreatorFromForm();
+          this.adminService.updateProfileCreator(creatorData).subscribe({
+            next: () => {
+              alert('Perfil de creador actualizado correctamente');
+              this.isSubmitting = false;
+            },
+            error: () => {
+              alert('Error al actualizar el perfil de creador');
+              this.isSubmitting = false;
+            }
+          });
+        } else if (this.editedUser && (this.editedUser as Admin).role === 'ADMIN') {
+          const adminData: Admin = this.buildAdminFromForm();
+          this.adminService.updateProfile(adminData).subscribe({
+            next: () => {
+              alert('Perfil de administrador actualizado correctamente');
+              this.isSubmitting = false;
+            },
+            error: () => {
+              alert('Error al actualizar el perfil de administrador');
+              this.isSubmitting = false;
+            }
+          });
+        } else {
+          alert('Tipo de usuario a editar no reconocido');
+          this.isSubmitting = false;
+        }
+    }
   }
-
 }

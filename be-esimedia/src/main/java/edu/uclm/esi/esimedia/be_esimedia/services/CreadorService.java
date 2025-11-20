@@ -51,7 +51,12 @@ public class CreadorService {
             throw new IllegalArgumentException("El alias es obligatorio y debe tener entre 2 y 20 caracteres");
         }
         if (creadorRepository.existsByAlias(creadorDTO.getAlias())) {
-            throw new IllegalArgumentException("El alias ya está registrado");
+            // Comprobar que el alias no pertenece al mismo creador comprobando el email
+            Creador existingCreador = creadorRepository.findByAlias(creadorDTO.getAlias());
+            User user = userRepository.findById(existingCreador.getId()).orElse(null);
+            if (!user.getEmail().equals(creadorDTO.getEmail())) {
+                throw new IllegalArgumentException("El alias ya está registrado");
+            }
         }
 
         // Descripción validar longitud

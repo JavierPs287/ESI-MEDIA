@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Content } from '../../models/content.model';
 import { ContentFilter } from '../../models/contentFilter.model';
@@ -8,12 +9,17 @@ import { getImageUrlByName } from '../../services/image.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent} from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { TAGS } from '../../constants/form-constants';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-show-content',
   imports: [CommonModule,
-    MatIcon, MatCard, MatCardContent, MatChipsModule],
+    MatIcon, MatCard, MatCardContent, MatChipsModule, FormsModule],
   templateUrl: './show-content.component.html',
   styleUrls: ['./show-content.component.css']
 })
@@ -25,26 +31,37 @@ export class ShowContentComponent implements OnInit {
   private readonly baseUrl = `${environment.apiUrl}`;
 
   contents: Content[] = [];
+  filteredContents: Content[] = [];
   isLoading = true;
   errorMessage = '';
   userRole = '';
 
+  // filtros / opciones
+  availableTags: string[] = TAGS;
+  contentTypes: string[] = ['AUDIO', 'VIDEO'];
+
+  filters = {
+    tag: '',
+    type: '',
+    maxAge: null as number | null,
+    search: ''
+  };
+
   ngOnInit() {
     this.loadUserRole();
     this.loadContents();
-    
   }
 
   loadContents() {
-    
-    //Defaul -> solo visibles
-    const defaultFilters: ContentFilter = {
-      visible: true,
-    };
+    const defaultFilters: ContentFilter = { visible: true };
 
     this.contentService.listContents(defaultFilters).subscribe({
       next: (contents) => {
         this.contents = contents;
+        // poblar opciones
+        this.availableTags = Array.from(new Set(this.contents.flatMap(c => c.tags ?? [])));
+        this.contentTypes = Array.from(new Set(this.contents.map(c => c.type ?? '').filter(t => !!t)));
+        this.applyFilters();
         this.isLoading = false;
       },
 
@@ -106,6 +123,47 @@ export class ShowContentComponent implements OnInit {
 
   getImageUrl(imageID: number): string {
     return getImageUrlByName(imageID);
+  }
+
+  // filtros
+  onSearch(): void {
+    this.applyFilters();
+  }
+
+  onFilterChange(): void {
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    this.filteredContents = this.contents.filter(
+      c => { const s = this.filters.search?.trim().toLowerCase();
+      if (s) {
+        const matchesSearch =
+          c.title.toLowerCase().includes(s) 
+          || c.creador.toLowerCase().includes(s) ||
+          (c.description||'').toLowerCase().includes(s);
+        if (!matchesSearch) return false;
+      }
+
+      if (this.filters.type && c.type !== this.filters.type) return false;
+
+      if (this.filters.maxAge != null) {
+        const minAge = c.minAge || 0;
+        if (minAge > this.filters.maxAge) return false;
+      }
+
+      if (this.filters.tag && this.filters.tag.length > 0) {
+        const contentTags = c.tags || [];
+        if (!contentTags.includes(this.filters.tag)) return false;
+      }
+
+      return true;
+    });
+  }
+
+  clearFilters(): void {
+    this.filters = { tag: '', type: '', maxAge: null, search: '' };
+    this.applyFilters();
   }
 
 }

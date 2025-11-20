@@ -127,6 +127,10 @@ export const routes: Routes = [
                 component: EditProfilesComponent
             },
             {
+                path: 'modify',
+                component: EditProfilesComponent
+            },
+            {
                 path: 'reproduce/:urlId',
                 component: ReproduceContentComponent
             }

@@ -2,8 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Admin } from '../models/admin.model';
+import { Admin as AdminDTO } from '../models/user.model';
 import { Response } from '../models/response.model';
 import { environment } from '../../environments/environment';
+import { Usuario as UsuarioDTO } from '../models/user.model';
+import { Creator as CreatorDTO } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,10 +36,23 @@ export class AdminService {
       });
     });
   }
-
   
-    toggleBlockUser(email: string, blocked: boolean): Observable<any> {
-        return this.http.patch<any>(`${this.baseUrl}/users/${email}/blocked`, { blocked });
-    }
+  updateProfile(adminData: AdminDTO): Observable<any> {
+    const url = `${environment.apiUrl}/admin/users/updateAdmin`;
+    return this.http.patch<any>(url, adminData);
+  }
 
+  toggleBlockUser(email: string, blocked: boolean): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/users/${email}/blocked`, { blocked });
+  }
+
+  updateProfileUser(userData: UsuarioDTO): Observable<any> {
+    const url = `${environment.apiUrl}/admin/users/updateUsuario`;
+    return this.http.patch<any>(url, userData);
+  }
+
+  updateProfileCreator(userCreator: CreatorDTO): Observable<any> {
+    const url = `${environment.apiUrl}/admin/users/updateCreador`;
+    return this.http.patch<any>(url, userCreator);
+  }
 }

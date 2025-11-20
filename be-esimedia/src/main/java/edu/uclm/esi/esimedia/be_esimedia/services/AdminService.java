@@ -164,7 +164,7 @@ public class AdminService {
         if (validateService.isRequiredFieldEmpty(usuarioDTO.getAlias(), 1, 50)) {
             throw new IllegalArgumentException("El alias no puede estar vacío y debe tener entre 1 y 50 caracteres.");
         }
-        if (validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
+        if (!validateService.isBirthDateValid(usuarioDTO.getBirthDate())) {
             throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
         }
     }
@@ -177,7 +177,12 @@ public class AdminService {
             throw new IllegalArgumentException("El alias es obligatorio y debe tener entre 2 y 20 caracteres");
         }
         if (creadorRepository.existsByAlias(creadorDTO.getAlias())) {
-            throw new IllegalArgumentException("El alias ya está registrado");
+            // Comprobar que el alias no pertenece al mismo creador comprobando el email
+            Creador existingCreador = creadorRepository.findByAlias(creadorDTO.getAlias());
+            User user = userRepository.findById(existingCreador.getId()).orElse(null);
+            if (!user.getEmail().equals(creadorDTO.getEmail())) {
+                throw new IllegalArgumentException("El alias ya está registrado");
+            }
         }
 
         // Descripción validar longitud

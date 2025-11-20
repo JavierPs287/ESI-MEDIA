@@ -6,8 +6,37 @@
   <p> <mat-icon>error</mat-icon> {{ errorMessage }} </p>
 </div>
 
+<!-- Search Bar -->
+    <input 
+      type="text" class="search-input" placeholder="Search by title, creador ..."
+      [(ngModel)]="filters.search" (input)="onSearch()">
+      
+
+<!-- Dropdowns -->
+    <div class="filters-row">
+      <select class="filter-dropdown" [(ngModel)]="filters.tag" (ngModelChange)="onFilterChange()">
+        <option value="" disabled>All Tags</option>
+        <option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</option>
+      </select>
+
+      <!-- tipo: select normal -->
+      <select class="filter-dropdown" [(ngModel)]="filters.type" (ngModelChange)="onFilterChange()">
+        <option value="">Tipo contenido</option>
+        <option *ngFor="let t of contentTypes" [value]="t">{{ t }}</option>
+      </select>
+
+      <input
+        type="number"class="filter-dropdown" min="1"placeholder="Edad minima para poder verlo"
+        [(ngModel)]="filters.maxAge"
+        (ngModelChange)="onFilterChange()"/>
+    </div>
+<!-- Clear Filters Button -->
+    <button class="clear-filters-button" (click)="clearFilters()">Limpiar filtros</button>
+    
+    
+
 <div class="content-grid" *ngIf="!isLoading && !errorMessage">
-  <mat-card *ngFor="let content of contents" 
+  <mat-card *ngFor="let content of filteredContents" 
             class="content-card" 
             [class.vip-content]="content.vip"
             [class.hidden-content]="!content.visible"
@@ -56,6 +85,6 @@
   </mat-card>
 </div>
 
-<div *ngIf="!isLoading && !errorMessage && contents.length === 0" class="no-content">
+<div *ngIf="!isLoading && !errorMessage && filteredContents.length === 0" class="no-content">
   <p> <mat-icon>video_library</mat-icon> No hay contenidos disponibles</p>
 </div>

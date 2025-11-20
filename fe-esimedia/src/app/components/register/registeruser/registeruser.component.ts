@@ -122,8 +122,6 @@ export class RegisteruserComponent implements  OnInit {
       const birthDate = new Date(control.value);
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-
       return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
     };
   }

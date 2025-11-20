@@ -156,7 +156,7 @@
     <!-- Foto actual / selección -->
     <ng-container *ngIf="!editMode; else editPhotoBlock">
       <div class="form-field">
-        <label>Foto de perfil actual</label>
+        <label for="foto">Foto de perfil actual</label>
         <div class="photo-current">
           <img [src]="getAvatar()" alt="Foto de perfil actual" class="current-photo">
         </div>
@@ -188,17 +188,16 @@
     </ng-template>
 
     <!-- Cambiar contraseña -->
-    <div class="form-field">
-      <label>Contraseña</label>
+    <div class="form-field" *ngIf="isMe">
+      <label for="Contraseña">Contraseña</label>
       <button type="button" routerLink="/forgotpassword" class="btn-change-password">Cambiar contraseña</button>
     </div>
 
+    <!-- Acciones -->
+    <div class="actions">
+      <button class="btn" type="button" (click)="startEdit()" *ngIf="!editMode">Modificar datos</button>
+      <button type="button" class="btn" (click)="save()" *ngIf="editMode" [disabled]="isSubmitting">Guardar</button>
+      <button class="btn" type="button" (click)="cancelEdit()" *ngIf="editMode">Cancelar</button>
+    </div>
   </form>
-</div>
-
-<!-- Acciones -->
-<div class="actions">
-  <button class="btn" type="button" (click)="startEdit()" *ngIf="!editMode">Modificar datos</button>
-  <button class="btn" type="submit" (click)="save()" [disabled]="!canSave()" *ngIf="editMode" (click)="save()">Guardar</button>
-  <button class="btn" type="button" (click)="cancelEdit()" *ngIf="editMode">Cancelar</button>
 </div>

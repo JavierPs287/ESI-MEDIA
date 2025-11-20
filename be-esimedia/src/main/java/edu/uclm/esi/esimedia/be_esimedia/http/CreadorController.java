@@ -2,6 +2,8 @@ package edu.uclm.esi.esimedia.be_esimedia.http;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.USER_UPDATE_MESSAGE;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,8 +26,8 @@ public class CreadorController {
     }
 
     @PatchMapping("/profile")
-    public ResponseEntity<String> updateProfile(@RequestBody CreadorDTO creadorDTO) {
+    public ResponseEntity<Map<String,String>> updateProfile(@RequestBody CreadorDTO creadorDTO) {
         creadorService.update(creadorDTO);
-        return ResponseEntity.ok(USER_UPDATE_MESSAGE);
+        return ResponseEntity.ok(Map.of("message", USER_UPDATE_MESSAGE));
     }
 }

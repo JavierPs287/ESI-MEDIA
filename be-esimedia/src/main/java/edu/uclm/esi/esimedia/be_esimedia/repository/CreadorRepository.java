@@ -8,4 +8,6 @@ import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
 @Repository
 public interface CreadorRepository extends MongoRepository<Creador, String> {
     boolean existsByAlias(String alias);
+
+    Creador findByAlias(String alias);
 }
