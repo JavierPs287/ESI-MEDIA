@@ -3,7 +3,7 @@ package edu.uclm.esi.esimedia.be_esimedia;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import edu.uclm.esi.esimedia.be_esimedia.services.AuthService;
+import edu.uclm.esi.esimedia.be_esimedia.services.EmailService;
 import edu.uclm.esi.esimedia.be_esimedia.services.TokenService;
 import edu.uclm.esi.esimedia.be_esimedia.services.UserService;
 import edu.uclm.esi.esimedia.be_esimedia.services.ValidateService;
@@ -69,6 +70,15 @@ class UserServiceTest {
 
     @Mock
     AuthService authService;
+
+    @Mock
+    TokenService tokenService;
+
+    @Mock
+    EmailService emailService;
+
+    @Mock
+    PasswordHistoryRepository passwordHistoryRepository;
 
     @InjectMocks
     UserService userService;
@@ -152,7 +162,7 @@ class UserServiceTest {
     void startPasswordReset_userAbsent_noException() {
         when(userRepository.findByEmail("no@one.com")).thenReturn(null);
         // Should not throw
-        userService.startPasswordReset("no@one.com", null, null, tokenRepository);
+        userService.startPasswordReset("no@one.com");
     }
 
     @Test
@@ -160,7 +170,7 @@ class UserServiceTest {
         when(authService.isPasswordBlacklisted("123456")).thenReturn(true);
 
         assertThrows(InvalidPasswordException.class, () ->
-                userService.resetPassword("tok", "123456", null, null));
+                userService.resetPassword("tok", "123456"));
     }
 
     @Test
@@ -174,20 +184,20 @@ class UserServiceTest {
         ForgotPasswordToken resetToken = new ForgotPasswordToken(new ForgotPasswordTokenDTO("tkn", u, Instant.now().plusSeconds(3600), false));
 
         when(authService.isPasswordBlacklisted("newPass")).thenReturn(false);
-        TokenService tokenService = Mockito.mock(TokenService.class);
         Mockito.doNothing().when(tokenService).validatePasswordResetToken("tkn");
 
         when(tokenRepository.findByToken("tkn")).thenReturn(resetToken);
         when(validateService.isRequiredFieldEmpty("newPass", 1, 255)).thenReturn(false);
         when(validateService.isPasswordSecure("newPass")).thenReturn(true);
         when(passwordEncoder.matches("newPass", resetToken.getUser().getPassword())).thenReturn(false);
-        PasswordHistoryRepository phRepo = org.mockito.Mockito.mock(PasswordHistoryRepository.class);
-        when(phRepo.findTop5ByUserIdOrderByCreatedAtDesc("uid")).thenReturn(List.of());
+        when(passwordHistoryRepository.findTop5ByUserIdOrderByCreatedAtDesc("uid")).thenReturn(List.of());
+        when(passwordEncoder.encode(anyString())).thenReturn("newHash");
 
-        userService.resetPassword("tkn", "newPass", tokenService, phRepo);
+        userService.resetPassword("tkn", "newPass");
 
-        verify(phRepo).save(any(PasswordHistory.class));
+        verify(passwordHistoryRepository).save(any(PasswordHistory.class));
         verify(tokenRepository).save(any(ForgotPasswordToken.class));
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
