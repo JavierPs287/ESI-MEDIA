@@ -84,9 +84,11 @@ public class CreadorService {
         // Validar que los campos son validos
         validateCreadorUpdateFields(creadorDTO);
 
+        String password = user.getPassword();
         // Convertir DTO a entidad
         user.initializeFromDTO(creadorDTO);
         creador.initializeFromDTO(creadorDTO);
+        user.setPassword(password); // Mantener la contraseña actual
 
         try {
             userRepository.save(user);
