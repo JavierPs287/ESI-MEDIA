@@ -15,13 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
-import edu.uclm.esi.esimedia.be_esimedia.constants.Constants;
 import edu.uclm.esi.esimedia.be_esimedia.dto.AdminDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UsuarioDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.UpdatingException;
-import edu.uclm.esi.esimedia.be_esimedia.exceptions.InvalidTokenException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
 import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.Creador;
@@ -256,8 +254,8 @@ public class AdminService {
 
         User user = userRepository.findByEmail(creadorDTO.getEmail());
         if (user == null) {
-            logger.error("Usuario con email {} no encontrado", creadorDTO.getEmail());
-            throw new NoSuchElementException("User no encontrado");
+            logger.error(USER_SPECIFIC_ERROR_MESSAGE, creadorDTO.getEmail());
+            throw new NoSuchElementException(USER_ERROR_MESSAGE);
         }
 
         Optional<Creador> optCreador = creadorRepository.findById(user.getId());

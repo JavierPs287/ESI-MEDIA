@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.ERROR_KEY;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.EMAIL_KEY;
+import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.EMAIL_MESSAGE;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.JWT_COOKIE_NAME;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.MESSAGE_KEY;
 import static edu.uclm.esi.esimedia.be_esimedia.constants.Constants.SUCCESS_KEY;
@@ -53,7 +54,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
     }
 
-    // TODO Quitar toda lógica de Controller
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> loginUsuario(@RequestBody LoginRequest loginRequest){
         try {
@@ -148,7 +148,7 @@ public class UserController {
         
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("message", "Logout exitoso"));
+                .body(Map.of(MESSAGE_KEY, "Logout exitoso"));
     }
 
     @PostMapping("/verify-token")
@@ -180,7 +180,7 @@ public class UserController {
         public ResponseEntity<Map<String, Object>> issueTokenAfterTotp(@RequestBody Map<String, String> body) {
             String email = body.get(EMAIL_KEY);
             if (email == null) {
-                return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email requerido"));
+                return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, EMAIL_MESSAGE));
             }
             User user = userService.findByEmail(email);
             if (user == null) {
@@ -208,7 +208,7 @@ public class UserController {
      */
     @PostMapping("/2fa/verify")
     public ResponseEntity<Map<String, Object>> verifyTotp(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
+        String email = body.get(EMAIL_KEY);
         String code = body.get("code");
         if (email == null || code == null) {
             return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, false, ERROR_KEY, "Email y código requeridos"));
@@ -218,11 +218,11 @@ public class UserController {
         boolean has3FA = user.isThreeFaEnabled();
         Map<String, Object> response = new HashMap<>();
         response.put("role", user.getRole());
-        response.put("userId", user.getId());
-        response.put("email", user.getEmail());
+        response.put(USER_KEY, user.getId());
+        response.put(EMAIL_KEY, user.getEmail());
         if (has3FA){
             response.put("3faRequired", true);
-            response.put("message", "2FA requerido");
+            response.put(MESSAGE_KEY, "2FA requerido");
                 // No enviar token ni cookie
             return ResponseEntity.ok(response);
         }
@@ -237,7 +237,7 @@ public class UserController {
      */
     @PostMapping("/2fa")
     public ResponseEntity<Map<String, String>> update2FA(@RequestBody Map<String, Object> body) {
-        String email = (String) body.get("email");
+        String email = (String) body.get(EMAIL_KEY);
         Boolean enable2FA = (Boolean) body.get("enable2FA");
         if (email == null || enable2FA == null) {
             return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email y enable2FA requeridos"));
@@ -257,7 +257,7 @@ public class UserController {
     @PostMapping("/2fa/activate")
     public ResponseEntity<Map<String, String>> activar2FA(@RequestBody Map<String, String> body) {
         try {
-            String email = body.get("userId");
+            String email = body.get(EMAIL_KEY);
             if (email == null || email.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, "Email no proporcionado"));
             }
@@ -277,12 +277,12 @@ public class UserController {
          */
         @PostMapping("/send-3fa-code")
         public ResponseEntity<Map<String, String>> sendThreeFactorCode(@RequestBody Map<String, String> body) {
-            String email = body.get("email");
+            String email = body.get(EMAIL_KEY);
             if (email == null || email.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Email requerido"));
+                return ResponseEntity.badRequest().body(Map.of(ERROR_KEY, EMAIL_MESSAGE));
             }
             authService.sendThreeFactorCode(email);
-            return ResponseEntity.ok(Map.of("message", "Código enviado por email"));
+            return ResponseEntity.ok(Map.of(MESSAGE_KEY, "Código enviado por email"));
         }
 
         /**
@@ -290,10 +290,10 @@ public class UserController {
          */
         @PostMapping("/verify-3fa-code")
         public ResponseEntity<Map<String, Object>> verifyThreeFactorCode(@RequestBody Map<String, String> body) {
-            String email = body.get("email");
+            String email = body.get(EMAIL_KEY);
             String code = body.get("code");
             if (email == null || code == null || email.isEmpty() || code.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of(SUCCESS_KEY, false, "error", "Email y código requeridos"));
+                return ResponseEntity.badRequest().body(Map.of(SUCCESS_KEY, false, ERROR_KEY, "Email y código requeridos"));
             }
             boolean valid = authService.verifyThreeFactorCode(email, code);
             if (valid) {
@@ -310,12 +310,12 @@ public class UserController {
                 response.put("success", true);
                 response.put("role", user.getRole());
                 response.put("userId", user.getId());
-                response.put("email", user.getEmail());
+                response.put(EMAIL_KEY, user.getEmail());
                 return ResponseEntity.ok()
                         .header(HttpHeaders.SET_COOKIE, cookie.toString())
                         .body(response);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "error", "Código incorrecto o expirado"));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(SUCCESS_KEY, false, ERROR_KEY, "Código incorrecto o expirado"));
             }
         }
     
