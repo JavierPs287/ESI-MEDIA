@@ -1,11 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
-import { Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors} from '@angular/forms';
 import { FIELDS, DEPARTMENTS } from '../../constants/form-constants';
 import { AVATAR_OPTIONS } from '../../constants/avatar-constants';
-import { N } from '@angular/cdk/keycodes';
 import { Admin, Creator, Usuario } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { UsuarioService} from '../../services/usuario.service';
@@ -83,12 +80,12 @@ ngOnInit(): void {
 }
 
 private initializeFromState(user: any): void {
-  this.name = user.name ?? '';
-  this.lastName = user.lastName ?? '';
-  this.email = user.email ?? '';
-  this.imageId = user.imageId ?? null;
+  this.name = user.name;
+  this.lastName = user.lastName;
+  this.email = user.email;
+  this.imageId = user.imageId || null;
+  const role = user.role;
 
-  const role = (user.role).toString();
     if (role === 'USUARIO') {
       this.editedUser = user as Usuario;
       this.vip = (this.editedUser as Usuario).vip ? 'Eres VIP' : 'No eres VIP';
@@ -99,16 +96,15 @@ private initializeFromState(user: any): void {
       this.alias = (this.editedUser as Creator).alias;
       this.description = (this.editedUser as Creator).description || '';
       this.field = (this.editedUser as Creator).field ;
-      this.type = (this.editedUser as Creator).type ;
+      this.type = (this.editedUser as Creator).type || '';
     } else if (role === 'ADMIN') {
       this.editedUser = user as Admin;
       this.department = (this.editedUser as Admin).department ;
     } else {
-      // rol desconocido: redirigir a unauthorized
-      this.router.navigate(['/unauthorized']);
+      alert ('Rol de usuario no reconocido');
       return;
     }
-    this.role = user.role ?? '';
+  this.role = user.role;
   }
 
   private initUser(): void {
@@ -128,7 +124,7 @@ private initializeFromState(user: any): void {
               this.alias = (this.editedUser as Creator).alias || '';
               this.description = (this.editedUser as Creator).description || '';
               this.field = (this.editedUser as Creator).field;
-              this.type = (this.editedUser as Creator).type;
+              this.type = (this.editedUser as Creator).type || '';
             } else if (user.role === 'ADMIN') {
               this.editedUser = user as Admin;
               this.department = (this.editedUser as Admin).department;
@@ -150,15 +146,15 @@ private initializeFromState(user: any): void {
 
   private initForm(): void {
     this.editForm = this.fb.group({
-      name: [ this.editedUser?.name || '' ],
-      lastName: [ this.editedUser?.lastName || ''],
-      alias: [ (this.editedUser as any)?.alias || ''],
-      birthDate: [ (this.editedUser as any)?.birthDate || '' ],
-      vip: [ !!(this.editedUser as any)?.vip ],
-      description: [ (this.editedUser as any)?.description || '' ],
-      field: [ (this.editedUser as any)?.field || '' ],
-      department: [ (this.editedUser as any)?.department || '' ],
-      imageId: [ this.selectedPhoto || null ],
+      name: [ '' ],
+      lastName: [ ''],
+      alias: [  ''],
+      birthDate: [ '' ],
+      vip: [ false ],
+      description: [ '' ],
+      field: [ '' ],
+      department: [ '' ],
+      imageId: [ null ],
     });
   }
 //VALIDATORS
@@ -278,13 +274,13 @@ getbirthDate(): string {
     const v = this.editForm.getRawValue(); // incluye campos deshabilitados
     const existing = this.editedUser as Usuario | undefined;
     return {
-      name: v.name ?? this.name,
-      lastName: v.lastName ?? this.lastName,
+      name: v.name || this.name,
+      lastName: v.lastName || this.lastName,
       email: this.email,
-      alias: v.alias,
-      birthDate: v.birthDate ? new Date(v.birthDate).toISOString() : (existing?.birthDate ?? ''),
-      vip: !!v.vip,
-      imageId: v.imageId,
+      alias: v.alias || this.alias,
+      birthDate: v.birthDate ? new Date(v.birthDate).toISOString() : this.birthDate,
+      vip: v.vip,
+      imageId: v.imageId || this.selectedPhoto,
       role: 'USUARIO',
     };
   }
@@ -294,15 +290,14 @@ getbirthDate(): string {
     const v = this.editForm.getRawValue();
     const existing = this.editedUser as Creator | undefined;
     return {
-      name: v.name ?? this.name,
-      lastName: v.lastName ?? this.lastName,
+      name: v.name || this.name,
+      lastName: v.lastName || this.lastName,
       email: this.email,
-      alias: v.alias ?? existing?.alias ?? '',
-      imageId: v.imageId ?? this.selectedPhoto ?? this.imageId ?? existing?.imageId ?? null,
+      alias: v.alias || this.alias,
+      imageId: v.imageId || this.selectedPhoto || null,
       role: 'CREADOR',
-      description: v.description ?? existing?.description ?? '',
-      field: v.field ?? existing?.field ?? '',
-      type: existing?.type ?? this.type ?? ''
+      description: v.description || this.description,
+      field: v.field || this.field,
     };
   }
 
@@ -311,12 +306,12 @@ getbirthDate(): string {
     const v = this.editForm.getRawValue();
     const existing = this.editedUser as Admin | undefined;
     return {
-      name: v.name ?? this.name,
-      lastName: v.lastName ?? this.lastName,
+      name: v.name || this.name,
+      lastName: v.lastName || this.lastName,
       email: this.email,
-      imageId: v.imageId,
+      imageId: v.imageId || this.selectedPhoto,
       role: 'ADMIN',
-      department: v.department ?? existing?.department ?? ''
+      department: v.department || this.department
     };
   }
 
@@ -332,7 +327,6 @@ getbirthDate(): string {
         this.usuarioService.updateProfile(userData).subscribe({
           next: (response) => {
             alert('Perfil de usuario actualizado correctamente');
-            this.router.navigate(['/menu/user']);
             this.isSubmitting = false;
           },
           error: (error) => {
@@ -345,7 +339,6 @@ getbirthDate(): string {
         this.creatorService.updateProfile(creatorData).subscribe({
           next: (response) => {
             alert('Perfil de creador actualizado correctamente');
-            this.router.navigate(['/menu/creator']);
           this.isSubmitting = false;
           },
           error: (error) => {
@@ -358,7 +351,6 @@ getbirthDate(): string {
         this.adminService.updateProfile(adminData).subscribe({
           next: (response) => {
             alert('Perfil de administrador actualizado correctamente');
-            this.router.navigate(['/menu/admin']);
             this.isSubmitting = false;
           },
           error: (error) => {

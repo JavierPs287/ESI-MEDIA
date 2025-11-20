@@ -22,5 +22,5 @@ export interface Creator extends User {
   alias: string;
   description?: string;
   field: string;
-  type: string;
+  type?: string;
 }

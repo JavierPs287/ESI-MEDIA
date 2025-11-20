@@ -108,28 +108,25 @@ export class ShowContentComponent implements OnInit {
   }
 
   applyFilters(): void {
-    this.filteredContents = this.contents.filter(c => {
-      // search (title/creador/description)
-      const s = this.filters.search?.trim().toLowerCase();
+    this.filteredContents = this.contents.filter(
+      c => { const s = this.filters.search?.trim().toLowerCase();
       if (s) {
         const matchesSearch =
-          (c.title ?? '').toLowerCase().includes(s) ||
-          (c.creador ?? '').toLowerCase().includes(s) ||
-          (c.description ?? '').toLowerCase().includes(s);
+          c.title.toLowerCase().includes(s) 
+          || c.creador.toLowerCase().includes(s) ||
+          (c.description||'').toLowerCase().includes(s);
         if (!matchesSearch) return false;
       }
 
-      // type
-      if (this.filters.type && (c.type ?? '') !== this.filters.type) return false;
+      if (this.filters.type && c.type !== this.filters.type) return false;
 
-      // maxAge: mostrar contenido cuyo minAge <= maxAge (si se especifica)
       if (this.filters.maxAge != null) {
-        const minAge = c.minAge ?? 0;
+        const minAge = c.minAge || 0;
         if (minAge > this.filters.maxAge) return false;
       }
-      // tags: exigir que el contenido tenga todos los tags seleccionados (cambia a any si prefieres)
+
       if (this.filters.tag && this.filters.tag.length > 0) {
-        const contentTags = c.tags ?? [];
+        const contentTags = c.tags || [];
         if (!contentTags.includes(this.filters.tag)) return false;
       }
 
