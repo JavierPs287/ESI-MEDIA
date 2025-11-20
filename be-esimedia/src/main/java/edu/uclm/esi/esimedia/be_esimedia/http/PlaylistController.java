@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.uclm.esi.esimedia.be_esimedia.dto.ContenidoDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.PlaylistDTO;
 import edu.uclm.esi.esimedia.be_esimedia.model.Playlist;
+import edu.uclm.esi.esimedia.be_esimedia.repository.ContenidoRepository;
 import edu.uclm.esi.esimedia.be_esimedia.services.PlaylistService;
 import edu.uclm.esi.esimedia.be_esimedia.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,11 +38,13 @@ public class PlaylistController {
 
     private final PlaylistService playlistService;
     private final JwtUtils jwtUtils;
+    private final ContenidoRepository contenidoRepository;
     
     @Autowired
-    public PlaylistController(PlaylistService playlistService, JwtUtils jwtUtils) {
+    public PlaylistController(PlaylistService playlistService, JwtUtils jwtUtils, ContenidoRepository contenidoRepository) {
         this.playlistService = playlistService;
         this.jwtUtils = jwtUtils;
+        this.contenidoRepository = contenidoRepository;
     }
     
     @PostMapping("/listPlaylists")
@@ -105,6 +108,15 @@ public class PlaylistController {
             
             // Obtener el contenido de la playlist
             List<ContenidoDTO> contenidos = new ArrayList<>();
+            String[] contenidoIds = playlist.getContenidoIds();
+            
+            if (contenidoIds != null && contenidoIds.length > 0) {
+                for (String urlId : contenidoIds) {
+                    contenidoRepository.findByUrlId(urlId).ifPresent(contenido -> 
+                        contenidos.add(new ContenidoDTO(contenido))
+                    );
+                }
+            }
             
             // Construir la respuesta
             Map<String, Object> response = new HashMap<>();

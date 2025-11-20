@@ -1,18 +1,17 @@
 package edu.uclm.esi.esimedia.be_esimedia;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.OptimisticLockingFailureException;
 
@@ -22,6 +21,7 @@ import edu.uclm.esi.esimedia.be_esimedia.dto.CreadorDTO;
 import edu.uclm.esi.esimedia.be_esimedia.dto.UserDTO;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.RegisterException;
 import edu.uclm.esi.esimedia.be_esimedia.exceptions.UpdatingException;
+import edu.uclm.esi.esimedia.be_esimedia.model.Admin;
 import edu.uclm.esi.esimedia.be_esimedia.model.User;
 import edu.uclm.esi.esimedia.be_esimedia.repository.AdminRepository;
 import edu.uclm.esi.esimedia.be_esimedia.repository.CreadorRepository;
@@ -78,13 +78,13 @@ class AdminServiceTest {
             return u;
         });
 
-        doNothing().when(adminRepository).save(any());
+        when(adminRepository.save(any(Admin.class))).thenAnswer(inv -> inv.getArgument(0));
         doNothing().when(authService).validateUserCreation(any(User.class));
 
         adminService.registerAdmin(dto);
 
         verify(userRepository, times(1)).save(any(User.class));
-        verify(adminRepository, times(1)).save(any());
+        verify(adminRepository, times(1)).save(any(Admin.class));
     }
 
     @Test

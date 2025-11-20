@@ -57,7 +57,7 @@ public class PlaylistService {
 
         // Validar primero que PlaylistDTO no sea null
         if (playlistDTO == null) {
-            logger.error("El objeto PlaylistDTO es nulo");
+            logger.error("PlaylistDTO es nulo");
             throw new PlaylistException("El objeto PlaylistDTO es nulo");
         }
 
@@ -103,7 +103,7 @@ public class PlaylistService {
     public void updatePlaylist(PlaylistDTO playlistDTO, String userId) {
         // Validar que PlaylistDTO no sea null
         if (playlistDTO == null) {
-            logger.error("El objeto PlaylistDTO es nulo");
+            logger.error("PlaylistDTO es nulo");
             throw new PlaylistException("El objeto PlaylistDTO es nulo");
         }
 
@@ -154,7 +154,7 @@ public class PlaylistService {
     public void deletePlaylist(String playlistId, String userId) {
         // Validar que el ID de la playlist no sea nulo o vacío
         if (playlistId == null || playlistId.isEmpty()) {
-            logger.error("El ID de la playlist no puede estar vacío");
+            logger.error("El ID de la playlist está vacío");
             throw new PlaylistException("El ID de la playlist no puede estar vacío");
         }
 
@@ -182,7 +182,7 @@ public class PlaylistService {
 
     public Playlist getPlaylistById(String playlistId) {
         if (playlistId == null || playlistId.isEmpty()) {
-            logger.error("El ID de la playlist no puede estar vacío");
+            logger.error("El ID de la playlist está vacío");
             throw new PlaylistException("El ID de la playlist no puede estar vacío");
         }
 

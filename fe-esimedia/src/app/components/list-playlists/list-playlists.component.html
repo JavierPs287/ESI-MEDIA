@@ -56,6 +56,10 @@
                 <mat-icon>play_arrow</mat-icon>
                 Ver Playlist
               </button>
+              <button mat-raised-button color="warn" (click)="deletePlaylist(playlist.id!, playlist.name); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+                Eliminar
+              </button>
             </mat-card-actions>
           </mat-card>
         }
