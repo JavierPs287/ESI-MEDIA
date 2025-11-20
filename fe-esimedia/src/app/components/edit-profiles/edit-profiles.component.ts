@@ -8,12 +8,12 @@ import { AVATAR_OPTIONS } from '../../constants/avatar-constants';
 import { N } from '@angular/cdk/keycodes';
 import { Admin, Creator, Usuario } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { getAvatarUrlById } from '../../services/image.service';
 
 @Component({
   selector: 'app-edit-profiles',
-  imports: [ CommonModule, ReactiveFormsModule ],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './edit-profiles.component.html',
   styleUrl: './edit-profiles.component.css'
 })
@@ -36,7 +36,7 @@ export class EditProfilesComponent {
   // Datos usuario y creador
   alias: string = '';
   // Datos usuario
-  vip: boolean = false;
+  vip: string = '';
   birthDate: string = '';
   // Datos creador
   description: string = '';
@@ -68,7 +68,7 @@ export class EditProfilesComponent {
           this.imageId = user.imageId || null;
             if(user.role === 'USUARIO') {
               this.editedUser = user as Usuario;
-              this.vip = (this.editedUser as Usuario).vip;
+              this.vip = (this.editedUser as Usuario).vip ? 'Eres VIP' : 'No eres VIP';
               this.birthDate = this.getbirthDate();
               this.alias = (this.editedUser as Usuario).alias || '';
               console.log(this.birthDate);
@@ -196,16 +196,20 @@ getbirthDate(): string {
 
     if (this.role === 'USUARIO') {
       this.enable('birthDate', [Validators.required, this.minAgeValidator(4)]);
+      this.editForm.patchValue({ birthDate: this.getbirthDate() || '' }, { emitEvent: false });
       this.enable('vip');
     }
 
     if (this.role === 'CREADOR') {
       this.enable('description', [Validators.maxLength(500)]);
+      this.editForm.patchValue({ description: (this.editedUser as Creator).description || '' }, { emitEvent: false });
       this.enable('field', [Validators.required]);
+      this.editForm.patchValue({ field: (this.editedUser as Creator).field || '' }, { emitEvent: false });
     }
 
     if (this.role === 'ADMIN') {
       this.enable('department', [Validators.required]);
+      this.editForm.patchValue({ department: (this.editedUser as Admin).department || '' }, { emitEvent: false });
     }
   }
 
@@ -214,15 +218,16 @@ getbirthDate(): string {
     this.setReadMode();
   }
 
-  save() {
-    // marcar para mostrar errores si los hay
-    Object.keys(this.editForm.controls).forEach(k => {
-      const c = this.editForm.get(k);
-      if (c && !c.disabled) c.markAsTouched();
-    });
+  canSave(): boolean {
+    const anyTouched = Object.values(this.editForm.controls).some(c => c.touched);
+    const anyChanged = this.editForm.dirty;
+    return anyTouched && anyChanged;
+  }
 
-    if (this.editForm.invalid) return;
-    this.setReadMode();
+  save() {
+    if (!this.canSave()) return;
+
+
   }
 
 }

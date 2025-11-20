@@ -190,7 +190,7 @@
     <!-- Cambiar contraseña -->
     <div class="form-field">
       <label>Contraseña</label>
-      <button type="button" class="btn-change-password">Cambiar contraseña</button>
+      <button type="button" routerLink="/forgotpassword" class="btn-change-password">Cambiar contraseña</button>
     </div>
 
   </form>
@@ -199,6 +199,6 @@
 <!-- Acciones -->
 <div class="actions">
   <button class="btn" type="button" (click)="startEdit()" *ngIf="!editMode">Modificar datos</button>
-  <button class="btn" type="submit" *ngIf="editMode" (click)="save()">Guardar</button>
+  <button class="btn" type="submit" (click)="save()" [disabled]="!canSave()" *ngIf="editMode" (click)="save()">Guardar</button>
   <button class="btn" type="button" (click)="cancelEdit()" *ngIf="editMode">Cancelar</button>
 </div>
