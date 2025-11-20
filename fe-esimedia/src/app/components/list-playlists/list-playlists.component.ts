@@ -94,7 +94,13 @@ private readonly playlistService = inject(PlaylistService);
     }
   }
 
-  deletePlaylist(playlistId: string, playlistName: string): void {
+  deletePlaylist(playlistId: string, playlistName: string, isFavorite?: boolean): void {
+    // Protección adicional para evitar eliminar la playlist de Favoritos
+    if (isFavorite) {
+      this.error = 'La playlist de Favoritos no puede ser eliminada';
+      return;
+    }
+    
     if (confirm(`¿Estás seguro de que deseas eliminar la playlist "${playlistName}"?`)) {
       this.playlistService.deletePlaylist(playlistId).subscribe({
         next: () => {
@@ -104,7 +110,7 @@ private readonly playlistService = inject(PlaylistService);
         },
         error: (err) => {
           console.error('Error al eliminar la playlist:', err);
-          this.error = 'Error al eliminar la playlist';
+          this.error = err.error?.error || 'Error al eliminar la playlist';
         }
       });
     }
