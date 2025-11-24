@@ -261,12 +261,7 @@ public class AuthService {
         // BLOQUEO PROGRESIVO
         // ========================================
         if (user.getBlockedUntil() != null && user.getBlockedUntil().isAfter(now)) {
-            java.time.ZoneId zoneMadrid = java.time.ZoneId.of("Europe/Madrid");
-            java.time.ZonedDateTime blockedMadrid = user.getBlockedUntil().atZone(zoneMadrid);
-            String fechaFormateada = blockedMadrid.format(
-                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-            );
-            throw new IllegalArgumentException("Usuario bloqueado hasta " + fechaFormateada);
+            throw new IllegalArgumentException("Usuario bloqueado hasta " + user.getBlockedUntil());
         }
         user.setBlocked(false);
 

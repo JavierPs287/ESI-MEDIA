@@ -107,7 +107,7 @@
 
 <!-- Modal de Playlists -->
 <div *ngIf="showPlaylistModal" class="modal-overlay" (click)="closePlaylistModal()" (keydown.escape)="closePlaylistModal()" tabindex="-1">
-  <div class="modal-content" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <dialog class="modal-content" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" open aria-labelledby="modal-title">
     <div class="modal-header">
       <h2 id="modal-title">Añadir a Playlist</h2>
       <button class="close-btn" (click)="closePlaylistModal()" aria-label="Cerrar modal">&times;</button>
@@ -248,5 +248,5 @@
         </ul>
       </div>
     </div>
-  </div>
+  </dialog>
 </div>

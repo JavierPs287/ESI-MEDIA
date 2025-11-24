@@ -11,8 +11,8 @@
 
   <!-- Modal -->
   @if (showModal) {
-    <div class="modal-overlay" (click)="closeModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-overlay" (click)="closeModal()" (keydown.escape)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
         <div class="modal-header">
           <h2>Mis Playlists</h2>
           <button class="close-btn" (click)="closeModal()">&times;</button>
